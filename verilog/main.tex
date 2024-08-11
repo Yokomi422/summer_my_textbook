@@ -1,0 +1,361 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+% listingsの設定
+\lstset{
+    breaklines = true,
+    language = Verilog,
+    numbers = left,
+    numberstyle = \tiny,
+    stepnumber = 1,
+    numbersep = 5pt,
+    frame = single,
+    basicstyle = \ttfamily,
+    tabsize = 2,
+    captionpos = t, % キャプションをコードの上に配置
+    showstringspaces = false,
+    title=\textbf{コード} % キャプションの前に表示するテキストを設定
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RE,RO]{\leftmark}
+
+\title{コンピュータアーキテクチャレポート}
+\author{03-240431 塚田怜}
+\begin{document}
+
+\maketitle
+
+\section{課題1 更にアーキテクチャな者達}
+CA02の「RISC-Vのいくつかの命令をデコードする回路を作ってみよう」という課題を解いてみた。
+
+RISC-Vの命令セットフォーマットは以下の6つの形式に分類される。
+
+\vspace{0.5cm}
+
+% R-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{R-type} \\
+        \hline
+        \multicolumn{7}{|c|}{funct7} & \multicolumn{5}{c|}{rs2} & \multicolumn{5}{c|}{rs1} & \multicolumn{3}{c|}{funct3} & \multicolumn{5}{c|}{rd} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{7}{|c|}{31:25} & \multicolumn{5}{c|}{24:20} & \multicolumn{5}{c|}{19:15} & \multicolumn{3}{c|}{14:12} & \multicolumn{5}{c|}{11:7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+% I-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{I-type} \\
+        \hline
+        \multicolumn{12}{|c|}{imm[11:0]} & \multicolumn{5}{c|}{rs1} & \multicolumn{3}{c|}{funct3} & \multicolumn{5}{c|}{rd} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{12}{|c|}{31:20} & \multicolumn{5}{c|}{19:15} & \multicolumn{3}{c|}{14:12} & \multicolumn{5}{c|}{11:7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+% S-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{S-type} \\
+        \hline
+        \multicolumn{7}{|c|}{imm[11:5]} & \multicolumn{5}{c|}{rs2} & \multicolumn{5}{c|}{rs1} & \multicolumn{3}{c|}{funct3} & \multicolumn{5}{c|}{imm[4:0]} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{7}{|c|}{31:25} & \multicolumn{5}{c|}{24:20} & \multicolumn{5}{c|}{19:15} & \multicolumn{3}{c|}{14:12} & \multicolumn{5}{c|}{11:7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+% B-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{B-type} \\
+        \hline
+        \multicolumn{1}{|c|}{imm[12]} & \multicolumn{6}{c|}{imm[10:5]} & \multicolumn{5}{c|}{rs2} & \multicolumn{5}{c|}{rs1} & \multicolumn{3}{c|}{funct3} & \multicolumn{4}{c|}{imm[4:1]} & \multicolumn{1}{c|}{imm[11]} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{1}{|c|}{31} & \multicolumn{6}{c|}{30:25} & \multicolumn{5}{c|}{24:20} & \multicolumn{5}{c|}{19:15} & \multicolumn{3}{c|}{14:12} & \multicolumn{4}{c|}{11:8} & \multicolumn{1}{c|}{7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+% U-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{U-type} \\
+        \hline
+        \multicolumn{20}{|c|}{imm[31:12]} & \multicolumn{5}{c|}{rd} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{20}{|c|}{31:12} & \multicolumn{5}{c|}{11:7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+% J-typeの命令フォーマット
+\begin{center}
+    \begin{tabular}{|*{32}{c|}}
+        \hline
+        \multicolumn{32}{|c|}{J-type} \\
+        \hline
+        \multicolumn{1}{|c|}{imm[20]} & \multicolumn{10}{c|}{imm[10:1]} & \multicolumn{8}{c|}{imm[19:12]} & \multicolumn{1}{c|}{imm[11]} & \multicolumn{5}{c|}{rd} & \multicolumn{7}{c|}{opcode} \\
+        \hline
+        \multicolumn{1}{|c|}{31} & \multicolumn{10}{c|}{30:21} & \multicolumn{8}{c|}{20:12} & \multicolumn{1}{c|}{11} & \multicolumn{5}{c|}{11:7} & \multicolumn{7}{c|}{6:0} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+本レポートでは、CA03で扱ったRISC-VIの命令セットに関して32bitの命令を引数として受け取り、opcode、funct3、funct7、rs1、rs2、rd、immをデコードするモジュールをVerilogで
+実装した。6種類のタイプごとに命令をまとめると、以下のようになる。
+
+\begin{itemize}
+	\item R-type
+	\begin{itemize}
+		\item ADD
+		\item SUB
+		\item SLT
+		\item SLTU
+		\item AND
+		\item OR
+		\item XOR
+		\item SLL
+		\item SRL
+		\item SRA
+	\end{itemize}
+
+	\item I-type
+	\begin{itemize}
+		\item ADDI
+		\item SLTI
+		\item SLTIU
+		\item ANDI
+		\item ORI
+		\item XORI
+		\item SLLI
+		\item SRLI
+		\item SRAI
+		\item LW
+		\item LH
+		\item LHU
+	\end{itemize}
+	\item U-type
+	\begin{itemize}
+		\item LUI
+		\item AUIPC
+	\end{itemize}
+	\item J-type
+		\begin{itemize}
+			\item JAL
+		\end{itemize}
+	\item B-type
+	\begin{itemize}
+		\item BEQ
+		\item BNE
+		\item BLT
+		\item BGE
+		\item BLTU
+		\item BGEU
+	\end{itemize}
+	\item S-type
+	\begin{itemize}
+		\item SH
+		\item SW
+	\end{itemize}
+\end{itemize}
+
+RISC-VIのデコーダをListing 1に示し、テストベンチをListing 2に示す。RISC-Vでは
+命令の中でrs1やopcodeの場所が固定されていて、immの位置が命令によって異なるため、
+immのデコードを行うときにはimmを判別する必要がある。そのため、Decoderモジュールではimmのタイプを示すimm\_typeを追加した。
+
+テストベンチによって、ADD、JAL、BEQ、SWの命令をデコードして、opcodeやrs、functを出力すること
+できた。デコーダの実装後はCPUを実装することで、RISC-VIの命令を実行することができる。
+
+
+\begin{lstlisting}[caption={Decoderモジュール}]
+	module Decoder(
+	clk,
+	instruction,
+	opcode,
+	rd,
+	funct3,
+	funct7,
+	rs1,
+	rs2,
+	imm,
+	imm_type
+);
+	input clk;
+	input [31:0] instruction;
+	output reg [6:0] opcode;
+	output reg [4:0] rd;
+	output reg [2:0] funct3;
+	output reg [6:0] funct7;
+	output reg [4:0] rs1;
+	output reg [4:0] rs2;
+	output reg [31:0] imm;
+	output reg [2:0] imm_type;
+
+	always @(posedge clk) begin
+		opcode <= instruction[6:0];
+		rd <= instruction[11:7];
+		funct3 <= instruction[14:12];
+		funct7 <= instruction[31:25];
+		rs1 <= instruction[19:15];
+		rs2 <= instruction[24:20];
+		imm <= { {20{instruction[31]}}, instruction[31:20] };
+		case (opcode)
+		// R-type
+		7'b0110011: begin
+			imm_type <= 3'b000;
+		end
+		// I-type
+		7'b0010011,
+		7'b0000011,
+		7'b1100111: begin 
+			imm_type <= 3'b001;
+			// 符号拡張
+			imm <= {{20{instruction[31]}}, instruction[31:20]};
+		end
+		// U-type
+		7'b0110111: begin
+			imm_type <= 3'b010;
+			imm <= {instruction[31:12], 12'b0};
+		end
+		// J-type
+		7'b1101111: begin
+			imm_type <= 3'b011;
+			imm <= {{11{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
+		end
+		// B-type
+		7'b1100011: begin
+			imm_type <= 3'b100;
+			imm <= {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
+		end
+		// S-type
+		7'b0100011: begin
+			imm_type <= 3'b101;
+			imm <= {{20{instruction[31]}}, instruction[31:25], instruction[11:7]}; 
+		end
+		// 未定義
+		default: begin
+            imm_type <= 3'b111;
+            imm <= 32'b0;
+        end
+		endcase
+	end
+endmodule;
+\end{lstlisting}
+
+\begin{lstlisting}[caption={テストケース}]
+	module testbench;
+
+    reg clk;
+    reg [31:0] instruction;
+    wire [6:0] opcode;
+    wire [4:0] rd;
+    wire [2:0] funct3;
+    wire [6:0] funct7;
+    wire [4:0] rs1;
+    wire [4:0] rs2;
+    wire [31:0] imm;
+    wire [2:0] imm_type;
+
+    Decoder decoder1 (
+        .clk(clk),
+        .instruction(instruction),
+        .opcode(opcode),
+        .rd(rd),
+        .funct3(funct3),
+        .funct7(funct7),
+        .rs1(rs1),
+        .rs2(rs2),
+        .imm(imm),
+        .imm_type(imm_type)
+    );
+
+	always begin
+		#5;
+		clk = ~clk;
+	end
+
+    initial begin
+		clk = 0;
+        $monitor("Time: %t | instruction: %h | opcode: %b | rd: %b | funct3: %b | funct7: %b | rs1: %b | rs2: %b | imm: %h | imm_type: %b",
+                  $time, instruction, opcode, rd, funct3, funct7, rs1, rs2, imm, imm_type);
+        
+        instruction = 32'b0000000_00010_00001_000_00011_0110011; // ADD x3, x1, x2
+        #10;
+
+        instruction = 32'b000000000001_00000000_00000_1101111; // JAL x0, 0x1
+        #10;
+
+        instruction = 32'b000000_00010_00001_000_00001_1100011; // BEQ x1, x2, 0x1
+        #10;
+
+        instruction = 32'b0000000_00010_00001_010_00000_0100011; // SW x2, 0(x1)
+        #10;
+
+        $finish;
+    end
+endmodule
+\end{lstlisting}
+
+\section{課題2}
+
+キャッシュやRISC-Vを使ったアセンブリの書き方は授業でよく理解できました。キャッシュはダイレクトマップ方式
+やセットアソシアティブ方式など具体的なアルゴリズムを学習したため、よく理解できた。しかし、
+パイプライン化やスーパースカラプロセッサーは具体的なアルゴリズムを学習していないため、しっかり理解できたという感じが
+しませんでした。やはり、アルゴリズムやVerilogによる実装を行うことで理解が深まると感じました。
+
+アルゴリズムの学習は概要を学習するよりも時間はかかるが、概論を追っていくよりもテスト後の記憶に残りやすいと感じた。パイプライン化は
+Verilogで実際に書いたことがないため、なんとなくハードウェアの同時実行によって高速化されそうだという理解しかできていない。今後は
+パイプライン化やスーパースカラプロセッサーのアルゴリズムを学習し、Verilogで実装することで理解を深めたいと考えている。
+
+\section{参考資料}
+\begin{itemize}
+	\item 吉瀬謙二. 新・標準プログラマーズライブラリ
+	RISC-Vで学ぶコンピュータアーキテクチャ 完全入門. 技術評論社, 2024,
+\end{itemize}
+
+\end{document}
