@@ -198,7 +198,7 @@ main()
 	実際にスタックを使用するときは、Pythonの標準ライブラリであるcollectionsのdequeを使うと便利です。PythonではStack スタックやキューが明示的に用意されていないため、双方向キューであるdequeを使ってスタックやキューを使用します。
 	スタックは上記のように配列で簡単に実装可能ですが、標準ライブラリのdequeを使うことで、より高速にスタックを使用できます。
 
-	\begin{lstlisting}[caption=スタックの実装, label=stack, frame=TRBL, label={stack}]
+	\begin{lstlisting}[caption=スタックの実装, label=stack, frame=TRBL]
 		def main():
     from collections import deque
     stack = deque()

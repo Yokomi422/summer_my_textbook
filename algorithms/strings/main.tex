@@ -180,7 +180,7 @@ text[1]とpattern[0]を比較すると、一致します。しかし、text[5]�
 例を通じて力任せ法では、textを0からtextの長さ - patternの長さまで動かすことで、patternがtextに含まれるかどうかを判定することができます。C言語で
 プログラムを書いてみましょう。
 
-\begin{lstlisting}[]
+\begin{lstlisting}[caption=力任せの実装, label=force, frame=TRBL]
 	#include<stdio.h>
 #include<string.h>
 
@@ -498,7 +498,7 @@ textのcursorが一度通った場所を再び通ることが多いため、無�
 \vspace{0.5cm}
 
 (1)ではpattern[4]で照合失敗しており、pattern[0]からpattern[3](ABAB)の前半とtext[0]からtext[3]の(ABAB)の後半2文字が一致しています。つまり、
-最初の2文字は比べなくても一致していることがわかります。そのため(2)ではpatternのcursorを2つずらして照合を開始しています。
+最初の2文字は比べなくても一致していることがわかります。そのため(2)ではpatternのcursorをpatten[2]にして照合を開始しています。
 
 (2)では文字が一致しておらず、patternをずらしてもtext[4], ,text[5]には一致しないので、(3)ではpatternのcursorをはじめに戻しています。
 
@@ -553,21 +553,21 @@ textのcursorが一度通った場所を再び通ることが多いため、無�
 \vspace{0.5cm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pattern[1]とpattern[0]から照合を開始します。pattern[1]で照合が失敗しました。スキップテーブルのskip[1-1] = skip[0]を見ると、0であることからpatternを動かせないので
+pattern[1]とpattern[0]から照合を開始します。pattern[1]で照合が失敗しました。pattern[0]で失敗するとpatternを動かせないので
 skip[1]に0を入れてcursorを進めます。
 
 \vspace{0.5cm}
 \begin{center}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
         \hline
-        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
         \hline
     \end{tabular}
 
     % boxの下にindexを振る
     \begin{tikzpicture}[overlay, remember picture]
-        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
-            \node at ({\n * 0.85 - 6}, 0) {\i};
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
         }
     \end{tikzpicture}
 
@@ -607,16 +607,16 @@ skip[1]に0を入れてcursorを進めます。
 
 \vspace{0.5cm}
 \begin{center}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
         \hline
-        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
         \hline
     \end{tabular}
 
     % boxの下にindexを振る
     \begin{tikzpicture}[overlay, remember picture]
-        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
-            \node at ({\n * 0.85 - 6}, 0) {\i};
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
         }
     \end{tikzpicture}
 
@@ -700,16 +700,16 @@ pattern[5]とpattern[3]は一致していません。マッチが失敗した位
 
 \vspace{0.5cm}
 \begin{center}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
         \hline
-        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{} \\ 
         \hline
     \end{tabular}
 
     % boxの下にindexを振る
     \begin{tikzpicture}[overlay, remember picture]
-        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
-            \node at ({\n * 0.85 - 6}, 0) {\i};
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
         }
     \end{tikzpicture}
 
@@ -766,20 +766,19 @@ pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[
 \end{center}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 またまたpattern[11]とpattern[1]は一致しておらず、もうpatternの移動する余裕はないのでskip[10]には0を入れます。
-最後も同様に考えてskip[12] = 1になります。 
 
 \vspace{0.5cm}
 \begin{center}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
         \hline
-        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} \\ 
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{0}\\ 
         \hline
     \end{tabular}
 
     % boxの下にindexを振る
     \begin{tikzpicture}[overlay, remember picture]
-        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12} {
-            \node at ({\n * 0.85 - 6}, 0) {\i};
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
         }
     \end{tikzpicture}
 
@@ -801,45 +800,359 @@ pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[
 \end{itemize}
 
 \begin{lstlisting}[caption=KMP法の実装, frame=TRBL, label={KMP}]
-def create_table(pattern: str) -> list[int]:
-    n = len(pattern)
-    table = [0] * n
+    def create_table(pattern: str) -> list[int]:
+    skip = [0] * (len(pattern) - 1)
     j = 0
-    for i in range(1, n):
-        while j > 0 and pattern[i] != pattern[j]:
-            j = table[j-1]
+    
+    for i in range(1, len(pattern) - 1):
         if pattern[i] == pattern[j]:
             j += 1
-            table[i] = j
+            skip[i] = j
+        else:
+            while j > 0 and pattern[i] != pattern[j]:
+                j = skip[j-1]
+            
+            if pattern[i] == pattern[j]:
+                j += 1
+            
+            skip[i] = j
     
-    return table
-
+    return skip
 
 def kmp(text: str, pattern: str) -> int:
-    table = create_table(pattern)
-    j = 0
-    n = len(text)
-    for i in range(n):
-        while j > 0 and text[i] != pattern[j]:
-            j = table[j-1]
-        
-        if text[i] == pattern[j]:
-            if j == len(pattern) - 1:
-                return i - len(pattern) + 1
-            else:
-                j += 1
+	skip = create_table(pattern)
+ 
+	j = 0
+ 
+	for i in range(len(text)):
+		# pattern照合の位置
+		if text[i] == pattern[j]:
+			j += 1
+		else:
+			while j > 0 and text[i] != pattern[j]:
+				j = skip[j-1]
+   
+		if j == len(pattern):
+			return i - len(pattern) + 1
 
-    return -1
+	return -1
+
+text = input()
+pattern = input()
+
+index = kmp(text, pattern)
+
+print(index)
 \end{lstlisting}
 
 \newpage
 
 \section{BM法}
-
 \subsection{BM法の仕組み}
+BM法は照合パターンの前からではなくて、後ろから照合を開始します。照合パターンの一番最後つまりDから照合を開始
+します。CとDは一致していないので、ずらします。
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+BM法では以下のように最初から多くスキップすることが多いです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+またAとDは一致していないのでスキップします。今回はAという文字で照合が失敗していますが、照合パターンにもAがあるので先ほどのように一気に飛ばせません。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+次も同様に考えると以下のようになり、一致します。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A}  & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+上の例では、照合パターンの最後の文字から照合を開始しました。その際にtextで一致しない文字に応じてtextの照合cursorの位置を動かしていました。では、その動かす
+大きさはどのように決まるでしょうか？KMP法と同様にスキップテーブルを作成します。スキップテーブルを以下のポイントを意識して作成します。
+照合パターンの長さを$l$とします。
+
+\begin{itemize}
+    \item パターンに含まれない文字とパターンの一番最後にしかない文字の移動量は$l$
+    \item 一番最後以外に含まれる文字に関しては、末尾に最も近い出現位置が$i (0 \leq i < l)$ならば、そのときの移動量は$l - i + 1$
+    \item 移動量はtextに出現する文字をすべて網羅する辞書で管理
+\end{itemize}
+
+text照合中にどの文字で失敗したかに応じて移動量が変化するので、textに登場する文字が文字が予め分かっている必要があります。textに登場する文字に応じてUS-ASCIIやUTF-8
+などの文字コードを使って辞書を作成します。今回はUS-ASCIIで実装します。
+
+\subsection{パターンテーブルだけの実装の問題点}
+実はパターンテーブルだけでは問題が起こることがあります。プログラムの停止性に関わる問題です。例えば以下のようなtextとpatternを考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+マッチテーブルは以下のようです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{D} & \makebox[0.5cm]{E} \\
+        \hline
+    \end{tabular}
+
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{2} & \makebox[0.5cm]{5} & \makebox[0.5cm]{3} & \makebox[0.5cm]{1} & \makebox[0.5cm]{5} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+まず、Dで失敗しているのでスキップテーブルのDを見ると1になっています。textの照合開始位置を一つ進めます。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+今度もDで失敗しているので、textの照合開始位置を1進めましょう。今回はtextの途中までは照合が成功しているので、+1するのは照合が失敗したindexであることに注意してください。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+これは最初に見たパターンと同じになっているため、無限ループが発生しています。問題の原因は、スキップテーブルだけだとtextの照合開始indexが
+後戻りすることがあるためです。スキップテーブルを用いることで、照合開始地点よりも前から照合してもパターンと一致することがないことが
+保証されているので、そもそも後戻りする意味はないです。つまり、不一致の場合に次の照合開始地点は前の照合開始地点よりも後ろになって欲しいです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+上の例では照合失敗を検知するまで4回比較しており、最後に照合した1点のindex + 4の地点から照合を開始しても問題ありません。よってスキップする大きさを決めるには、
+
+\begin{equation*}
+    skip\_size = \max(比較回数、スキップテーブルの値)
+\end{equation*}
+
+とすれば良いです。
+
+\subsection{BM法の実装}
+
+実装のポイントは以下の通りです。
+
+\begin{itemize}
+    \item スキップテーブルの実装
+    \item スキップテーブルを利用して文字列照合
+\end{itemize}
+
+\begin{lstlisting}[caption=BM法の実装, frame=TRBL, label={BM}]
+def bm(text: str, pattern: int) -> int:
+	def create_table(pattern: str) -> list[int]:
+		skip = [0] * (1 << 7)
+		for i in range(1 << 7):
+			last_match = -1
+			for j in range(len(pattern)):
+				if pattern[j] == chr(i):
+					last_match = j
+			
+			if last_match == -1 or last_match == len(pattern) - 1:
+				skip[i] = len(pattern)
+			else:
+				skip[i] = len(pattern) - last_match - 1
+		return skip
+
+	skip = create_table(pattern)
+
+	text_cursor = len(pattern) - 1
+	
+	while text_cursor < len(text):
+		moving_text_cursor = text_cursor
+		pattern_cursor = len(pattern) - 1
+  
+		while text[moving_text_cursor] == pattern[pattern_cursor] and pattern_cursor > 0:
+			moving_text_cursor -= 1
+			pattern_cursor -= 1
+   
+		if pattern_cursor == 0:
+			return text_cursor - len(pattern) + 1
+		
+		# スキップテーブルを見てtextの参照開始位置を更新
+		compared_times = len(pattern) - pattern_cursor
+		skip_table_value = skip[ord(text[moving_text_cursor])]
+  
+		text_cursor += max(skip_table_value, compared_times)
+	
+	return -1
+  
+  
+text = input()
+pattern = input()
+
+print(bm(text, pattern))
+
+\end{lstlisting}
 
 \newpage
 
 \section{ラビン・カープ法(ローリングハッシュ)}
+
+\begin{lstlisting}[caption=ラビン・カープ法の実装, frame=TRBL, label={Rabin-Karp}]
+def rolling_hash(text: str, pattern: str) -> list[int]:
+    n, m = len(text), len(pattern)
+    prime = 998244353
+    base = 31
+
+    p_hash = cursor_hash = 0
+    h = 1
+    
+    for i in range(m-1):
+        h = (h * base) % prime
+
+    for i in range(m):
+        p_hash = (base * p_hash + ord(pattern[i])) % prime
+        cursor_hash = (base * cursor_hash + ord(text[i])) % prime
+
+    ans = []
+
+    for i in range(n - m + 1):
+        if p_hash == cursor_hash:
+            # 衝突かもしれないので
+            if text[i:i+m] == pattern:
+                ans.append(i)
+
+        if i < n -m:
+            cursor_hash = (base * (cursor_hash - ord(text[i]) * h) + ord(text[i + m])) % prime
+
+            if cursor_hash < 0:
+                cursor_hash += prime
+
+    
+    return ans
+
+S = input()
+T = input()
+
+ans = rolling_hash(S, T)
+
+for i in ans:
+    print(i)
+\end{lstlisting}
 
 \end{document}
