@@ -1113,46 +1113,82 @@ print(bm(text, pattern))
 
 \section{ラビン・カープ法(ローリングハッシュ)}
 
+照合パターンとテキストのハッシュを計算し、そのハッシュが一致するか否かで文字列の一致を判定する方法を紹介します。照合パターンの長さを$l$
+とすると、ハッシュを利用することで比較の計算量を$O(l)$から$O(1)$へと定数時間にすることが可能です。
+
+ハッシュは以下のように計算します。互いに素な定数$a, h(1 < a < h)$を用意して、照合パターン($p_0 \cdots p_{l-1}$)に対して、
+
+\begin{equation}
+    H(P) = (a^{l-1} p_0 + a^{l-2} p_1 + \cdots + a^0 p_{l-1}) \mod h
+\end{equation}
+
+テキストの部分文字列(text[0]からtext[l-1])のハッシュも同様に計算して$H(S, 0, l -1)$とすると、
+H(P)とH(S, 0, l - 1)が一致するとき、text[0]からtext[l-1]と照合パターンが一致すると考える。もちろんハッシュが衝突する可能性もあるので実際に一致しているか
+確認する必要があります
+が、今回はハッシュが一致していれば文字列も一致しているとします。
+
+しかし、このハッシュの計算をテキストの大きさだけ計算すると、$O(nl)$の計算量になってしまいます。ここで、テキストのハッシュは$\mod h$を取ったものであるため、
+
+\begin{equation}
+    a^{l-1} p_0 + a^{l-2} p_1 + \cdots + a^0 p_{l-1} = H(S, 0, l - 1) + Ah (\text{Aは整数})
+\end{equation}
+
+と表せます。
+
+これを利用すると、$H(S, 1, l)$は前の$H(S, 0, l - 1)$を用いて以下のように表せます。
+
+\begin{align}
+    H(S, 1, l) &= a^{l-1}s_1 + a^{l-2}s_2 + \cdots + a^0s_l \nonumber\\ 
+    &= a(a^{l-2}s_1 + a^{l-3}s_2 + \cdots + a^1s_{l-1}) + s_l \nonumber\\
+    &= a(a^{l-1} s_0 + a^{l-2}s_1 + \cdots + a^0 s_{l-1}) - a^{l} s_0 + a^0 s_l \nonumber \\
+    &= aH(S, 0, l - 1) - a^{l} s_0 + a^0 s_l 
+\end{align}
+
+よって、テキストのそれぞれのハッシュは前のハッシュを利用することで、定数時間で計算できることがわかりました。これを\textbf{ローリングハッシュ}といいます。
+
+\subsection{ラビン・カープ法の実装}
+
+実装のポイントは以下通りです。
+
+\begin{itemize}
+    \item $a, h$を適当に決める
+    \item 文字を数値に変換する
+    \item テキストと照合パターンのハッシュを保持して尺取法のように計算する
+\end{itemize}
+
+\newpage
+
 \begin{lstlisting}[caption=ラビン・カープ法の実装, frame=TRBL, label={Rabin-Karp}]
 def rolling_hash(text: str, pattern: str) -> list[int]:
-    n, m = len(text), len(pattern)
-    prime = 998244353
-    base = 31
-
-    p_hash = cursor_hash = 0
-    h = 1
+    a = 31
+    h = 998244353
     
-    for i in range(m-1):
-        h = (h * base) % prime
-
-    for i in range(m):
-        p_hash = (base * p_hash + ord(pattern[i])) % prime
-        cursor_hash = (base * cursor_hash + ord(text[i])) % prime
-
-    ans = []
-
-    for i in range(n - m + 1):
-        if p_hash == cursor_hash:
-            # 衝突かもしれないので
-            if text[i:i+m] == pattern:
-                ans.append(i)
-
-        if i < n -m:
-            cursor_hash = (base * (cursor_hash - ord(text[i]) * h) + ord(text[i + m])) % prime
-
-            if cursor_hash < 0:
-                cursor_hash += prime
-
+    text_length, pattern_length = len(text), len(pattern)
+    text_hash = pattern_hash = 0
     
-    return ans
-
-S = input()
-T = input()
-
-ans = rolling_hash(S, T)
-
-for i in ans:
-    print(i)
+    # a^lを先に計算　剰余を取らないと実行時間が非常に長くなる
+    a_l = 1
+    for i in range(pattern_length):
+        a_l = (a_l * a) % h
+    
+    
+    # 最初のハッシュを計算する. 式(1)より
+    for i in range(pattern_length):
+        text_hash = (a * text_hash + ord(text[i])) % h
+        pattern_hash = (a * pattern_hash + ord(pattern[i])) % h
+    
+    for i in range(text_length - pattern_length + 1):
+        if pattern_hash == text_hash:
+            return i
+        
+        if i < text_length - pattern_length:
+            # テキストのハッシュを更新
+            text_hash = (a * text_hash - a_l * ord(text[i]) + ord(text[i + pattern_length])) % h
+        
+            if text_hash < 0:
+                text_hash += h
+    
+    return -1
 \end{lstlisting}
 
 \end{document}

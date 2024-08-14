@@ -96,4 +96,75 @@
   \item 冪乗: 繰り返し二乗法
   \item 逆元とフェルマーの小定理
 \end{itemize}
+
+\section{最大公約数とユークリッドの互除法}
+
+整数$a, b(a > b)$の最大公約数を求めるには、\textbf{ユークリッドの互除法}を使用します。
+
+\begin{tcolorbox}[enhanced,title=ユークリッドの互除法, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  $a, b(a > b)$の最大公約数はa \% bとbの最大公約数と等しい。
+\end{tcolorbox}
+
+$a, b$の剰余を計算繰り返し計算していって$b$が0になった時の$a$が最大公約数となります。繰り返し同じ計算をするので、\textbf{再帰関数}
+を使って実装します。
+
+\begin{lstlisting}[caption=ユークリッドの互助法実装, frame=TRBL, label={euclid}]
+def gcd(a: int, b: int) -> int:
+  # 終了条件
+  if b == 0:
+      return a
+  
+  if a < b:
+      a, b = b, a
+      
+  return gcd(b, a % b)
+\end{lstlisting}
+
+\begin{tcolorbox}[enhanced, title=コラム 再帰関数, breakable, colback=white, drop fuzzy shadow, attach boxed title to top center={yshift*=0.1cm}]
+  おそらく初めて再帰関数を見た方は再帰関数の動きがわかりにくいと思います。再帰関数は自分自身を呼び出す関数です。そのため、再帰関数を理解するためには、関数が呼び出された時にどのような動きをするのかを理解する必要があります。
+  関数が呼び出されると、スタックに関数が積まれていきます。最初に呼び出したgcdは一番下に、最後に呼び出したgcdはスタックの一番上に置かれます。一番上の関数戻り値がわかったら、連鎖的にそれより下の関数の値もわかります。そして今回の場合シグネチャからもわかる通り、intのデータ型の値を返す関数です。
+  returnする箇所で再びintの値を返す関数を呼び出しているので、スタックに積まれた関数がreturnするまで関数が呼び出され続けます。イコールが
+  終了条件を満たすまで連なっていると考えるとわかりやすいかもしれません。
+\end{tcolorbox}
+
+\section{拡張ユークリッドの互除法}
+
+\section{素数判定}
+
+\subsection{ナイーブな実装}
+
+ナイーブな実装では以下の定理を利用して、自然数$n$の素数判定を行います。
+
+\begin{tcolorbox}[enhanced,title=定理1, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  自然数$n$が$\sqrt{n}$以下の素数で割り切れないならば、$n$は素数である。
+\end{tcolorbox}
+実装は以下のようになります。
+
+\begin{lstlisting}[caption=ナイーブな素数判定, frame=TRBL, label={naivePriem}]
+def is_prime(n: int) -> bool:
+    if n == 1:
+        return False
+    i = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += 1
+    
+    return True
+
+\end{lstlisting}
+
+
 \end{document}
