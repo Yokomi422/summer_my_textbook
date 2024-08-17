@@ -1,0 +1,216 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+\begin{document}
+
+\section{三角関数}
+
+\begin{tcolorbox}[enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  ]
+  \textbf{問題1}
+  以下の不定積分を求めよ。
+  \begin{equation*}
+    \int \tan ^3 x  dx
+  \end{equation*}
+\tcblower
+
+\begin{tcolorbox}[
+  coltext=white!10!blue,
+  colback=white!90!purple!90!blue,
+  drop fuzzy shadow,
+  boxrule=0mm,
+  arc=0mm,
+  width=1.3cm,
+  left=0pt,
+  right=0pt,
+  top=0pt,
+  bottom=0pt,
+  halign=flush left,
+]
+\end{tcolorbox}
+\tcblower
+\textbf{回答:}
+
+
+\begin{tcolorbox}[
+  coltext=black,
+  colback=yellow!50!white,
+  drop fuzzy shadow,
+  boxrule=0.4mm,
+  arc=3mm,
+  left=1mm,
+  right=1mm,
+  top=1mm,
+  bottom=1mm,
+  title=ポイント,
+  sharp corners,
+  width=\textwidth-2mm,
+  ]
+  \begin{itemize}
+    \item 三角関数は2乗の形に強い
+    \item $\tan x^2 + 1 = \frac{1}{\cos ^2}の利用$
+    \item 接触型の積分
+  \end{itemize}
+\end{tcolorbox}
+
+\begin{align*}
+  \int \tan ^3 x dx &= \int \tan x \tan ^2 x dx \\
+  &= \int \tan x (\frac{1}{\cos^2 x} - 1) dx \\
+  &= \int \tan x \frac{1}{\cos^2 x} dx - \int \tan x dx \\
+  &= \int \tan x \frac{1}{\cos^2 x} dx + \int \frac{-\sin x}{\cos x} dx \\
+  &= \int \tan x (\frac{d}{dx} \tan x) dx + \int (\frac{d}{dx} \cos x) \frac{1}{\cos x} dx \\
+  &= \frac{1}{2} \tan ^2 x + \log |\cos x| + C
+\end{align*}
+\end{tcolorbox}% タイトルの独立
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{tcolorbox}[enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  ]
+  \textbf{問題2}
+  以下の定積分を求めよ。
+  \begin{equation*}
+    \int_0^{2 \pi} \sqrt{1 + \cos x} dx
+  \end{equation*}
+\tcblower
+
+\begin{tcolorbox}[
+  coltext=white!10!blue,
+  colback=white!90!purple!90!blue,
+  drop fuzzy shadow,
+  boxrule=0mm,
+  arc=0mm,
+  width=1.3cm,
+  left=0pt,
+  right=0pt,
+  top=0pt,
+  bottom=0pt,
+  halign=flush left,
+]
+\end{tcolorbox}
+\tcblower
+\textbf{回答:}
+
+
+\begin{tcolorbox}[
+  coltext=black,
+  colback=yellow!50!white,
+  drop fuzzy shadow,
+  boxrule=0.4mm,
+  arc=3mm,
+  left=1mm,
+  right=1mm,
+  top=1mm,
+  bottom=1mm,
+  title=ポイント,
+  sharp corners,
+  width=\textwidth-2mm,
+  ]
+  \begin{itemize}
+    \item 根号 \rightarrow 外す
+
+    根号を外すパターンは以下のようなものがある。
+    \begin{itemize}
+      \item 置換積分
+      \item 三角関数の場合は、三角関数の公式を利用
+    \end{itemize}
+  \end{itemize}
+\end{tcolorbox}
+$\cos 2 x = \cos ^2 x - 1$より、
+\begin{align*}
+\end{align*}
+\end{tcolorbox}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
