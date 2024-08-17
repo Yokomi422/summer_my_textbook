@@ -4,6 +4,9 @@
 \usepackage{listings}
 \usepackage{fancyhdr}
 
+% url
+\usepackage{url}
+
 % \adjustbox
 \usepackage{adjustbox}
 
@@ -87,6 +90,7 @@
   \begin{itemize}
     \item ナイーブな実装
     \item エラトステネスの篩
+
   \end{itemize}
   \item 素因数分解
   \begin{itemize}
@@ -126,6 +130,15 @@ def gcd(a: int, b: int) -> int:
   return gcd(b, a % b)
 \end{lstlisting}
 
+最大公約数をアルゴリズムを理解するだけではなくて、図形を使って直感的に理解しましょう。参考に記したけんちょんさんの最大公約数の記事を参考にすると、最大公約数は$n$次元の立方体を考えたときにそれを均等に分割できる最大の立方体の辺の長さとして考えることができます。このように考えると、最大公約数が何を意味しているのかが直感的に理解できるかもしれません。
+
+\subsection{問題と解説}
+\subsubsection{ABC 118 C - Monsters Battle Royale}
+問題からはすぐには気づきにくいですが、最大公約数を利用します。$n$次元の立方体を考えたときにそれを均等に分ける最大の立方体の辺の長さを求める問題と同じです。配列Aのどの要素もgcd
+の倍数になっているので、gcdがこれ以上分割できない最小の辺の長さとなります。どんなに操作を加えても最小の辺の長さは変わりません。このように操作を繰り返しても
+変わらない数のことを\textbf{不変量}といいます。与えられた配列Aの要素同士の引き算から必ずgcdを生み出せるかという疑問が生まれるかもしれませんが、
+ユークリッドの互除法を使うことで、gcdを求めることができます。
+
 \begin{tcolorbox}[enhanced, title=コラム 再帰関数, breakable, colback=white, drop fuzzy shadow, attach boxed title to top center={yshift*=0.1cm}]
   おそらく初めて再帰関数を見た方は再帰関数の動きがわかりにくいと思います。再帰関数は自分自身を呼び出す関数です。そのため、再帰関数を理解するためには、関数が呼び出された時にどのような動きをするのかを理解する必要があります。
   関数が呼び出されると、スタックに関数が積まれていきます。最初に呼び出したgcdは一番下に、最後に呼び出したgcdはスタックの一番上に置かれます。一番上の関数戻り値がわかったら、連鎖的にそれより下の関数の値もわかります。そして今回の場合シグネチャからもわかる通り、intのデータ型の値を返す関数です。
@@ -133,7 +146,66 @@ def gcd(a: int, b: int) -> int:
   終了条件を満たすまで連なっていると考えるとわかりやすいかもしれません。
 \end{tcolorbox}
 
+
+
 \section{拡張ユークリッドの互除法}
+
+ユークリッドの互除法では、最大公約数を求めることができますが、拡張ユークリッドの互除法を使うと、最大公約数だけでなく、$ax + by = \gcd(a, b)$を満たす$x, y$を求めることができます。
+
+$ax + by = gcd(a, b)$の$a, b$に対してユークリッドの互除法を適用していきます。通常のユークリッドの互除法のように、$a \% b, b$を計算していきますが、計算した結果それがれが
+次の一次不定方程式の係数となります。$b x_1 + \{(a\%b) y_1\} = gcd(a, b)$となります。ここで、
+
+\begin{equation*}
+    a \% b = a - (a//b) \times b
+\end{equation*}
+
+が成立することから、代入して
+
+\begin{align*}
+    b x_1 + ay_1 - (a//b) \times b y_1 = gcd(a, b) \\
+    ay_1 + b(x_1 - (a//b) y_1) = gcd(a, b)
+\end{align*}
+
+$a x + b y = gcd(a, b)$と$a, b$について係数比較をすることで、
+
+\begin{equation}
+    x = y_1, y = x_1 - (a//b) \times y_1
+\end{equation}
+
+
+$x_1, y_1$は$b, a\%b$に対して再帰的に求めることができます。終了条件は$b = 0$のときで、このときの$x$が求める$x$となります。
+
+具体例を見ましょう。$a = 108, b = 56$つまり$108 x + 56 y = gcd(108, 56)$です。
+
+\begin{align*}
+    108 x + 56 y &= gcd(108, 56) \\
+    56 x_1 + 52 y_1 &= gcd(56, 52) \\
+    52 x_2 + 4 y_2 &= gcd(52, 4) \\
+    4 x_3 + 0 y_3 &= gcd(4, 0)
+\end{align*}
+
+$a x + by = gcd(a, b)$の解$(x, y)$が$b$と$a\%b$を係数にした一次不定方程式の解$(x_1, y_1)$から求められていることを確認してください。上から順に再帰的に(b, a\%b)を求めています。$b = 0$になったとき、$x_3 = 1, y_3 = 0$になります。式(1)より、
+$x_2 = y_3 = 0, y_2 = x_3 - (52//4) \times y_3 = 1$となります。同様に、$x_1 = y_2 = 1, y_1 = x_2 - (56 // 54) y_2 = - 1$
+
+以上より、$x = y_1 = -1, y = x_1 - (108 // 56) \times y_1$ = 2となります。
+
+実装は以下のようになります。
+
+\begin{lstlisting}[caption=拡張ユークリッドの互助法実装, frame=TRBL, label={euclid}]
+def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
+    if b == 0:
+        return a, 1, 0
+    else:
+        gcd, x1, y1 = extended_gcd(b, a % b)
+    
+        # 係数の更新
+        x = y1
+        y = x1 - (a // b) * y1
+        
+        return gcd, x, y
+    
+
+\end{lstlisting}
 
 \section{素数判定}
 
@@ -440,17 +512,18 @@ def is_prime(n: int) -> list[bool]:
 \end{lstlisting}
 
 \section{素因数分解}
-
 \subsection{ナイーブな実装}
-\begin{lstlisting}[caption=エラトステネスの篩の実装, label=stack, frame=TRBL]
-def prime_fact(n: int):
+
+ナイーブな素因数分解では、与えられた自然数$n$を2から$\sqrt{n}$まで順に割っていき、1になれば終了します。割り切れた数を素因数としてリストに追加していきます。
+$\sqrt{n}$まで続けて$n$が1でない場合は、その数も素因数としてリストに追加します。
+
+\begin{lstlisting}[caption=ナイーブな素因数分解の実装の実装, label=factor, frame=TRBL]
+def prime_fact(n: int) -> list[int]:
     primes = []
     i = 2
     while i * i <= n:
-        # 最初に割れるのは、必ず素数になっているから、is_prime(i)は不要
         if n % i == 0:
             primes.append(i)
-            # /で割ってしまうと、浮動小数点になってしまう.
             n //= i
             while n % i == 0:
                 primes.append(i)
@@ -463,42 +536,62 @@ def prime_fact(n: int):
     return primes
 \end{lstlisting}
 
+ナイーブな実装では、自然数$n$が与えられたときの計算量は$O(\sqrt{n})$です。$m$個の素因数分解をするときは
+計算量が$O(m \sqrt{n})$となります。 
+
 \subsection{SPFを用いた実装}
 
-\begin{lstlisting}[caption=エラトステネスの篩の実装, label=stack, frame=TRBL]
-# エラトステネスの篩を改良して、nまでのsmalllest prime factorがわかるようにする
-def is_prime_all(n: int):
-    # Trueが素数
-	   # 最初はみんな自分が素数の顔をしている
-    is_prime = np.array([True] * (n + 1))
-    is_prime[0] = is_prime[1] = False
-    # SPFを管理する配列
-    primes = np.array([0] * (n + 1))
-    primes[1] = 1
-    i = 2
-    while i <= n:
-        if is_prime[i]:
-            primes[i] = i
-            is_prime[i * i:n + 1: i] = False
-            for j in range(i * i, n + 1, i):
-                if primes[j] == 0:
-                    primes[j] = i
-        i += 1
+SPF(Smallest Prime Factor: 自然数$n$を割り切る最小の素数)を用いることで、ナイーブな実装よりも高速に素因数分解を行うことができます。SPFを用いた素因数分解は
+エラトステネスの篩をする際にSPFを記録することで実装できます。
 
-    return primes
-
-# spfを使った素因数分解
-
+\begin{lstlisting}[caption=SPFを用いた素因数分解の実装, label=spf, frame=TRBL]
+def spf(n: int) -> list[int]:
+        spf_table = [i for i in range(n + 1)]
+        is_prime = [True] * (n + 1)
+        
+        i = 2
+        
+        while i * i <= n:
+            if is_prime[i]:
+                for j in range(i + i, n + 1, i):
+                    is_prime[j] = False
+                    if spf_table[j] == j:
+                        spf_table[j] = i
+            
+            i += 1
+            
+        return spf_table 
+    
+    def prime_factorization(n: int) -> list[int]:
+        primes = []
+        spf_table = spf(n)
+        
+        while n > 1:
+            prime = spf_table[n]
+            n //= prime
+            primes.append(prime)
+        
+        return primes
 \end{lstlisting}
 
 \section{冪乗: 繰り返し二乗法}
 
-\begin{lstlisting}[caption=エラトステネスの篩の実装, label=stack, frame=TRBL]
-def exp_mod(n, m, mod):
+$x^n$を求める際に単に$x \times x \times \cdots \times x$と計算すると$O(n)$の計算量がかかります。繰り返し二乗法を用いると、$O(\log n)$で計算することができます。
+また、冪乗では計算結果が非常に大きくなることがあるので、計算結果をmodで割った余りを求めることがあります。剰余で答えを出すときの演算によって処理が異なるので
+注意が必要です。
+
+\begin{itemize}
+    \item 加算: 加算した後でmodを取る
+    \item 減算: 減算した後でmodを取る
+    \item 乗算: 乗算した後でmodを取る
+    \item 除算: 計算途中でmodを取るときは逆元を用いる(後述)
+\end{itemize}
+
+\begin{lstlisting}[caption=繰り返し二乗法の実装, label=power, frame=TRBL]
+def exp_mod(n: int, m: int, mod: int) -> int:
     if m == 0:
         return 1
     if m == 1:
-        # nがmod以上かもしれないから、modを取るべきだった
         return n % mod
     ans = 1
     m1, m2 = m // 2, m % 2
@@ -513,6 +606,144 @@ def exp_mod(n, m, mod):
 
 \section{逆元とフェルマーの小定理}
 
+% 乗算のmodは計算結果と計算途中でmodを取ると結果が違いことを説明する
+除算のmodを取るとき、計算途中でmodをもとった場合と最後にmodを取った場合で結果が異なることがあります。例えば、$a = 20, b = 4, mod = 6$で考えます。
 
+\begin{itemize}
+    \item \textbf{計算途中でmodを取る場合:}
+    \begin{enumerate}
+        \item まず、\( a \) と \( b \) に対してmodを取ります:
+        \[
+        a \mod m = 20 \mod 6 = 2
+        \]
+        \[
+        b \mod m = 4 \mod 6 = 4
+        \]
+        \item 次に、得られたmodの値で除算を行い、さらにmodを取ります:
+        \[
+        \left(\frac{a \mod m}{b \mod m}\right) \mod m = \left(\frac{2}{4}\right) \mod 6
+        \]
+        通常の整数除算では、これは0（小数は考慮しない）となるため、
+        \[
+        0 \mod 6 = 0
+        \]
+        結果は \( 0 \) になります。
+    \end{enumerate}
+
+    \item \textbf{最後にmodを取る場合:}
+    \begin{enumerate}
+        \item まず、\( a \) を \( b \) で割ります:
+        \[
+        \frac{20}{4} = 5
+        \]
+        \item 次に、その結果に対してmodを取ります:
+        \[
+        5 \mod 6 = 5
+        \]
+    \end{enumerate}
+\end{itemize}
+
+除算のmodを求めるときは、計算途中でmodを取ると結果が異なることがあるので、逆元を用いて計算します。
+
+\subsection{フェルマーの小定理と逆元}
+
+除算におけるmodを考えるために\textbf{フェルマーの小定理}と\textbf{逆元}を導入します。
+
+\begin{tcolorbox}[enhanced,title=フェルマーの小定理, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+    ]
+    $a$は任意の自然数、$m$を素数で$a, m$が互いに素であるとき、以下の式が成り立つ。
+    \begin{equation*}
+        a^{m-1} \equiv 1 \pmod{m}
+    \end{equation*}
+  \end{tcolorbox}
+
+\begin{tcolorbox}[enhanced,title=逆元, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+    ]
+    $m$が素数で、$a$が$m$では割り切れない整数であるとき、以下の式を満たす$x$が[1, m)の範囲で一意に存在する。
+    このような$x$を $\pmod m$における$a$の逆元と呼ぶ。
+    \begin{equation*}
+        a x \equiv 1 \pmod{m}
+    \end{equation*}
+  \end{tcolorbox}
+  ここで、$a^{m-1} \equiv a \times a^{m-2} \equiv 1 \pmod{m}$となるので、$a^{m-2}$が$a$の逆元であることがわかります。以上より以下のことがわかります。
+
+  \vspace{0.5cm}
+
+  \begin{center}
+    \textbf{aで割ることは、aの逆元をかけることと等しい}
+  \end{center}
+
+  逆元を使った問題を解いてみましょう。
+
+  \begin{tcolorbox}[enhanced,
+    colback=white!85!gray,
+    drop fuzzy shadow,
+    boxrule=0.3mm,
+    arc=0mm,
+    left=0pt,
+    top=0pt,
+    sharp corners,
+    width=\textwidth,
+    ]
+    \textbf{問題}
+    ${}_n \mathrm{C}_k$を998244353で割ったあまりを求めるプログラムを作成せよ。
+  \tcblower
+
+  \begin{tcolorbox}[
+    coltext=white!10!blue,
+    colback=white!90!purple!90!blue,
+    drop fuzzy shadow,
+    boxrule=0mm,
+    arc=0mm,
+    width=1.3cm,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    halign=flush left,
+  ]
+  \end{tcolorbox}
+  \tcblower
+  \textbf{回答} 
+  ${}_n \mathrm{C}_k = \frac{n!}{(n - k)! k!}$の剰余を求めるます。$\mod$の世界で除算が登場しているので、逆元を用いて計算します。
+  乗算するのは$(n - k)!, k!$であることから、これらで割ることは$\mod$の世界では、これらの逆元つまり、それぞれ$(n - k)!^{(DIV-2)}, k!^{(DIV-2)}$をかけることと等しいです。
+  \begin{lstlisting}[caption=${}_n \mathrm{C}_k$を求める, label=combination]
+DIV = 998244353
+
+def factorial(n: int) -> list[int]:
+    memo = [1] * (n + 1)
+    for i in range(1, n + 1):
+        memo[i] = (memo[i-1] * i) % DIV
+    
+    return memo
+
+def inverse(n: int) -> int:
+    return pow(n, DIV - 2, DIV)
+
+def comb(n: int, k: int, memo: list[int]) -> int:
+    return (memo[n] * inverse(memo[k]) * inverse(memo[n-k])) % DIV
+ 
+n, k = map(int, input().split())
+memo = factorial(n)
+print(comb(n, k, memo) % DIV)
+  \end{lstlisting}
+  \end{tcolorbox}% 
+
+\section{参考}
+参考になるサイトには扱ったアルゴリズムの別の見方や演習問題などがあるので、以下にリンクを示します。\\
+\textbf{最大公約数}
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/0c88a37eec520f82b788}
+\end{itemize}
 
 \end{document}
