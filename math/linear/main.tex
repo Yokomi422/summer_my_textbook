@@ -80,6 +80,47 @@
 % tikzの設定
 \usepackage{tikz}
 
+% 定理環境
+\newtcolorbox{theorembox}[1][]{
+    enhanced,
+    colback=white!95!green,
+    colframe=green!40!black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title=#1,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=green!30!white, size=small},
+    drop fuzzy shadow,
+    boxrule=0.5mm,
+    sharp corners,
+    top=4mm, bottom=4mm,
+}
+
+% 定義用のボックス環境
+\newtcolorbox{definitionbox}[1][]{
+    enhanced,
+    title=#1, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+}
+
+% 問題用のボックス環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
 \begin{document}
 
 \section{ベクトル空間}
@@ -129,6 +170,126 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
     \item $u \in W, c \in \mathbb{R}$ならば$cu \in W$
   \end{enumerate}
 \end{tcolorbox}
+
+例えば、$\mathbb{R}^2$は$\mathbb{R}^3$の部分空間である。また、原点を通る直線は$\mathbb{R}^2$の部分空間である。
+
+\begin{definitionbox}[線型結合・一次結合]
+  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。$c_1, c_2, \cdots, c_n$を実数として、
+  \begin{equation*}
+    c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n}
+  \end{equation*}
+  の形で表せられる$V$のベクトルを$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$の\textbf{線型結合}という。 \\
+\end{definitionbox}
+
+\begin{theorembox}[定理1]
+  $V$をベクトル空間とし、その元$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$の線型結合で表せられる全てのベクトルの集合を$W$とする。このとき、$W$は$V$の部分空間である。
+
+  \begin{equation*}
+    W := \{ c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} | c_1, c_2, \cdots, c_n \in \mathbb{R} \}
+  \end{equation*}
+
+  \dotfill
+
+  \textbf{証明} \\
+
+  $\boldsymbol{0} = 0 \boldsymbol{v_1} + 0 \boldsymbol{v_2} + \cdots + 0 \boldsymbol{v_n}$であるから、$W$は零元を含む。また、$u, v \in W$とすると、
+  \begin{align*}
+    u &= c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} \\
+    v &= d_1 \boldsymbol{v_1} + d_2 \boldsymbol{v_2} + \cdots + d_n \boldsymbol{v_n}
+  \end{align*}
+  と表せる。このとき、$u + v$は
+  \begin{equation*}
+    u + v = (c_1 + d_1) \boldsymbol{v_1} + (c_2 + d_2) \boldsymbol{v_2} + \cdots + (c_n + d_n) \boldsymbol{v_n}
+  \end{equation*}
+
+  と表せるので、$u + v \in W$である。また、$u \in W, c \in \mathbb{R}$とすると、$cu$は
+
+  \begin{equation*}
+    cu = (cc_1) \boldsymbol{v_1} + (cc_2) \boldsymbol{v_2} + \cdots + (cc_n) \boldsymbol{v_n}
+  \end{equation*}
+
+  と表せるので、$cu \in W$である。以上より、$W$は$V$の部分空間である。
+\end{theorembox}
+
+
+\begin{definitionbox}[線型結合の張る空間]
+  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。これらのベクトルたちにより生成される\{$\sum_{i=1}^m c_i \boldsymbol{v_i} | c_i \in \mathbb{R}$\}を
+  $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$によって生成される$\mathbb{R}$の部分空間といい、以下のように書く。
+
+  \begin{equation*}
+    <\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n} >
+  \end{equation*}
+\end{definitionbox}
+
+\begin{definitionbox}[線形独立と線形従属]
+  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。$c_1, c_2, \cdots, c_n$を実数として、
+  \begin{equation*}
+    c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} = \boldsymbol{0}
+  \end{equation*}
+  が$c_1 = c_2 = \cdots = c_n = 0$に限られるとき、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は\textbf{線形独立}であるという。 \\
+  逆に、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$が線形独立でないとき、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は\textbf{線形従属}であるという。
+\end{definitionbox}
+
+\begin{theorembox}[定理2]
+  「$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n+1}}$が一次独立である」ことと、
+  「$\boldsymbol{v_1}, \cdots \boldsymbol{v_n}$が一次独立かつ$\boldsymbol{v_{n + 1}} \notin <\boldsymbol{v_1, \cdots \boldsymbol{v_n}}>$」であることは同値である。
+
+  \dotfill
+
+  \textbf{証明} \\
+  $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n + 1}}$が一次独立であるとする。このとき、$\boldsymbol{v_{n+1}}$が$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n + 1}}$の線形結合で表せられるとすると、
+  \begin{equation*}
+    c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} + c_{n+1} \boldsymbol{v_{n + 1}} = \boldsymbol{0}
+  \end{equation*}
+  を満たす$c_i$は$c_1 = c_2 = \cdots = c_n = c_{n + 1} = 0$である。よって、$c_1 = c_2 = \cdots = c_n = 0$が成り立つので、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は一次独立である。また
+  、$\boldsymbol{v_{n + 1}} \in <v_1, \cdots \boldsymbol{v_n>}$であると仮定すると、$\boldsymbol{v_{n + 1}}$は$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$の線形結合で表せられると仮定する。このとき、$v_{n +1} = c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n}$となり、
+  $c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} + (-1) \boldsymbol{v_{n + 1}} = \boldsymbol{0}$となる。よって、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n + 1}}$は一次独立であることに矛盾するため、$\boldsymbol{v_{n + 1}} \notin <\boldsymbol{v_1}, \cdots \boldsymbol{v_n}>$である。
+
+  逆に、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$が一次独立かつ$\boldsymbol{v_{n + 1}} \notin <\boldsymbol{v_1, \cdots \boldsymbol{v_n}}>$であるとする。このとき、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n + 1}}$が線形従属であるとすると、,もし
+  $c_{n + 1} \neq 0$であると仮定すると、
+  \begin{equation*}
+    c_{n + 1} = - \frac{c_1}{c_{n + 1}} \boldsymbol{v_1} - \frac{c_2}{c_{n + 1}} \boldsymbol{v_2} - \cdots - \frac{c_n}{c_{n + 1}} \boldsymbol{v_n}
+  \end{equation*}
+  となってしまい、家庭と矛盾するよって、$c_{n + 1} = 0$である。よって、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}, \boldsymbol{v_{n + 1}}$は一次独立である。
+\end{theorembox}
+以上の定理より、一次独立なベクトルの組みを作るときは、そのベクトルが生成する空間に含まれないベクトルを選ぶことで、線形独立なベクトルの組みを作ることができる。
+
+\begin{definitionbox}[基底]
+  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。任意のベクトル$\boldsymbol{x} \in V$が$c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n}$の形で一意に表せられるとき、
+  $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は$V$の\textbf{基底}であるという。 \\
+\end{definitionbox}
+
+\begin{theorembox}[定理3]
+  「$v_1, v_2, \cdots, v_n$が$V$の基底である」ことと、「$v_1, v_2, \cdots, v_n$が一次独立であり、$V$の任意のベクトルが$v_1, v_2, \cdots, v_n$の線形結合で表せられる」ことは同値である。
+
+  \dotfill
+
+  \textbf{証明} \\
+
+  $v_1, v_2, \cdots, v_n$が$V$の基底であるとする。このとき、$V = <v_1, v_2, \cdots, v_n>$は明らか。
+  $c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} = \boldsymbol{0}$となる$c_i$は$c_1 = c_2 = \cdots = c_n = 0$であるから、$v_1, v_2, \cdots, v_n$は一次独立である。
+
+  逆に、任意の$\boldsymbol{x} \in V$が$v_1, v_2, \cdots, v_n$の線形結合で表せられるとする。
+  \begin{equation*}
+    k_1 \boldsymbol{v_1} + k_2 \boldsymbol{v_2} + \cdots + k_n \boldsymbol{v_n} = l_1 \boldsymbol{v_1} + l_2 \boldsymbol{v_2} + \cdots + l_n \boldsymbol{v_n}
+  \end{equation*}
+  とすると一次独立であるから、$k_1 = l_1, k_2 = l_2, \cdots, k_n = l_n$である。よって、$v_1, v_2, \cdots, v_n$は$V$の基底である。
+\end{theorembox}
+
+\begin{theorembox}[定理4]
+  $a_1, a_2, \cdots, a_n$と$b_1, b_2, \cdots, b_m$が$V$の基底であるとする。このとき、$n = m$である。
+
+  \dotfill
+
+  \textbf{証明} \\
+
+  $b_{i1} \notin <a_2, a_3, \cdots, a_n>$となる$b_{i1}$が存在する。
+\end{theorembox}
+
+\begin{definitionbox}
+
+\end{definitionbox}
+
 \section{固有値}
 
 

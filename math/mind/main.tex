@@ -77,6 +77,18 @@
 % tikzの設定
 \usepackage{tikz}
 
+% 文章中の番号振り
+\usepackage{pstricks}
+% customsubscriptの定義
+\newcommand{\customsubscript}[1]{\text{\raisebox{-1ex}[0pt][0pt]{\scriptsize #1}}}
+
+% circledの定義
+\newcommand{\circled}[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=0.3pt,minimum size=7.5pt,inner sep=0pt] (char) {\scriptsize #1};}}
+
+% 文章中の下線など
+\usepackage{ulem} 
+
 \begin{document}
 \section{はじめに}
 \subsection{数学の学習}
@@ -261,6 +273,9 @@ textbf{もとの命題とその裏や逆は無関係である}と覚えておこ
 \section{数学書の読み方}
 この章では、実際の定義や定理を見ながら数学書の読み方を体感していく。
 
+\subsection{定義は設定も合わせて覚える} \label{subsec:definition}
+数学書では定義が頻繁に使われる。だから、\textbf{数学用語と記号の定義を覚える}ことが重要である。定義1を使って定義を読むときのポイントを3つ説明する。
+
 \begin{tcolorbox}[enhanced,title=定義1 約数と倍数, 
   attach boxed title to top left, 
   colback=white!95!blue,
@@ -268,9 +283,477 @@ textbf{もとの命題とその裏や逆は無関係である}と覚えておこ
   drop fuzzy shadow,
   boxrule=0.25mm,
   ]
-  $a$を整数、$b$を$0$でない整数とする。$a = bq$を満たす整数$q$が存在するとき、$b$は$a$の\textbf{約数}であるという。また、$a$が$b$の約数であるとき、$b$は$a$の\textbf{倍数}であるといい、
-  $b | a$と書く。
+  \circled{1}\dotuline{$a$を整数、$b$を$0$でない整数とする。}\circled{2}\dotuline{$a = bq$を満たす整数$q$が存在するとき}、\circled{3}\dotuline{$b$は$a$の\textbf{約数}であるという。また、$a$は$b$の\textbf{倍数}であるといい、$b | a$と書く。}
 \end{tcolorbox}
 
-\end{document}
+\subsubsection{定義されている用語・記号}
+全体を読んで、定義されている数学用語と記号を読み取る。\circled{3}で\textbf{約数}、\textbf{倍数}、\textbf{|}という記号
+が定義されている。
 
+\subsubsection{定義における設定}
+用語と記号を押さえたら、最初に戻って定義における設定を読み取る。\circled{1}で設定を述べている。数学の文章を読むときは、$a, b, x, y$などの
+文字が何を表すかについて常に意識することが重要だ。\textbf{定義は設定も合わせて覚えよう。}
+
+\subsubsection{定義の内容}
+最後に定義の内容を読み取る。定義1では、\circled{2}という条件が定義の内容である。この条件が満たされているとき、\circled{3}であるという。
+
+\begin{tcolorbox}[enhanced, title=コラム 定義の覚え方, breakable, colback=white, drop fuzzy shadow, attach boxed title to top center={yshift*=0.1cm}]
+  数学は暗記科目ではないと言われることが多いが、定義だけは覚えないといけない。定義をなかなか覚えられないときは\textbf{定義を読んだ後に何も見ずに紙に書く練習をする}といいだろう。
+  もちろんすぐには覚えられず、何度も忘れてしまうだろう。数学書を読み進めていく中で、\textbf{数学用語や記号が登場するたびに、定義を思い出してみて正確に言えなかったら、定義をも一度読み直していよう。}
+  特に、命題の証明や例の説明の中で、定義の内容がどのように使われているかをしっかり押さえる。
+
+  索引を活用して定義を覚えこんでしまうまで何度も復習することが大切である。\textbf{数学書はなんども行ったり来たり繰り返し読むのが当たり前}だと
+  思っておこう。
+\end{tcolorbox}
+
+\subsection{定義の種類}
+定義は大きく分けて対象の定義、関係の定義、性質の定義の3つに分けることができる。
+
+\subsubsection{対象の定義}
+
+\begin{tcolorbox}[enhanced,title=例1, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  ベクトル$\boldsymbol{a}, \boldsymbol{b}$のなす角を$\theta$とする。$\boldsymbol{a}, \boldsymbol{b}$の\textbf{内積} $\boldsymbol{a} \cdot \boldsymbol{b}$を次のように定義する。
+
+  \begin{equation*}
+    \boldsymbol{a} \cdot \boldsymbol{b} = |\boldsymbol{a}||\boldsymbol{b}|\cos \theta
+  \end{equation*}
+\end{tcolorbox}
+
+\ref{subsec:definition}節で説明したように、内積の定義も読んでみましょう。定義されている数学用語は\textbf{内積}で記号は$\boldsymbol{a} \cdot \boldsymbol{b}$である。
+定義における設定は、$\boldsymbol{a}, \boldsymbol{b}$をベクトルとし、$\theta$を$\boldsymbol{a}, \boldsymbol{b}$のなす角としている。定義の内容は、$\boldsymbol{a}, \boldsymbol{b}$の内積を$|\boldsymbol{a}||\boldsymbol{b}|\cos \theta$としている。
+対象定義は、\textbf{定義されるものが何であるか}が定義の内容である。
+
+\subsubsection{関係の定義}
+\begin{tcolorbox}[enhanced,title=例2, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  直線$l$と平面$\alpha$が点$O$で交わっているとする。点$O$を通る$\alpha$上のすべての直線が$l$と交わるとき、直線$l$は平面$\alpha$と\textbf{直交}しているという。
+\end{tcolorbox}
+
+例2の定義も読んでみましょう。定義されている数学用語は\textbf{直交}である。定義における設定は、直線$l$と平面$\alpha$が点$O$で交わっているとしている。
+定義の内容は、点$O$を通る$\alpha$上のすべての直線が$l$と交わるとき、直線$l$は平面$\alpha$と直交しているとしている。関係の定義は、\textbf{どのようなときにその関係をもつか}が定義の内容である。
+
+\subsubsection{性質の定義}
+\begin{tcolorbox}[enhanced,title=例3, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  関数$f(x)$がすべての実数$x$について、$f(x) = - f(-x)$を満たすとき、$f(x)$は\textbf{奇関数}であるという。
+\end{tcolorbox}
+
+定義されている用語は\textbf{奇関数}である。定義における設定は、関数$f(x)$がすべての実数$x$について、$f(x) = - f(-x)$を満たすとしている。
+定義の内容は、関数$f(x)$が奇関数であるとき、$f(x) = - f(-x)$を満たすとしている。性質の定義は、\textbf{どのような性質を持つか}が定義の内容である。
+ただし、「\triangle \triangle を満たすものを\star \star という」という形がいつでも性質の定義であるというわけではなく、\triangle \triangle を満たすものが
+1つしかない場合は対象の定義である。定義に限らず、\textbf{数学書を読むときは、文脈を意識するように心がけよう。}
+
+\subsection{具体例の読み方}
+具体例について理解することはとても重要である。例を読むときは3つのポイントを意識することが大切である。
+\begin{tcolorbox}[enhanced,title=例4, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  3, -5は15の約数である。また、-6は2の倍数である。
+\end{tcolorbox}
+
+\subsubsection{何についての例か(主題)}
+まず、全体を読んで何についての例なのかを押さえる。例4は定義1で定義した\textbf{約数}、\textbf{倍数}についての例である。主題を読み取るときは
+細かい部分に捉われず、大まかに何についての例を挙げているかを押さえることが大切である。
+
+\subsubsection{主題について何を述べているか(主張)}
+主題について、何が正しい(成り立つ)と述べられているかを命題の形で書き下す。例4の主張を命題の形で取り出すと、「3は15の約数である」、「-5は15の約数である」、
+「-6は2の倍数である」の3つである。
+
+\subsubsection{主張はなぜ正しいのか(理由)}
+例の証明は定義や定理を使って示す。今回は定義1から「3は15の約数である」を証明する。定義を利用するときは定義の設定を当てはめて考える。
+$a$に15、$b$に3を当てはめればいいことがわかる。定義では「$a$を整数、$b$を0ではない整数」としているが、今回は問題なさそうである。
+設定の確認が終わったら、条件が満たされているかを確認する。定義の条件は「$a = bq$を満たす整数$q$が存在する」ことであるから、$q = 5$が存在するので今回の例
+の証明ができた。
+
+定義を使って議論するときは、「設定のあてはめ \rightarrow 設定の確認 \rightarrow 条件の確認」の流れで証明を行おう。
+
+\subsection{命題の仮定と結論を捉える}
+\begin{tcolorbox}[enhanced,title=命題1, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  $a, b$を整数とする。$a \neq b$かつ$b | a$であるならば、$|b| \leq |a|$である。
+\end{tcolorbox}
+
+命題1のように、数学の命題の多くは、「\triangle \triangle　ならば \star \star である。」という形をしている。この\triangle \triangle の部分を
+\textbf{仮定}といい、\star \star の部分を\textbf{結論}という。「ならば」を含む命題を読むときは、仮定と結論の関係をしっかり読む必要がある。
+
+また、この命題には$b | a$という仮定があるが、この仮定には「$b$は0ではない整数」という設定が隠されている。\textbf{定義に含まれた仮定}が証明に必要になるケースも
+あるので注意しよう。
+
+いつでも、「ならば」の前が仮定、後が結論になるとは限らない。仮定や結論の中に「ならば」が入ることもある。また、「このとき」や「\~{}とすると」などの言葉も、
+「ならば」と同じような意味で使われる。以下の命題2で仮定と結論を探してみよう。
+
+\begin{tcolorbox}[enhanced,title=命題2, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  実数$x, y$について、$x \boldsymbol{a} + y \boldsymbol{b} = \boldsymbol{0}$ならば$x = y = 0$であるとする。このとき、
+  すべてのベクトルは$\alpha \boldsymbol{a} + \beta \boldsymbol{b}$ ($\alpha, \beta$は実数)の線形結合で表される。
+\end{tcolorbox}
+
+\subsection{根拠と結論のつながりをひとつひとつ確認する}
+次の命題3の証明を見てみよう。
+
+\begin{tcolorbox}[enhanced,title=命題2, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  $a, b$は整数とする。$a \neq 0$かつ$b | a$であるならば、$|b| \leq |a|$である。
+\end{tcolorbox}
+
+\begin{tcolorbox}[enhanced,title=命題3の証明, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  \circled{1}\dotuline{$b | a$だから$a = bq$を満たす整数$q$が取れる。}\circled{2}\dotuline{$a \neq 0$だから、$q \neq 0$である。} \\
+  \circled{3}\dotuline{よって$|q| \geq 1$であるので、} \circled{4} \dotuline{$|a| = |bq= |b||q| \geq |b|$である。}
+\end{tcolorbox}
+
+証明を読むときは、根拠と結論のつながりをひとつひとつ確認する。特に、次の２つのタイプの表現に注意する。
+
+\begin{enumerate}
+  \item \textbf{AだからBである}
+  \item \textbf{「よって」、「したがって」、「以上より」}
+\end{enumerate}
+
+1の表現が出てきたら、次のことを注意しよう。
+
+\begin{itemize}
+  \item なぜAであるか
+  \item なぜAだったらBだといえるか
+\end{itemize}
+
+「なぜAであるのか」の検討を忘れがちなので注意する。例えば、「AだったらBである」が正しくても、そもそも「Aである」が正しくなければ、Bという結論は
+導けない。「本当にAなのか?」と立ち止まって考える必要がある。
+
+\circled{1}はで考えるべきことは以下の２つだ。
+
+\begin{itemize}
+  \item なぜ$b | a$であるか。
+  \item なぜ$b | a$だったら、$a = bq$を満たす整数$q$が取れるのか
+\end{itemize}
+
+「なぜ$b | a$であるか。」については、命題3の仮定である。照明の中では、、仮定に書かれている設定と条件は正しいものとして使える。
+「なぜ$b | a$だったら、$a = bq$を満たす整数$q$が取れるのか」については、定義1を使って証明する。
+
+\circled{2}について考えることは以下の2つだ。
+
+\begin{itemize}
+  \item なぜ$a \neq 0$であるか
+  \item なぜ$a \neq 0$だったら、$q \neq 0$であるのか
+\end{itemize}
+
+「なぜ$a \neq 0$であるか」については、命題3の仮定である。「なぜ$a \neq 0$だったら、$q \neq 0$であるのか」について、ここで証明したいのことは
+「$a \neq 0$ならば$q \neq 0$」という命題である。ここでは対偶を取ってみよう。対偶を取ると「$q = 0$ならば$a = 0$」となる。これは$a = bq$
+より明らかである。よって、$q \neq 0$である。対偶が真なのでもとの命題も真である。
+
+ここで、「よって」「したがって」「以上より」に関するポイントを考える。これらは、ここまでの議論で得られた事項を組み合わせると次の結論が得られるという意味で使われる。\circled{3}
+では、$|q| \geq$ という結論が得られるのは、\circled{1}と\circled{2}からであるといっている。
+
+\subsection{証明を読み終えたら}
+証明を読み終えたら、次の２つのことをするといい。まず、textbf{命題の仮定が証明のどこで使われたかを確認する}・もし使っていない仮定があれば、
+根拠と結論の繋がりについて見落としがあるかもしれないので、証明をよく見直そう。次に、\textbf{証明全体の流れを見直す}。何も見ないで証明の大筋を再現できる
+くらいくらいに頭に入れるのを目標としよう。何も見ないで紙に書き起こすのも良いだろう。
+
+\subsection{命題は正確に当てはめて使う}
+証明した命題を使うときは、以下の３つの段階を踏む。
+
+1. 当てはめ
+
+2. 条件の確認
+
+3. 結論の使用
+
+\newpage
+
+\section{全称命題と存在命題}
+「任意の」と「存在して」という数学用語にも慣れる必要がある。
+
+\subsection{全称命題と存在命題}
+
+「すべての\triangle \triangle について$\cdots$」であるという命題を\textbf{全称命題}という。例えば、
+
+\begin{equation*}
+  (\diamond) \text{すべての整数} n \text{について、}n^3 + 2n\text{は3の倍数である。}
+\end{equation*}
+
+は全称命題である。また、同じ意味で以下のようにも表せられる。
+
+\begin{equation*}
+  (\diamond) \text{任意の整数} n \text{について、}n^3 + 2n\text{は3の倍数である。}
+\end{equation*}
+
+「ある\triangle \triangle が存在して$\cdots$」であるという命題を\textbf{存在命題}という。例えば、
+
+\begin{equation*}
+  (\diamond) \text{ある2以上の整数} n \text{について、}2^n + 1 = n^2\text{が成り立つ。}
+\end{equation*}
+
+は存在命題である。また、同じ意味で以下のようにも表せられる。
+
+\begin{equation*}
+  \text{ある2以上の整数nが存在して、}2^n + 1 = n^2\text{が成り立つ。}
+\end{equation*}
+
+存在命題については、\textbf{一意性}が問題になることも多い。一意性とは、「ある条件を満たすものが\underline{ただ1つ}存在する。」という意味である。
+数学で存在するといえば、少なくとも1つ存在するという意味で、いくつあるかはわからない。
+
+\subsection{全称命題の証明}
+全称命題の証明を命題4を使って考えよう。
+
+\begin{tcolorbox}[enhanced,title=命題4, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  すべての実数$x$について、$0 \leq x - [x] < 1$が成り立つ。
+\end{tcolorbox}
+
+命題4は、「$0 \leq x$かつ$x - [x] < 1$である」という全称命題である。「すべての\triangle \triangle について\star \star である」という形の全称命題は以下の手順で証明をする。
+
+\begin{enumerate}
+  \item \triangle \triangle から勝手に1つ取ってくる
+  \item 取ってきたものについて\star \star であることを証明する。
+\end{enumerate}
+
+\begin{tcolorbox}[enhanced,title=命題4 証明, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  \circled{1}\dotuline{$x$を実数とする。}\circled{2}\dotuline{ガウスの記号の定義より、[x]は$x$以下であるから、[x] $\leq x$である。}\\
+  \circled{3}\dotuline{よって、$0 \leq x - [x]$が成り立つ。}\circled{4}\dotuline{また、ガウス記号の定義より、$[x] + 1$は$x$以下ではない。} \\
+  \circled{5}\dotuline{すなわち$[x] + 1 > x$であるから、$x - [x] < 1$である。}\circled{6}\dotuline{以上より、$0 \leq x - [x] < 1$が成り立つ。}
+\end{tcolorbox}
+
+\circled{1}は実数を勝手に1つ取ってきて$x$と名前をつけるという意味である。「実数xを任意に取る」や「任意の実数xについて」などということもある。
+
+次の例を見てみる。「すべての\triangle \triangle について\star \star である」の形をした全称命題を証明する際に、
+一度にまとめて扱うのが難しい場合がある。いくつかの特定の場合に分けて考察することを、\textbf{場合分け}という。場合分けの議論の読み方は
+以下のようになる。
+
+\begin{enumerate}
+  \item 証明の全体読んで、どのような場合分けをされているかをみる
+  \item ありうる全ての場合が尽くされているかを確認する
+  \item 証明のどの部分で場合分けが扱われているかを押さえる。
+\end{enumerate}
+
+\subsection{存在命題の証明}
+存在命題の証明を命題5を使って考えよう。
+
+\begin{tcolorbox}[enhanced,title=命題5と証明, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  \textbf{命題5} \\
+  $a, b$は有理数で、$a < b$とする。このとき、$a < c < b$を満たす有理数$c$が存在する。\\
+  \textbf{証明} \\
+  $c = \frac{a + b}{2}$とする。$a, b$は有理数だから、cも有理数である。$a < b$だから、$ c - a = \frac{a + b}{2} - a = \frac{b - a}{2} > 0$である。同様に、
+  $b - c > 0$であるから、$a < c < b$である。よって、$a < c < b$を満たす有理数cが存在する。
+\end{tcolorbox}
+
+「ある\triangle \triangle について、\star \star である。」という存在命題の基本は以下のようである。
+
+\begin{enumerate}
+  \item \triangle \triangle を作る手順を述べる
+  \item 作ったものについて、確かに\star \star であることを証明する。
+\end{enumerate}
+
+\subsection{一意性の証明}
+一意性の証明には、\textbf{条件を満たすものが2つあるとして、その2つが実は等しいことを証明する。}
+
+\subsection{全称と存在の順序}
+
+まず「存在 \rightarrow 全称」の順番の命題を見てみよう。
+
+\begin{tcolorbox}[enhanced,title=例5 有理数に対するリュービルの近似不等式, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  \textbf{命題5} \\
+  $\alpha$を有理数とする。このとき、ある正の数$c$が存在して、すべての整数$q$と0でない整数$q$について、$\frac{p}{q} \neq \alpha$
+  ならば、
+  \begin{equation*}
+    |\alpha - \frac{p}{q}| \geq \frac{c}{|q|} (\star)
+  \end{equation*}
+  が成り立つ。\\
+  \textbf{証明} \\
+  \circled{1}$\alpha$は有理数だから、$\alpha = \frac{a}{b}$となる整数$a$と自然数$b$が取れる。 \circled{2}$c = \frac{1}{b}$
+  とする。\circled{3}$p$を整数、$q$を0でない整数とする。$\frac{p}{q} \neq \alpha$とする。 \circled{4}このとき、
+
+  \begin{equation*}
+    |\alpha - \frac{p}{q}| = \left| \frac{a}{b} - \frac{p}{q} \right| = \left| \frac{aq - bp}{bq} \right| = \frac{|aq - bp|}{|bq|}
+  \end{equation*}
+
+  である。\circled{5}さらに、$\frac{p}{q} \neq \alpha$だから$aq - bq$は0ではないので$|aq - bq| \geq 1$である。\circled{6}したがって証明終了。
+\end{tcolorbox}
+
+存在が先なので、正の数cは後から取るpやqとは無関係に定めなければならない。最初の存在命題の証明は以下の手順で証明する。
+
+\begin{enumerate}
+  \item 正の数cを作る手順を述べる
+  \item 作ったcが条件を満たすことを証明する
+\end{enumerate}
+
+また、2の条件は全称命題の証明なので、それを加味すると以下の手順を踏むことになる。
+
+\begin{enumerate}
+  \item 正の数cを作る手順を述べる(\circled{1}と\circled{2})
+  \item 整数pと0でない整数qを勝手に1組取ってくる
+  \item 取ってきたpとqについて、$\frac{p}{q} = \alpha$ならば\star が成り立つことを示す
+\end{enumerate}
+
+次に「全称 \rightarrow 存在」の形の命題を扱う。
+
+\begin{tcolorbox}[enhanced,title=命題6 有理数の稠密生, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  実数が持つ次の性質を\textbf{アルキメデスの原理}という。
+  \begin{equation*}
+    \text{任意の実数}x\text{に対し、}x < n\text{を満たす整数nが存在する。}
+  \end{equation*}
+  アルキメデスの原理を使うと以下のことがわかる。
+
+  定理 \\
+  $\alpha$を実数とする。任意の正の数$\epsilon$について、$|\alpha - r| < \epsilon$を満たす有理数rが存在する。 \\
+
+  証明 \\
+  \circled{1}正の数$\epsilon$を任意に取る。\circled{2}アルキメデスの原理より、$\frac{1}{\epsilon} < m$を満たす整数mが取れる。
+  \circled{3}$\frac{1}{\epsilon} > 0$だから、mは正の整数である。\circled{4}$m\alpha$は実数だから、$m \alpha < k$を満たす整数kが存在するので、
+  そのようなkのうち最小のものを取る。\circled{5}このとき、$k - 1 \leq m \alpha \leq k$であるから、$-1 \leq m \alpha \leq 0$である。\circled{6}
+  そこで、$r = \frac{k}{m}$とすれば、\circled{7}rは有理数で、
+  \begin{equation*}
+    |\alpha - r| = |\alpha - \frac{k}{m}| = \frac{|m \alpha - k|}{m} \leq \frac{1}{m} < \epsilon
+  \end{equation*}
+  が成り立つ。
+\end{tcolorbox}
+
+全称命題を使って存在命題を証明するときは、以下の手順を踏む。
+
+\begin{enumerate}
+  \item 正の数$\epsilon$を任意に取ってくる
+  \item 有理数rを作る手順を述べる
+  \item 作ったrについて$|\alpha| - r < \epsilon$が成り立つことを示す。
+\end{enumerate}
+\section{写像を題材に数学の文章を読みこなす}
+
+\section{さまざまな論法}
+最後に数学の証明でたびたび登場する論法について取り上げる。
+
+最初に数学でよく登場する論法の一覧を示す。
+
+\begin{itemize}
+  \item 対偶
+  \item 数学的帰納法(累積帰納法)
+  \item 部屋割り論法
+  \item 背理法
+\end{itemize}
+
+以下では、数学的帰納法(累積帰納法)、部屋割り論法、背理法について説明する。
+
+\subsection{数学的帰納法(累積帰納法)}
+
+\subsection{部屋割り論法}
+
+\subsection{背理法}
+
+\begin{tcolorbox}[enhanced,title=無理数のディオファントス近似, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  \textbf{定理} \\
+$\alpha$を無理数とする。このとき、次の不等式を満たす整数の組み$p, q$(ただし$q \neq 0$)が無限個存在する。
+
+ \begin{equation*}
+   (\spadesuit) 0 < |\alpha - \frac{p}{q}| < \frac{1}{q^2}
+ \end{equation*}
+\\
+\textbf{証明} \\
+\circled{1}$\alpha$は無理数だから整数ではないので、$0 < |\alpha - \frac{p}{q}| < \frac{1}{q^2}$が成り立つ。
+\circled{2}よって$p = [a], q = 1$とすれば、\spadesuit が成り立つ。
+\circled{3}したがって、\spadesuit を満たす整数の組み$p, q$が存在する。
+
+\circled{4}仮に、\spadesuit を満たす整数の組み$p, q$が有限個しかないとする。
+\circled{5}それらを$p_1, q_1, p_2, q_2, \cdots, p_n, q_n$とする。$|\alpha q_i - p_i|$($i = 1, 2, \cdots, n$)の最小値を$\rho$とする。
+\circled{6}$\alpha$は無理数だから$\rho > 0$である。
+\circled{7}そこで、jを満たす2以上の整数$N$を取る。
+\circled{8}ディリクレの定理より$|\alpha - \frac{a}{b}| \leq \frac{1}{Nb}$かつ$1 \leq b \leq N - 1$を満たす整数$a, b$が存在する。
+\circled{9}この$a, b$について、
+\begin{equation*}
+  0 < | \alpha - \frac{a}{b} | \leq \frac{1}{Nb} < \frac{1}{b^2}
+\end{equation*}
+より\spadesuit が成り立つから、$a = p_k, b = q_k$となる$k$が存在する。
+\circled{10}このとき、
+\begin{equation*}
+  |a q_k - p_k| = |\alpha - \frac{p_k}{q_k}| = |\alpha - \frac{a}{b}| b \leq \frac{1}{Nb} b = \frac{1}{N} < \rho
+\end{equation*}
+である。
+\circled{11}これは、$\rho$の最小性に反する。
+\circled{12}したがって、\spadesuit を満たす整数の組み$p, q$が無限個存在する。
+\end{tcolorbox}
+
+背理法の証明を読むときは次のことを注意して読む。
+
+(1) 主張の否定を確認する \\
+上の例では主張の否定が\circled{4}で述べられている。\\
+
+(2) どのような命題について矛盾が生じたのか読み取る \\
+\circled{11}で矛盾が生じている。最小値の定義から集合$\{1, 2, \cdots n\}$のすべての要素iについて、$|\alpha q_i - p_i| \geq \rho$が成り立つはずだが、
+\circled{10}では不等式$|a q_k - p_k| < \rho$が成り立っている。\circled{9}でkは集合$\{1, 2 \cdots n\}$の要素だといわれているので、
+次の命題が真になる。 集合$\{1, 2, \cdots n\}$のすべての要素iについて、$|\alpha q_i - p_i| \geq \rho$が成り立つはずだが、
+
+これは上の命題の否定であるから、その否定と元の命題が両方真になっている。\\
+
+(3) 証明の中で主張の否定が本質的にどこで使われているか押さえる \\
+
+\end{document}
