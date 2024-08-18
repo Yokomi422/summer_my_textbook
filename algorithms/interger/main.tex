@@ -226,7 +226,8 @@ def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
 
 \begin{lstlisting}[caption=ナイーブな素数判定, frame=TRBL, label={naivePriem}]
 def is_prime(n: int) -> bool:
-    if n == 1:
+    # 忘れないように注意
+    if n <= 1:
         return False
     i = 2
     while i * i <= n:
@@ -518,7 +519,7 @@ def is_prime(n: int) -> list[bool]:
 $\sqrt{n}$まで続けて$n$が1でない場合は、その数も素因数としてリストに追加します。
 
 \begin{lstlisting}[caption=ナイーブな素因数分解の実装の実装, label=factor, frame=TRBL]
-def prime_fact(n: int) -> list[int]:
+def enumerate_prime_factors(n: int) -> list[int]:
     primes = []
     i = 2
     while i * i <= n:
@@ -530,6 +531,7 @@ def prime_fact(n: int) -> list[int]:
                 n //= i
         i += 1
 
+    # 残ったnが素数の場合
     if n > 1:
         primes.append(int(n))
 
@@ -573,6 +575,133 @@ def spf(n: int) -> list[int]:
         
         return primes
 \end{lstlisting}
+
+\subsection{互いに素}
+\newpage
+\subsection{問題1. }
+素因数分解に関する問題です。
+
+\begin{tcolorbox}[enhanced,
+    colback=white!85!gray,
+    drop fuzzy shadow,
+    boxrule=0.3mm,
+    arc=0mm,
+    left=0pt,
+    top=0pt,
+    sharp corners,
+    width=\textwidth,
+    ]
+    \textbf{問題 約数列挙} \\
+    自然数$N$が与えられるので、$N$の約数を昇順に列挙せよ。ただし、$N$は$1 \leq N \leq 10^12$を満たす。
+
+    例 \\
+    入力: 12 \\
+    出力: 1 2 3 4 6 12
+  \tcblower
+  
+  \begin{tcolorbox}[
+    coltext=white!10!blue,
+    colback=white!90!purple!90!blue,
+    drop fuzzy shadow,
+    boxrule=0mm,
+    arc=0mm,
+    width=1.3cm,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    halign=flush left,
+  ]
+  \end{tcolorbox}
+  \tcblower
+  \textbf{回答:}
+  \begin{lstlisting}
+def enumerate_divisors(n: int) -> list[int]:
+    divisors = set()
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            divisors.add(i)
+            if i != n // i:
+                divisors.add(n // i)
+    
+    return list(divisors)
+
+
+def main():
+    n = int(input())
+    divisors = enumerate_divisors(n)
+    
+    print(*divisors)
+    
+if __name__ == "__main__":
+    main()
+
+  \end{lstlisting}
+  \end{tcolorbox}% タイトルの独立
+
+
+問題2. ABC 057 C - Digits in Multiplication \\
+約数列挙の問題です。
+
+問題3. ARC 052 C - Factors of Factorial \\
+約数の個数を求める問題です。約数の個数も素因数分解の結果から求めることを利用します。
+
+問題4. ARC 026 B - 完全数\\
+約数の総和
+\begin{tcolorbox}[enhanced,
+    colback=white!85!gray,
+    drop fuzzy shadow,
+    boxrule=0.3mm,
+    arc=0mm,
+    left=0pt,
+    top=0pt,
+    sharp corners,
+    width=\textwidth,
+    ]
+    \textbf{オイラー関数} \\
+    オイラー関数とは、自然数$N$が与えられたときに、$1, 2, \cdots, N$のうち$n$と互いに素になる数の個数を求める関数$\Phi(N)$
+    です。
+  \tcblower
+  
+  \begin{tcolorbox}[
+    coltext=white!10!blue,
+    colback=white!90!purple!90!blue,
+    drop fuzzy shadow,
+    boxrule=0mm,
+    arc=0mm,
+    width=1.3cm,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    halign=flush left,
+  ]
+  \end{tcolorbox}
+  \tcblower
+  \textbf{回答:}
+  \begin{lstlisting}
+def enumerate_divisors(n: int) -> list[int]:
+    divisors = set()
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            divisors.add(i)
+            if i != n // i:
+                divisors.add(n // i)
+    
+    return list(divisors)
+
+
+def main():
+    n = int(input())
+    divisors = enumerate_divisors(n)
+    
+    print(*divisors)
+    
+if __name__ == "__main__":
+    main()
+
+  \end{lstlisting}
+  \end{tcolorbox}% タイトルの独立
 
 \section{冪乗: 繰り返し二乗法}
 
@@ -744,6 +873,13 @@ print(comb(n, k, memo) % DIV)
 \textbf{最大公約数}
 \begin{itemize}
     \item \url{https://qiita.com/drken/items/0c88a37eec520f82b788}
+\end{itemize}
+
+
+\textbf{素数判定}
+
+\begin{itemize}
+    \item \url{https://algo-method.com/tasks/318}
 \end{itemize}
 
 \end{document}
