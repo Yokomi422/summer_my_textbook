@@ -1,0 +1,146 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+\begin{document}
+\section{変数分離法}
+変数分離形の微分方程式は次の形をしている。
+
+\begin{equation}
+  \frac{dy}{dx} = f(x)g(y)
+\end{equation}
+
+\subsection{解法}
+\begin{enumerate}
+  \item 式(1)を$g(y)$で割る
+  \item 両辺に$dx$をかける
+  \item 両辺に$\int$をつけて積分する
+\end{enumerate}
+
+\subsection{例題}
+
+\begin{tcolorbox}[enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  ]
+  \textbf{問題 1}
+
+以下の微分方程式を解け。
+
+(1) $\frac{d}{dx} y = 2 xy$
+\tcblower
+
+\begin{tcolorbox}[
+  coltext=white!10!blue,
+  colback=white!90!purple!90!blue,
+  drop fuzzy shadow,
+  boxrule=0mm,
+  arc=0mm,
+  width=1.3cm,
+  left=0pt,
+  right=0pt,
+  top=0pt,
+  bottom=0pt,
+  halign=flush left,
+]
+\end{tcolorbox}
+\tcblower
+\textbf{回答}
+
+(1) \\
+解法に従って解くと、$y \neq 0$のとき
+
+\begin{align*}
+  \frac{dy}{dx} &= 2xy \\
+  \frac{dy}{y} &= 2xdx \\
+  \int \frac{dy}{y} &= \int 2xdx \\
+  \log |y| &= x^2 + C \\
+  y &= \pm e^{x^2 + C} \\
+  y &= Ce^{x^2}
+\end{align*}
+
+ここで$y = 0$の場合も微分方程式を満たし、$C = 0$とすればいいので、$C$は任意定数である。
+
+\end{tcolorbox}
+\end{document}

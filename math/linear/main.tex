@@ -7,6 +7,9 @@
 % \adjustbox
 \usepackage{adjustbox}
 
+% 数学
+\usepackage{amssymb} 
+
 % tcolorboxの設定
 \usepackage[most]{tcolorbox} 
 \tcbuselibrary{breakable}
@@ -78,4 +81,238 @@
 \usepackage{tikz}
 
 \begin{document}
+
+\section{ベクトル空間}
+\subsection{数ベクトル空間}
+% タイトルの独立
+\begin{tcolorbox}[enhanced,title=ベクトル空間の公理, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  空でない集合$V$上に加法およびスカラー倍が定義され、以下の法則が満たされているとき、$V$を\textbf{数ベクトル空間}という。
+
+  \begin{itemize}
+    \item 加法について
+    \begin{enumerate}
+      \item $\boldsymbol{u} + \boldsymbol{v} = \boldsymbol{v} + \boldsymbol{u}$
+      \item $(\boldsymbol{u} + \boldsymbol{v}) + \boldsymbol{w} = \boldsymbol{u} + (\boldsymbol{v} + \boldsymbol{w})$
+      \item $V$の中に0で表せられる1つの元があって、$V$上の任意の元$v$に対して$v + 0 = v$が成り立つ
+      \item $V$の任意の元$v$に対して、$v + v' = 0$となる元$v'$が存在する
+    \end{enumerate}
+    \item スカラー倍について
+    \begin{enumerate}
+      \item $c(u + v) = cu + cv$
+      \item $(c + d)v = cv + dv$
+      \item $c(dv) = (cd)v$
+      \item $1v = v$
+    \end{enumerate}
+    \end{itemize}
+\end{tcolorbox}
+
+$V$がベクトル空間であるとき、その元を\textbf{ベクトル}という。
+
+\begin{tcolorbox}[enhanced,title=部分空間, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  $V$の部分集合$W$は以下の条件を満たすとき、$V$の\textbf{部分空間}であるという。
+
+  \begin{enumerate}
+    \item $W$は$V$の零元を含む
+    \item $u, v \in W$ならば$u + v \in W$
+    \item $u \in W, c \in \mathbb{R}$ならば$cu \in W$
+  \end{enumerate}
+\end{tcolorbox}
+\section{固有値}
+
+
+\section{対角化}
+\begin{tcolorbox}[enhanced,title=定義1 行列の対角化, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  正方行列$A$が対角化可能であるとは、ある正則行列$P$が存在して、$P^{-1}AP$が対角行列になることをいう。 \\
+  正方行列$A$が$P = (\boldsymbol{x_1}, \boldsymbol{x_2} \cdots \boldsymbol{x_n})$で以下のように対角化されるとき、
+  \begin{equation*}
+    P^{-1}AP = \begin{pmatrix}
+      \lambda_1 & 0 & \cdots & 0 \\
+      0 & \lambda_2 & \cdots & 0 \\
+      \vdots & \vdots & \ddots & \vdots \\
+      0 & 0 & \cdots & \lambda_n
+  \end{pmatrix}
+  \end{equation*}
+  \begin{itemize}
+    \item $\lambda_1, \lambda_2, \cdots, \lambda_n$は$A$の固有値
+    \item $\boldsymbol{x_1}, \boldsymbol{x_2}, \cdots, \boldsymbol{x_n}$は対応する固有値$\lambda_i$の固有ベクトル
+  \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  ]
+  \textbf{問題 1} \\
+  以下の行列$A$を対角化せよ。
+
+  \begin{equation*}
+    A = \begin{pmatrix}
+      8 & -10 \\
+      5 & 7
+    \end{pmatrix}
+  \end{equation*}
+\tcblower
+
+\begin{tcolorbox}[
+  coltext=white!10!blue,
+  colback=white!90!purple!90!blue,
+  drop fuzzy shadow,
+  boxrule=0mm,
+  arc=0mm,
+  width=1.3cm,
+  left=0pt,
+  right=0pt,
+  top=0pt,
+  bottom=0pt,
+  halign=flush left,
+]
+\end{tcolorbox}
+\tcblower
+\textbf{回答:}
+
+まずは行列$A$の固有値を求めます。固有値は以下の式を解くことで求めることができます。
+\begin{equation*}
+  |\lambda I - A| = 0  (I: 単位行列)
+\end{equation*}
+
+これを解くと、$\lambda_1 = -2, \lambda_2 = 3$になります。次に固有ベクトルをそれぞれ求めます。$(\lambda I - A) \boldsymbol{x} = 0$
+に固有値を代入してこの方程式を満たすベクトルを求めることで固有ベクトルを求めることができます。よって$\lambda_1, \lambda_2$に対応する固有ベクトルはそれぞれ
+$\left ( \begin{matrix} 1 \\ 1 \end{matrix}\right)$, $\left ( \begin{matrix} 2 \\ 1 \end{matrix}\right)$になります。 \\
+したがって、$P = \begin{pmatrix} 1 & 2 \\ 1 & 1 \end{pmatrix}$とすることで、行列$A$は以下のように対角化されます。
+
+\begin{equation*}
+  P^{-1}AP = \begin{pmatrix}
+    -2 & 0 \\
+    0 & 3
+  \end{pmatrix}
+\end{equation*}
+
+\end{tcolorbox}% タイトルの独立
+
+\subsection{対角化の応用}
+
+\subsubsection{ケーリー・ハミルトンの定理}
+\begin{tcolorbox}[enhanced,title=ケーリー・ハミルトンの定理, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  $O_n, I_n$をそれぞれ$n$次の零行列、単位行列とする。$A$を$n$次正方行列とすると、その固有多項式$p_A(\lambda) = \det (\lambda I_n - A)$
+  の$\lambda$に$A$を代入したものは零行列に等しい。すなわち、
+
+  \begin{equation*}
+    p_A(A) = O_n
+  \end{equation*}
+\end{tcolorbox}
+
+\subsubsection{行列の累乗}
+
+\section{三角化}
+
+\begin{tcolorbox}[enhanced,title=定義1 行列の三角化, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  任意の正方行列$A$に対して、ある正則行列$P$が存在して、$P^{-1}AP$が上三角行列になる。対角成分
+  $a_{11}, a_{22} \cdots a_{nn}$は$A$の固有値である。このように上三角行列に変換することを\textbf{三角化}という。
+  \begin{equation}
+    P^{-1} A P = 
+    \begin{pmatrix}
+    a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+    0      & a_{22} & a_{23} & \cdots & a_{2n} \\
+    0      & 0      & a_{33} & \cdots & a_{3n} \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0      & 0      & 0      & \cdots & a_{nn}
+    \end{pmatrix}
+    \end{equation}
+\end{tcolorbox}
+
+
+
+
+\section{二次形式}
+
+\begin{tcolorbox}[enhanced,title=定義2 二次形式, 
+  attach boxed title to top left, 
+  colback=white!95!blue,
+  colbacktitle=white!10!blue!50!black,
+  drop fuzzy shadow,
+  boxrule=0.25mm,
+  ]
+  実数係数の多項式ですべての項が2次のものを\textbf{二次形式}という。 \\
+  二次形式は対称行列$A$を用いて以下のように表せる。 
+  \begin{equation*}
+    \left(
+      \begin{matrix}
+        x_1 & x_2 & \cdots & x_n
+      \end{matrix}
+    \right)
+    A
+    \left(
+      \begin{matrix}
+        x_1 \\
+        x_2 \\
+        \vdots \\
+        x_n
+      \end{matrix}
+    \right) = \boldsymbol{x}^T A \boldsymbol{x}
+  \end{equation*}
+\end{tcolorbox}
+
+\textbf{具体例} \\
+(1) 二次形式の例 \\
+\begin{align*}
+  x_1^2 + 2 x_2 ^2 - 8 x_3 ^2 + 4 x_1 x_2 - 5 x_1 x_3 + 6 x_2 x_3 
+  &= \begin{pmatrix}
+    x_1 & x_2 & x_3
+  \end{pmatrix}
+  \begin{pmatrix}
+    1 & 2 & - \frac{5}{2} \\
+    2 & 2 & 3 \\
+    - \frac{5}{2} & 3 & -8
+  \end{pmatrix}
+  \begin{pmatrix}
+    x_1 \\
+    x_2 \\
+    x_3
+  \end{pmatrix}
+\end{align*}
+
+行列$A$は対称行列であることに注意すると、$A$の要素は$i = j$のときは$x_i^2$の係数、$i \neq j$のときは$\frac{1}{2}x_i x_j$の係数となる。 \\
+
+(2) 二次形式のでない例 \\
+\begin{equation*}
+  x_1^2 + 2 x_2^2 - 4x_1 x_2 + 6 x_1
+\end{equation*}
+
+
 \end{document}
