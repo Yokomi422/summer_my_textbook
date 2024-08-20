@@ -283,12 +283,32 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
 
   \textbf{証明} \\
 
-  $b_{i1} \notin <a_2, a_3, \cdots, a_n>$となる$b_{i1}$が存在する。
+  まず「$b_{i1} \notin <a_2, a_3, \cdots, a_n>$となる$b_{i1}$が存在する。」ことを証明する。$b_{i1}$がないことを仮定する。
+  \begin{equation*}
+    b_1, b_2, \cdots, b_m \in <a_2, \cdots, a_n>
+  \end{equation*}
+  のようにベクトル$b_i$は$a_2, \cdots, a_n$の線形結合で表せられる。また$b_1, b_2, \cdots, b_m$は基底であるから、
+  \begin{equation*}
+    <b_1, b_2, \cdots, b_m> = V
+  \end{equation*}
+  $a_i$も$V$の基底であるから、$a_1 \in <a_2, \cdots, a_n>$より$a_1$が$a_2, \cdots a_n$の線形結合で表せられるから$a_1, a_2, \cdots, a_n$は一次独立であることに矛盾するため、$b_{i1} \notin <a_2, a_3, \cdots, a_n>$となる$b_{i1}$が存在する。
+
+  定理2より、$a_1, a_2, \cdots, a_n, b_{i1}$は一次独立である。$b_{1i} \in <a_1, \cdots, a_n> = V$より、
+  \begin{equation*}
+    b_{i1} = c_1 a_1 + c_2 a_2 + \cdots + c_n a_n
+  \end{equation*}
+  $c_1 \neq 0$である。
+  \begin{equation*}
+    c_1 = \frac{1}{c//} b_{i1} - \frac{c_2}{c_1} a_1 - \frac{c_3}{c_1} a_2 - \cdots - \frac{c_n}{c_1} a_n
+  \end{equation*}
+  ...まだ続く. 
 \end{theorembox}
 
-\begin{definitionbox}
-
+\begin{definitionbox}[次元]
+  $a_1, \cdot a_n$が$V$の基底であるとき、$V$の\textbf{次元}は$n$であるといい、$\dim V = n$と書く。
 \end{definitionbox}
+
+
 
 \section{固有値}
 
