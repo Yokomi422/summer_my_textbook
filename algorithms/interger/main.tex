@@ -80,6 +80,35 @@
 % tikzの設定
 \usepackage{tikz}
 
+\usepackage{amssymb} 
+
+\newtcolorbox{definitionbox}[1][]{
+    enhanced,
+    title=#1, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+}
+
+% 定理環境
+\newtcolorbox{theorembox}[1][]{
+    enhanced,
+    colback=white!95!green,
+    colframe=green!40!black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title=#1,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=green!30!white, size=small},
+    drop fuzzy shadow,
+    boxrule=0.5mm,
+    sharp corners,
+    top=4mm, bottom=4mm,
+}
+
+
 \begin{document} 
 整数に関しては以下の内容を扱います。
 
@@ -577,6 +606,178 @@ def spf(n: int) -> list[int]:
 \end{lstlisting}
 
 \subsection{互いに素}
+
+\begin{definitionbox}[互いに素]
+    $a, b \in \mathbb{Z}$が互いに素であるとは、$a, b$の最大公約数が1であることをいう。
+\end{definitionbox}
+
+互いに素の性質をいくつか紹介します。
+
+\begin{theorembox}
+    $a, b \in \mathbb{Z}$の最大公約数を$g$とすると、
+    \begin{equation*}
+        a = g \cdot a', b = g \cdot b' \text{(a'とb'は互いに素)}
+    \end{equation*}
+    と互いに素な数と最大公約数の積で表すことができる。
+\end{theorembox}
+
+この性質の応用例は2点間の格子点の個数です。
+
+2次元座標平面上に2点$(x_1, y_1), (x_2, y_2)$が与えられたとき、片方が原点になるように並行移動した2点を結ぶ直線上の格子点の個数は、2点間の最大公約数を$g$とすると、$g - 1$個です。ただし、
+2点は格子点の個数に含まないとします。
+
+2点の位置関係が重要で片方を原点になるように並行移動しても一般性を失わないので、$x = x_2 - x_1, y = y_2 - y_1$とします。まず、$x, y$が互いにその場合を考えます。
+互いに素のときは$(0, 0)$と$(x, y)$を結ぶ線分の間には格子点は存在しません。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tikzpicture}[scale=1]
+        \draw[step=1cm,gray,very thin] (0,0) grid (5,4);
+    
+        \draw[thick,->] (0,0) -- (5,0) node[anchor=north west] {x};
+        \draw[thick,->] (0,0) -- (0,4) node[anchor=south east] {y};
+    
+        \draw[thick,red] (0,0) -- (4,3);
+    
+        \fill[blue] (0,0) circle (0.1);
+        \node[below left] at (0,0) {$(0,0)$};
+        \fill[blue] (4,3) circle (0.1);
+        \node[above right] at (4,3) {$(4,3)$};
+    
+        \foreach \x in {1,2,3,4} {
+            \foreach \y in {1,2,3} {
+                \fill[black] (\x,\y) circle (0.05);
+            }
+        }
+    
+        \fill[red] (1,0.75) circle (0.1); % (1,0.75)
+        \fill[red] (2,1.5) circle (0.1);  % (2,1.5)
+        \fill[red] (3,2.25) circle (0.1); % (3,2.25)
+    \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+次に、$(x, y)$が互いに素ではない場合、つまり最大公約数が1よりも大きい場合を考えます。このとき、$x = g \cdot x', y = g \cdot y'$と表すことができます。$g$が1よりも大きい場合は、
+$(0, 0)$と$(x, y)$を結ぶ線分は格子点を通ることがあります。この$(x, y)$を最大公約数$g = 4$で割ると、$(0, 0)$と$(3, 1)$となり、3と1は互いに素です。先ほどのように互いに素の場合は
+格子点は存在しません。$d = 4$というのはこの互いに素という格子点の最小単位が4つであることを示しています。今回の設定では、線分の端は格子点に含まれないので、格子点の個数は$4 - 1 = 3$個です。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tikzpicture}[scale=0.5]
+        % Draw the grid
+        \draw[step=1cm,gray,very thin] (0,0) grid (13,5);
+    
+        % Draw the x and y axes
+        \draw[thick,->] (0,0) -- (13,0) node[anchor=north west] {x};
+        \draw[thick,->] (0,0) -- (0,5) node[anchor=south east] {y};
+    
+        % Draw the line segment from (0,0) to (12,4)
+        \draw[thick,red] (0,0) -- (12,4);
+    
+        % Mark the points (0,0) and (12,4)
+        \fill[blue] (0,0) circle (0.2);
+        \node[below left] at (0,0) {$(0,0)$};
+        \fill[blue] (12,4) circle (0.2);
+        \node[above right] at (12,4) {$(12,4)$};
+    
+        % Mark the grid points around the line segment
+        \foreach \x in {1,...,12} {
+            \foreach \y in {1,...,4} {
+                \fill[black] (\x,\y) circle (0.1);
+            }
+        }
+    
+        % Highlight the points that lie on the line segment
+        \foreach \i in {3,6,9,12} {
+            \fill[red] (\i,{\i/3}) circle (0.2);
+        }
+    
+    \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+実装例を以下に示します。
+
+\begin{lstlisting}[caption=2点間の格子点の個数の実装, label=grid, frame=TRBL]
+def GCD(a: int, b: int) -> int:
+    if a < b:
+        a, b = b, a
+    if b == 0:
+        return a
+    
+    return GCD(b, a % b)
+
+def count_grid_points(x1: int, y1: int, x2: int, y2: int) -> int:
+    x, y = abs(x1 - x2), abs(y1 - y2)
+    return GCD(x,y) - 1
+\end{lstlisting}
+
+他にも様々な性質があります。
+
+\begin{theorembox}[互いに素と一次不定方程式]
+    $a, b \in \mathbb{Z}$が互いに素であるとき、
+    \begin{equation*}
+        ax + by = 1
+    \end{equation*}
+    を満たす$x, y \in \mathbb{Z}$が存在する。
+\end{theorembox}
+
+これは上で見た拡張ユークリッドの互除法そのものです。
+
+\begin{theorembox}
+    $a, b \in \mathbb{Z}$が互いに素であるとき、$b \in \mathbb{Z}$に関して$bc$が$a$で割り切れるなら、
+    $c$は$a$の倍数である。
+
+    \textbf{証明}  \\
+    $a, b$は互いに素であるから、$ax + by = 1$を満たす$x, y \in \mathbb{Z}$が存在する。
+    \begin{equation*}
+        c = c \times 1 = c (ax + by) = acx + bcy
+    \end{equation*}
+    $acx$は自明に$a$で割り切れる。$bcy$も条件より$a$で割り切れるから、$c$は$a$の倍数である。
+
+\end{theorembox}
+
+\begin{theorembox}[合同式の割り算]
+    $a, m \in \mathbb{Z}$が互いに素であるとする。
+    \begin{equation*}
+        ax \equiv by \mod{m}
+    \end{equation*}
+    であるとき、
+    \begin{equation*}
+        x\equiv y (\mod{m})
+    \end{equation*}
+    が成立する。
+\end{theorembox}
+
+\begin{theorembox}[倍数の周期性]
+    $a, m \in \mathbb{Z}$が互いに素であるとする。
+    \begin{equation*}
+        0, a, 2a, \cdots, (m - 1)a
+    \end{equation*}
+    を$m$で割った余りを昇順に並び替えると、$0, 1, 2, \cdots, m - 1$になる。
+\end{theorembox}
+
+\begin{theorembox}[逆元と合同方程式]
+    $a, m \in \mathbb{Z}$が互いに素であるとする。任意の$b \in \mathbb{Z}$に対して、
+    \begin{equation*}
+        a x \equiv b \mod{m}
+    \end{equation*}
+    を満たす$x \in \mathbb{Z}$が$m$を法としてただ一つ在する。特に、$b = 1$の場合を逆元という。
+\end{theorembox}
+
+\begin{theorembox}[中国剰余定理]
+\end{theorembox}
+
+\begin{theorembox}[Euler関数は乗法的]
+\end{theorembox}
+
+\begin{theorembox}[Eulerの定理]
+\end{theorembox}
+
 \newpage
 \subsection{問題1. }
 素因数分解に関する問題です。
@@ -702,6 +903,11 @@ if __name__ == "__main__":
 
   \end{lstlisting}
   \end{tcolorbox}% タイトルの独立
+
+問題5 yukicoder No.442 和と積 \\
+2つの整数$a, b$が与えられるので、$a + b, a \times b$の最大公約数を求める問題です。
+\begin{lstlisting}[caption=2点間の格子点の個数の実装, label=grid, frame=TRBL]
+\end{lstlisting}
 
 \section{冪乗: 繰り返し二乗法}
 
@@ -881,5 +1087,13 @@ print(comb(n, k, memo) % DIV)
 \begin{itemize}
     \item \url{https://algo-method.com/tasks/318}
 \end{itemize}
+
+\textbf{素因数分解}
+
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/a14e9af0ca2d857dad23#%E5%95%8F%E9%A1%8C-10-abc-150-d---semi-common-multiple-400-%E7%82%B9}
+\end{itemize}
+
+
 
 \end{document}
