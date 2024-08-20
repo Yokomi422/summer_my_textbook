@@ -359,22 +359,105 @@ Pythonの標準ライブラリであるbisectのbisect\_leftの実装をしま�
 今回はもっと一般化して「midがある条件を満たすか否か」を判定して範囲を狭めていきます。このとき、leftより右側の区間は
 条件を満たさず、rightより左側の区間は条件を満たすようにします。 
 
+二分探索では以下の図のような条件を満たす赤い部分を条件を満たす境界ギリギリになるように更新していきます。
 
+\begin{itemize}
+  \item leftは常に条件を満たさない
+  \item rightは常に条件を満たす
+\end{itemize}
+
+という条件を満たすように処理を進めていき、最終的にleftが条件を満たさない最大のindex、rightが条件を満たす最小のindexを返します。
+bisect\_leftではleftが与えられた値よりも小さく、rightが与えられた値以上の最小のindexを返す関数です。
 
 \vspace{0.5cm}
 
 \begin{center}
 \begin{tikzpicture}
-    \fill[red!20] (1, 0.5) rectangle (12, 1.5);
+    \fill[red!20] (10.5, 0.5) rectangle (12, 1.5);
     \foreach \x in {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
         \draw[thick] (\x, 0.7) -- (\x, 1.3);
     }
 
     \draw[->, thick] (0, 1) -- (13, 1);
+    \draw[<-] (1, 0.5) -- (1, -0.) node[below] {left};
+    \draw[<-] (11, 0.5) -- (11, -0.3) node[below] {right};
 \end{tikzpicture}
 \end{center}
 
+\begin{center}
+  \textbf{初期状態}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+      \fill[red!20] (5.5, 0.5) rectangle (12, 1.5);
+      \foreach \x in {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+          \draw[thick] (\x, 0.7) -- (\x, 1.3);
+      }
+  
+      \draw[->, thick] (0, 1) -- (13, 1);
+      \draw[<-] (5, 0.5) -- (5, -0.3) node[below] {left};
+      \draw[<-] (11, 0.5) -- (11, -0.3) node[below] {right};
+  \end{tikzpicture}
+  \end{center}
+  
+  \begin{center}
+    \textbf{終了状態}
+  \end{center}
+
+bisect\_leftの実装は以下の通りです。
+
+\begin{lstlisting}[caption=bisect\_leftの実装, frame=TRBL, label={bisect_left}]
+def bisect_left(array: list[int], key: int) -> int:
+  left, right = -1, len(array)
+  
+  while right - left > 1:
+      mid = (left + right) // 2
+      
+      if array[mid] < key:
+          left = mid
+      else:
+          right = mid
+  
+  return right
+\end{lstlisting}
+
+bisect\_leftの実装では、左側が条件を満たさない、右側が条件を満たすといった実装になっています。これだとまだ条件次第でleftが条件を満たす、rightが条件を満たさないという
+実装もあり得ます。そこで以下ではめぐる式二分探索のさらに一般化した実装を紹介します。
+
+\subsection{めぐる式二分探索}
+
+めぐる式二分探索では、
+
+\begin{itemize}
+  \item ngは常に条件を満たさない
+  \item okは常に条件を満たす
+\end{itemize}
+
+のように数直線上の右や左という概念を持たせずに実装します。めぐる式二分探索は以下のように実装されます。
+is\_okは条件を満たすかどうかを判定する関数ですので、条件に合わせて実装します。
+
+\begin{lstlisting}[caption=めぐる式二分探索, frame=TRBL, label={megru}]
+def binary_search(array: list[int], key: int):
+    ng, ok = -1, len(array)
+    
+    while abs(ok - ng) > 1:
+        mid = (ng + ok) // 2
+        
+        if is_ok(array, mid, key):
+            ok = mid
+        else:
+            ng = mid
+    
+    return ok
+\end{lstlisting}
+
 \newpage
+
+\section{二分探索木}
+
 
 \section{参考}
 \textbf{二分探索}
