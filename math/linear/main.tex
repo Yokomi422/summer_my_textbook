@@ -133,7 +133,7 @@
   drop fuzzy shadow,
   boxrule=0.25mm,
   ]
-  空でない集合$V$上に加法およびスカラー倍が定義され、以下の法則が満たされているとき、$V$を\textbf{数ベクトル空間}という。
+  空でない集合$V$上に加法およびスカラー倍が定義され、以下の法則が満たされているとき、$V$を\textbf{ベクトル空間}という。
 
   \begin{itemize}
     \item 加法について
@@ -153,7 +153,15 @@
     \end{itemize}
 \end{tcolorbox}
 
-$V$がベクトル空間であるとき、その元を\textbf{ベクトル}という。
+$V$がベクトル空間であるとき、その元を\textbf{ベクトル}という。数学では「ある性質を持った集合」のことを\textbf{空間}
+といいます。つまりベクトル空間とは「ある性質を持った集合」でその性質とは集合に対して公理にある性質を満たした加法とスカラー倍が定義されていることです。
+加法とスカラー倍が定義されているとは、以下の\textbf{写像}が存在していることをいいます。集合$V$に対して、
+\begin{itemize}
+  \item $+ :V \times V \ni (\boldsymbol{a}, \boldsymbol{b}) \mapsto \boldsymbol{a} + \boldsymbol{b} \in V$ 
+  \item $* : \mathbb{R} \times V \ni (c, \boldsymbol{a}) \mapsto c \boldsymbol{a} \in V$
+\end{itemize}
+
+
 
 \begin{tcolorbox}[enhanced,title=部分空間, 
   attach boxed title to top left, 
@@ -192,7 +200,7 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
 
   \textbf{証明} \\
 
-  $\boldsymbol{0} = 0 \boldsymbol{v_1} + 0 \boldsymbol{v_2} + \cdots + 0 \boldsymbol{v_n}$であるから、$W$は零元を含む。また、$u, v \in W$とすると、
+  $V$の零元0は$\boldsymbol{0} = 0 \boldsymbol{v_1} + 0 \boldsymbol{v_2} + \cdots + 0 \boldsymbol{v_n}$であるから、$W$は零元を含む。また、$u, v \in W$とすると、
   \begin{align*}
     u &= c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n} \\
     v &= d_1 \boldsymbol{v_1} + d_2 \boldsymbol{v_2} + \cdots + d_n \boldsymbol{v_n}
@@ -210,7 +218,6 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
 
   と表せるので、$cu \in W$である。以上より、$W$は$V$の部分空間である。
 \end{theorembox}
-
 
 \begin{definitionbox}[線型結合の張る空間]
   $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。これらのベクトルたちにより生成される\{$\sum_{i=1}^m c_i \boldsymbol{v_i} | c_i \in \mathbb{R}$\}を
@@ -254,9 +261,20 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
 \end{theorembox}
 以上の定理より、一次独立なベクトルの組みを作るときは、そのベクトルが生成する空間に含まれないベクトルを選ぶことで、線形独立なベクトルの組みを作ることができる。
 
+\begin{theorembox}[一次独立と同値な条件]
+  $n$次正方行列$A$に関して以下の条件は同値である。
+  \begin{enumerate}
+    \item $A$の列ベクトルが一次独立である
+    \item $A$が正則である
+  \end{enumerate}
+\end{theorembox}
+
 \begin{definitionbox}[基底]
-  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。任意のベクトル$\boldsymbol{x} \in V$が$c_1 \boldsymbol{v_1} + c_2 \boldsymbol{v_2} + \cdots + c_n \boldsymbol{v_n}$の形で一意に表せられるとき、
-  $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は$V$の\textbf{基底}であるという。 \\
+  $V$をベクトル空間とし、$\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$を$V$のベクトルとする。$v_1, v_2, \cdots, v_n$が以下の条件を満たすとき、 $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は$V$の\textbf{基底}であるという。
+  \begin{itemize}
+    \item $\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}$は$V$の一次独立なベクトルである
+    \item $V = <\boldsymbol{v_1}, \boldsymbol{v_2}, \cdots, \boldsymbol{v_n}>$
+  \end{itemize}
 \end{definitionbox}
 
 \begin{theorembox}[定理3]
@@ -308,7 +326,85 @@ $V$がベクトル空間であるとき、その元を\textbf{ベクトル}と�
   $a_1, \cdot a_n$が$V$の基底であるとき、$V$の\textbf{次元}は$n$であるといい、$\dim V = n$と書く。
 \end{definitionbox}
 
+\begin{theorembox}[一次独立と行列式]
+  「$a_1. \cdots, a_n$が一次独立」であることと、「$A = (a_1, a_2, \cdots, a_n)$の行列式が0でない」ことは同値である。
 
+  \dotfill
+
+  \textbf{証明} \\
+
+  \begin{equation*}
+    k_1 a_1 + k_2 a_2 + \cdots + k_n a_n = 0
+  \end{equation*}
+
+  \begin{equation*}
+    \begin{pmatrix}
+      a_1 & a_2 & \cdots & a_n
+    \end{pmatrix}
+    \begin{pmatrix}
+      k_1 \\
+      k_2 \\
+      \vdots \\
+      k_n
+    \end{pmatrix}
+  \end{equation*}
+  について、$a_1, a_2, \cdots, a_n$が一次独立であるから、$k_1 = k_2 = \cdots = k_n = 0$である。よって、$A$の行列式は0でない。
+  \begin{equation*}
+    A = 
+    \begin{pmatrix}
+      a_1, a_2, \cdots, a_n
+    \end{pmatrix}
+  \end{equation*}
+  とすると、$A^{-1}$が存在する。$|A| = \det (a_1, \cdots, a_n) \neq 0$
+\end{theorembox}
+
+\begin{theorembox}
+  $a_1, a_2, \cdots, a_n$が一次独立であるとき、$a_1, a_2, \cdots, a_n$は$\mathbb{R}^n$の基底である。
+
+  \dotfill
+
+  \textbf{証明} \\
+\end{theorembox}
+
+この定理より、$\mathbb{R}^n$の基底は行列式を考えることで簡単に求められる。
+
+\begin{theorembox}[部分空間の基底]
+  $V \subset \mathbb{R}^n$が部分空間であり、$a_1, \cdots, a_r$が一次独立であるとき、
+  $V$の基底$a_1, \cdots, a_r a_{r + 1}, \cdots, a_m$が存在する。
+\end{theorembox}
+
+\begin{definitionbox}[共通部分と和空間]
+  (1) 
+  $V_1 \cap V_2 := \{a | a \in V_1 \text{かつ} a \in V_2 \}$を$V_1$と$V_2$の\textbf{共通部分}という。 \\
+  (2) 
+  $V_1 + V_2 := \{a_1 + a_2 | a_1 \in V_1, a_2 \in V_2 \}$を$V_1$と$V_2$の\textbf{和空間}という。 
+\end{definitionbox}
+
+\begin{theorembox}
+  $V_1 \cap V_2, V_1 + V_2$は$\mathbb{R}^n$の部分空間である。
+\end{theorembox}
+
+\begin{theorembox}[和空間の次元]
+  $V_1, V_2 \subset \mathbb{R}^n$のしたとき、
+  \begin{equation*}
+    \dim (V_1 + V_2) = \dim V_1 + \dim V_2 - \dim (V_1 \cap V_2)
+  \end{equation*}
+\end{theorembox}
+
+\begin{definitionbox}[直和]
+  $V_1, V_2, \cdots V_m$が$\mathbb{R}^n$の部分空間で、任意の$x \in V$が
+  \begin{equation*}
+    x = x_1 + x_2 + \cdots + x_m 
+  \end{equation*}
+  と一意に表せるとき、$V$は$V_1, V_2, \cdots, V_m$の\textbf{直和}であるという。
+  \begin{equation*}
+    V = V_1 \oplus V_2 \oplus \cdots \oplus V_m
+  \end{equation*}
+\end{definitionbox}
+
+\begin{theorembox}
+  「$V = V_1 ; \oplus V_2$」の必要十分条件は、「$V_1 \cap V_2 = \{0\}$, $V = V_1 + V_2$」である。
+\end{theorembox}
 
 \section{固有値}
 

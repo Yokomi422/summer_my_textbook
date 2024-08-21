@@ -456,8 +456,408 @@ def binary_search(array: list[int], key: int):
 
 \newpage
 
-\section{二分探索木}
+\section{二分索木}
+二分探索は探索自体は$O(\log n)$で行うことができますが、配列がソートされているひつようがあり、データの挿入や削除がある場合は毎回ソートがあり非効率ではあります。
+解決策としては、\textbf{データ構造で解決}や\textbf{Treeq}などがあります。データ構造で解決する方法の一つが\textbf{二分探索木}です。
 
+\textbf{二分探索木}は以下の性質を持った木構造です。
+
+\begin{itemize}
+  \item 左子ノードは親ノードよりも小さい(または等しい) (下の図では$B \leq A$)
+  \item 右子ノードは親ノードよりも大きい (下の図では$A < C$)
+\end{itemize}
+
+\begin{center}
+    \begin{tikzpicture}[scale=0.4]
+      \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {};
+      \node[circle, draw, minimum size=1.2cm] (B) at (-4, -5) {};
+      \node[circle, draw, minimum size=1.2cm] (C) at (4, -5) {};
+
+      % 線を引く
+      \draw (A) --(B);
+      \draw (A) -- (C);
+
+      % 値を入れる
+      \node at (0, 0) {A};
+      \node at (-4, -5) {B};
+      \node at (4, -5) {C};
+    \end{tikzpicture}
+\end{center}
+
+二分探索木で行う処理は以下の通りです。
+
+\begin{itemize}
+  \item 木の作成
+  \item 探索
+  \item 削除
+\end{itemize}
+
+\subsection{二分探索木の作成}
+\texttt{[22,18, 5, 82, 51, 39]}の配列を二分探索木に変換してみましょう。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+
+    % 値を入れる
+    \node at (0, 0) {22};
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{22を挿入}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+
+    % 線を引く
+    \draw (A) --(B);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{18を挿入}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{5を挿入}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{82を挿入}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51};
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{51を挿入}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  \textbf{39を挿入}
+\end{center}
+
+\subsection{二分探索木の探索}
+上の木を例に51を探してみましょう。根から順に探していきます。
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 色を塗る
+    \fill[red!20] (0, 0) circle (0.6);
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+51は22よりも大きいので右の子ノードに進みます。
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 色を塗る
+    \fill[red!20] (0, 0) circle (0.6);
+    \fill[red!20] (1.5, -2) circle (0.6);
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+51は82よりも小さいので左の子ノードに進みます。見つかりました。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 色を塗る
+    \fill[red!20] (0, 0) circle (0.6);
+    \fill[red!20] (1.5, -2) circle (0.6);
+    \fill[red!20] (0.5, -4) circle (0.6);
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+\subsection{二分探索木の削除}
+
+二分探索木からノードを削除する場合は以下の3つのケースがあります。
+
+\begin{itemize}
+  \item 子ノードがない場合
+  \item 子ノードが1つの場合
+  \item 子ノードが2つの場合
+\end{itemize}
+
+\subsubsection{子ノードがない場合}
+例えば5を削除する場合を考えます。5は左右の子ノードがないので、他のノードに影響がないためそのまま削除します。
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm, dotted] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw [dotted] (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+\subsubsection{子ノードが1つの場合}
+次に18を削除する場合を考えます。18は左の子ノードが5しか持っていないので、5を18の位置に移動させます。18は親ノードから見て
+左の子ノードですが、右ノードの場合も同様に処理します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm, dotted] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (-0.5, -6) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw [dotted] (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+    \draw (E) -- (F);
+
+    % 値を入れる
+    \node at (0, 0) {22};
+    \node at (-1.5, -2) {5};
+    \node at (-3, -4) {};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+    \node at (-0.5, -6) {39};
+
+  \end{tikzpicture}
+\end{center}
+
+\subsubsection{子ノードが2つの場合}
+最後に22を削除する場合を考えます。削除するノードが2つの子ノードを持っている場合は、削除するノードの左の子ノードの最大値か、右の子ノードの最小値を持ってきて、
+削除するノードに移動させます。ここでは、22の右の子ノードの最小値39を持ってきて、22の位置に移動させます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {}; 
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (-3, -4) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (1.5, -2) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (0.5, -4) {};
+
+    % 線を引く
+    \draw (A) --(B);
+    \draw (B) -- (C);
+    \draw (A) -- (D);
+    \draw (D) -- (E);
+
+    % 値を入れる
+    \node at (0, 0) {39};
+    \node at (-1.5, -2) {18};
+    \node at (-3, -4) {5};
+    \node at (1.5, -2) {82};
+    \node at (0.5, -4) {51}; 
+
+  \end{tikzpicture}
+\end{center}
+
+\subsection{二分木の実装}
+
+\newpage
+
+\section{Treap}
+
+\newpage
+
+\section{平衡木}
 
 \section{参考}
 \textbf{二分探索}

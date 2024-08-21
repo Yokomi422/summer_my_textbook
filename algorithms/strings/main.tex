@@ -1198,6 +1198,26 @@ last_index = text.rfind(pattern)
 print(last_index + 1 if last_index != -1 else last_index)
 \end{lstlisting}
 
-問題1 ABC 276 A - Right
+問題2 ABC 336 B - CTZ
+\begin{lstlisting}[caption=問題2の解答, frame=TRBL, label={problem2}]
+def cal_ctz(number: int) -> int:
+    bit_size = number.bit_length()
+    shift_size = 0
+    
+    while shift_size < bit_size:
+        if number & (1 << shift_size):
+            return shift_size
+        else:
+            shift_size += 1
+
+def main():
+    n = int(input())
+    ctz = cal_ctz(n)
+    
+    print(ctz)
+        
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
 
 \end{document}
