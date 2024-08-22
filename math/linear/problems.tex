@@ -1,0 +1,175 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% 数学
+\usepackage{amssymb} 
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+% 定理環境
+\newtcolorbox{theorembox}[1][]{
+    enhanced,
+    colback=white!95!green,
+    colframe=green!40!black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title=#1,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=green!30!white, size=small},
+    drop fuzzy shadow,
+    boxrule=0.5mm,
+    sharp corners,
+    top=4mm, bottom=4mm,
+}
+
+% 定義用のボックス環境
+\newtcolorbox{definitionbox}[1][]{
+    enhanced,
+    title=#1, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+}
+
+% 問題用のボックス環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
+\begin{document}
+\section{線形代数と有名不等式}
+\subsection{三角不等式}
+\begin{theorembox}[三角不等式]
+	$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^n$に対し、次の不等式が成り立つ。
+	\begin{enumerate}
+		\item 　$\| \boldsymbol{x} \| - \| \boldsymbol{y} \| \leq \| \boldsymbol{x} + \boldsymbol{y} \| \leq \| \boldsymbol{x} \| + \| \boldsymbol{y} \|$
+		\item $\| \boldsymbol{x} - \boldsymbol{y} \| \geq | \| \boldsymbol{x} \| - \| \boldsymbol{y} \| |$
+	\end{enumerate}
+\end{theorembox}
+
+三角不等式を利用した問題を数問解いてみよう。
+
+\begin{problem}
+	次の2つの式を満たす平面ベクトル$\boldsymbol{x} = (x, y)$を考える。
+	\begin{equation*}
+		|\boldsymbol{x} + 2\boldsymbol{y}| = 1
+	\end{equation*}	
+	\begin{equation*}
+		|2\boldsymbol{x} + \boldsymbol{y}| = 1
+	\end{equation*}
+	このとき、$|\boldsymbol{x} - 3 \boldsymbol{y}|$の最大値と最小値を求めよ。
+\end{problem}
+
+\begin{problem}
+	関数$f(t) = \sqrt{t^2 + 1} + \sqrt{t^2 - 2t + 1}$ ($0 \leq t \leq 1$)が最小値をとる$t$の値を求めよ。
+\end{problem}
+
+\begin{problem}
+	関数$g(t) = \sqrt{t^2 + 1}  \sqrt{t^2 - 2 t + 2}$ ($t > 1$)の最大値とそのときの$t$の値を求めよ。
+\end{problem}
+
+\subsection{コーシー・シュワルツの不等式}
+
+\begin{theorembox}[コーシー・シュワルツの不等式]
+	$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^n$に対し、次の不等式が成り立つ。
+	\begin{equation*}
+		| \boldsymbol{x} \cdot \boldsymbol{y} | \leq \| \boldsymbol{x} \| \| \boldsymbol{y} \|
+	\end{equation*}
+\end{theorembox}
+
+コーシー・シュワルツの不等式を利用した問題を数問解いてみよう。
+
+\begin{problem}
+	$x, y, z > 0$, $x + y + z = 1$のとき、以下に答えよ。
+	\begin{enumerate}
+		\item $x^2 + y^2 + z^2$の最小値
+		\item $\frac{1}{x} + \frac{1}{y} + \frac{1}{z}$の最小値
+	\end{enumerate}
+\end{problem}
+
+\end{document}
