@@ -464,7 +464,7 @@ textのcursorが一度通った場所を再び通ることが多いため、無�
 
 \vspace{0.5cm}
 
-(1)ではpattern[4]で照合失敗しており、pattern[0]からpattern[3](ABAB)の前半とtext[0]からtext[3]の(ABAB)の後半2文字が一致しています。つまり、
+(1)ではpattern[4]で照合失敗しており、pattern[0]からpattern[3](ABAB)の前半とtext[1]からtext[4]の(ABAB)の後半2文字が一致しています。つまり、
 最初の2文字は比べなくても一致していることがわかります。そのため(2)ではpatternのcursorをpatten[2]にして照合を開始しています。
 
 (2)では文字が一致しておらず、patternをずらしてもtext[4], ,text[5]には一致しないので、(3)ではpatternのcursorをはじめに戻しています。
@@ -482,19 +482,19 @@ textのcursorが一度通った場所を再び通ることが多いため、無�
 
 \begin{itemize}
     \item スキップテーブルの配列の長さはpatternの長さ - 1
-    \item スキップテーブルのi番目の要素は、patternのi番目までの部分文字列の最大の接頭辞と接尾辞の長さ
+    \item スキップテーブルのi番目の要素は、patternのi番目までの部分文字列の最大の接頭辞と接尾辞の長さ、つまりpattern[0]からpattern[i]までの文字列を見たとき、
+    前から何文字目までが後ろから何文字目までと一致しているかを表す。
     \item スキップテーブルの最初の要素は0
 \end{itemize}
 
+\vspace{0.1cm}
 
-スキップテーブルを作成するには、pattern同士をずらして比べていきます。その際に
+スキップテーブルを作成するには、pattern同士をずらして比べていきます。その際に以下の手順で作成します。
 
 \begin{itemize}
     \item 文字がマッチする場合は、直近の最長部分一致の長さを記録し、そのまま照合を次の文字に進める
     \item 文字がマッチしない場合は、マッチが失敗した位置からパターンの中で可能な部分一致の場所に移動する(KMP法そのもの)
 \end{itemize}
-
-という手順で作成します。それでは例を見てみましょう。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{0.5cm}
@@ -767,10 +767,10 @@ pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[
 \end{itemize}
 
 \begin{lstlisting}[caption=KMP法の実装, frame=TRBL, label={KMP}]
-    def create_table(pattern: str) -> list[int]:
+def create_table(pattern: str) -> list[int]:
     skip = [0] * (len(pattern) - 1)
     j = 0
-    
+
     for i in range(1, len(pattern) - 1):
         if pattern[i] == pattern[j]:
             j += 1
@@ -779,6 +779,7 @@ pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[
             while j > 0 and pattern[i] != pattern[j]:
                 j = skip[j-1]
             
+            # 例によっては忘れがちなので注意
             if pattern[i] == pattern[j]:
                 j += 1
             
@@ -786,30 +787,25 @@ pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[
     
     return skip
 
-def kmp(text: str, pattern: str) -> int:
-	skip = create_table(pattern)
- 
-	j = 0
- 
-	for i in range(len(text)):
-		# pattern照合の位置
-		if text[i] == pattern[j]:
-			j += 1
-		else:
-			while j > 0 and text[i] != pattern[j]:
-				j = skip[j-1]
-   
-		if j == len(pattern):
-			return i - len(pattern) + 1
-
-	return -1
-
-text = input()
-pattern = input()
-
-index = kmp(text, pattern)
-
-print(index)
+def kmp(text: str, patten: str) -> int:
+    skip_table = create_table(patten)
+    pattern_cursor = 0
+    # len(text) - len(pattern) + 1ではないことに注意
+    for text_cursor in range(len(text)):
+        if text[text_cursor] == patten[pattern_cursor]:
+            pattern_cursor += 1
+        else:
+            while pattern_cursor > 0 and text[text_cursor] != patten[pattern_cursor]:
+                pattern_cursor = skip_table[pattern_cursor - 1]
+            
+            if text[text_cursor] == pattern[pattern_cursor]:
+                pattern_cursor += 1
+                
+        
+        if pattern_cursor == len(patten):
+            return text_cursor - len(patten) + 1
+        
+    return - 1
 \end{lstlisting}
 
 \newpage
