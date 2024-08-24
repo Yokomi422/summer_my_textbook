@@ -456,7 +456,7 @@ def binary_search(array: list[int], key: int):
 
 \newpage
 
-\section{二分索木}
+\section{二分探索木}
 二分探索は探索自体は$O(\log n)$で行うことができますが、配列がソートされているひつようがあり、データの挿入や削除がある場合は毎回ソートがあり非効率ではあります。
 解決策としては、\textbf{データ構造で解決}や\textbf{Treeq}などがあります。データ構造で解決する方法の一つが\textbf{二分探索木}です。
 
@@ -851,7 +851,103 @@ def binary_search(array: list[int], key: int):
 
 \subsection{二分木の実装}
 \begin{lstlisting}[caption=二分木の実装, frame=TRBL, label={binary_tree}]
+class Node:
+  def __init__(self, data: int) -> None:
+      self.data: int = data
+      self.right: Node | None = None
+      self.left: Node | None = None
+      
+  def __str__(self) -> str:
+      return str(self.data)
   
+class BinarySearchTree:
+  def __init__(self):
+      self.root = None
+      
+  def create(self, array: list[int]) -> None:
+      for i in range(len(array)):
+          self.insert(array[i])
+  
+  def insert(self, data: int) -> None:
+      if self.root is None:
+          self.root = Node(data)
+      else:
+          self._insert_recursively(self.root, data)
+  
+  def _insert_recursively(self, node: Node, data: int) -> None:
+      if data <= node.data:
+          if node.left is None:
+              node.left = Node(data)
+          else:
+              self._insert_recursively(node.left, data)
+      else:
+          if node.right is None:
+              node.right = Node(data)
+          else:
+              self._insert_recursively(node.right, data)
+  
+  def search(self, value: int) -> Node | None:
+      if self.root is None:
+          return self.root
+      
+      return self._search_recursively(self.root, value)
+      
+  def _search_recursively(self, node: Node, value: int) -> Node | None:
+      if node.data == value:
+          return node
+      
+      if value < node.data:
+          if node.left is None:
+              return node.left
+          else:
+              return self._search_recursively(node.left, value)
+      else:
+          if node.right is None:
+              return node.right
+          else:
+              return self._search_recursively(node.right, value)
+  
+  def delete(self, value: int) -> Node | None:
+      if self.root is None:
+          return self.root
+      else:
+          self.root = self._delete_recursively(self.root, value)
+  
+  def _delete_recursively(self, node: Node, value: int) -> Node | None:
+      if value < node.data:
+          if node.left is None:
+              return None
+          else:
+              node.left = self._delete_recursively(node.left, value)
+      elif value > node.data:
+          if node.right is None:
+              return None
+          else:
+              node.right = self._delete_recursively(node.right, value)
+      else:
+          if node.left is None and node.right is None:
+              return None
+          elif node.left is None:
+              return node.right
+          elif node.right is None:
+              return node.left
+          else:
+              successor = self._successor()
+              node.data = successor.data
+              self._delete_recursively(node.right, successor.data)
+              
+      return node
+  
+  def _successor(self) -> Node | None:
+      if self.root is None:
+          return self.root
+      
+      node = self.root
+      
+      while node.left is not None:
+          node = node.left
+      
+      return node
 \end{lstlisting}
 
 \newpage
