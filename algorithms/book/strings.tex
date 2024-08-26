@@ -1,0 +1,1149 @@
+
+
+EEIC2024アルゴリズムの授業で扱った文字列照合のアルゴリズムのシケプリです。扱った内容は以下の通りです。
+\begin{itemize}
+	\item 力任せ法
+	\item KMP法
+	\item BM法
+    \item BMH法
+	\item ラビン・カープ法(ローリングハッシュ)
+\end{itemize}
+
+\section{力任せ法}
+力任せ法は文字通り文字列において、所望のパターンが見つかるまで前から順に比較していく方法です。
+以下でtextとpatternの文字列が与えられたときに、textの中にpatternが含まれるかどうか考えましょう。文字列の文字を表す記法は
+text[i]のように0-indexで表します。
+
+最初はtext[0]とpattern[0]を比較すると一致しません。一致しないときは、textのcursorを1つ進めてtext[1]とpattern[0]を比較します。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+text[1]とpattern[0]を比較すると、一致します。しかし、text[5]とpattern[4]が一致しないので、textのcursorを1つ進めてtext[2]とpattern[0]を比較します。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+これを一致していくまで続けていくと、以下のようになります。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+例を通じて力任せ法では、textを0からtextの長さ - patternの長さまで動かすことで、patternがtextに含まれるかどうかを判定することができます。C言語で
+プログラムを書いてみましょう。
+
+\begin{lstlisting}[caption=力任せの実装, label=force, frame=TRBL]
+def brute_force(text: str, pattern: str) -> int:
+    for text_cursor in range(len(text) - len(pattern) + 1):
+        pattern_cursor = 0
+        moving_text_cursor = text_cursor
+        while pattern_cursor < len(pattern) and text[moving_text_cursor] == pattern[pattern_cursor]:
+            pattern_cursor += 1
+            moving_text_cursor += 1
+        
+        if pattern_cursor == len(pattern):
+            return text_cursor
+    
+    return -1
+\end{lstlisting}
+
+\section{KMP法}
+\subsection{力任せ法の無駄}
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-19.9, -2) -- (-19.9, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{1cm}
+
+上の例ではtext[1]から照合を始めてtext[5]で照合が失敗していることがわかります。力任せ法では
+次にtext[2]から照合を始めることになりますが、それはtextの方のcursorが一度通った場所を再度通ることになります。このように、力任せ法は
+textのcursorが一度通った場所を再び通ることが多いため、無駄が多いといえます。
+ただ、上の例ではABABというパターンがあって、ABABの部分が繰り返されていることがわかります。このような繰り返し部分がある場合、
+次に照合を始める位置をスキップすることで無駄が省けそうではないでしょうか？下の例では、textのcursorが後戻りすることなく、patternの位置も
+前にスキップされています。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-16.4, -2) -- (-16.4, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{1cm}
+
+\subsection{KMP法の仕組み}
+上のスキップを実現する方法の1つにKMP法があります。KMP法の流れを具体例を見て確認します。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+% セルの幅を統一した二つ目の表
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    (1)
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    (2)
+\end{center}
+
+\vspace{0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-13.1, -2) -- (-13.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    (3)
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-11.1, -2) -- (-11.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-11.1, -2) -- (-11.1, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    (4)
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+		\makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-9.6, -2) -- (-9.6, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    text
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+    \begin{tikzpicture}[overlay, scale=0.5]
+        \draw[->, thick] (-9.6, -2) -- (-9.6, -1.5);
+    \end{tikzpicture}
+\end{center}
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+    (5) 一致
+\end{center}
+
+\vspace{0.5cm}
+
+(1)ではpattern[4]で照合失敗しており、pattern[0]からpattern[3](ABAB)の前半とtext[1]からtext[4]の(ABAB)の後半2文字が一致しています。つまり、
+最初の2文字は比べなくても一致していることがわかります。そのため(2)ではpatternのcursorをpatten[2]にして照合を開始しています。
+
+(2)では文字が一致しておらず、patternをずらしてもtext[4], ,text[5]には一致しないので、(3)ではpatternのcursorをはじめに戻しています。
+
+(3)と(4)では文字が一致しておらず、さらにpatternもこれ以上右にシフトすることができないので、textとpatternともに最初の位置からcursorを開始しています。
+
+(5)ではpatternがtextに含まれていることがわかりました。
+
+上の例で見たtextとpatternで一致しているときに飛ばせるcursorの数はpatternによって事前に決まります。そのため、文字列照合の前に\textbf{スキップテーブル}作成を
+前処理として行います。
+
+\subsection{スキップテーブルの作成}
+
+スキップテーブルは以下の条件を満たします。
+
+\begin{itemize}
+    \item スキップテーブルの配列の長さはpatternの長さ - 1
+    \item スキップテーブルのi番目の要素は、patternのi番目までの部分文字列の最大の接頭辞と接尾辞の長さ、つまりpattern[0]からpattern[i]までの文字列を見たとき、
+    前から何文字目までが後ろから何文字目までと一致しているかを表す。
+    \item スキップテーブルの最初の要素は0
+\end{itemize}
+
+\vspace{0.1cm}
+
+スキップテーブルを作成するには、pattern同士をずらして比べていきます。その際に以下の手順で作成します。
+
+\begin{itemize}
+    \item 文字がマッチする場合は、直近の最長部分一致の長さを記録し、そのまま照合を次の文字に進める
+    \item 文字がマッチしない場合は、マッチが失敗した位置からパターンの中で可能な部分一致の場所に移動する(KMP法そのもの)
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+pattern[1]とpattern[0]から照合を開始します。pattern[1]で照合が失敗しました。pattern[0]で失敗するとpatternを動かせないので
+skip[1]に0を入れてcursorを進めます。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+
+    % boxの下にindexを振る
+    \begin{tikzpicture}[overlay, remember picture]
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
+        }
+    \end{tikzpicture}
+
+    \begin{center}
+        skip
+    \end{center}
+\end{center}
+
+\vspace{0.5cm}
+
+次はpattern[2]とpattern[0]を照合します。今回は文字が一致しているため、0 + 1をしてskip[2]に1を入れてcursorを進めます。
+また、pattern[3]とpattern[1]、pattern[4]とpattern[2]も一致しているため、skip[3]とskip[4]にはそれぞれ2と3を入れます。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{}  \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+
+    % boxの下にindexを振る
+    \begin{tikzpicture}[overlay, remember picture]
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
+        }
+    \end{tikzpicture}
+
+    \begin{center}
+        skip
+    \end{center}
+\end{center}
+
+\vspace{0.5cm}
+
+pattern[5]とpattern[3]は一致していません。マッチが失敗した位置からパターンの中で可能な部分一致の場所
+に移動するつまり、skip[3-1]　= skip[2]の1にします。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+比較せずともpattern[4]とpattern[0]は一致していることに注意をしてください。ただ。pattern[5]とpattern[1]で比較して失敗しているので、skip[1-1]を見てpatternを0から開始に移動します。
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{0.5cm}
+下のpatternを移動できるだけ移動しても一致していないので、skip[5]には0を入れて再びcursorを前に移動させます。下の図のように次に移動すると上のpattern[10]までは
+一致していることがわかるので、skipを同様に埋めてしまいます。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+
+    % boxの下にindexを振る
+    \begin{tikzpicture}[overlay, remember picture]
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
+        }
+    \end{tikzpicture}
+
+    \begin{center}
+        skip
+    \end{center}
+\end{center}
+
+pattern[11]とpattern[5]を比較すると一致していないので、skip[5-1] = skip[4]を見ると3になっているので下のpatternの照合位置を4からにします。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+
+\vspace{0.5cm}
+
+pattern[11](D)とpattern[3](A)はまたもや一致していないので、skip[3-1] = skip[2]を見ると1になっているので、下のpatternの照合位置を1からにします。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{} &\makebox[0.5cm]{} &\makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\begin{center}
+    pattern
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+またまたpattern[11]とpattern[1]は一致しておらず、もうpatternの移動する余裕はないのでskip[10]には0を入れます。
+
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{0} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{0} & \makebox[0.5cm]{1} & \makebox[0.5cm]{2} & \makebox[0.5cm]{3} & \makebox[0.5cm]{4} & \makebox[0.5cm]{5} & \makebox[0.5cm]{0}\\ 
+        \hline
+    \end{tabular}
+
+    % boxの下にindexを振る
+    \begin{tikzpicture}[overlay, remember picture]
+        \foreach \i [count=\n from 1] in {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+            \node at ({\n * 0.85 - 5.55}, 0) {\i};
+        }
+    \end{tikzpicture}
+
+    \begin{center}
+        skip
+    \end{center}
+\end{center}
+
+\vspace{0.5cm}
+これでスキップテーブルは完成です。好きな文字列と上の例で扱った文字列を照合してみると理解が深まります。
+
+\subsection{KMP法の実装}
+
+実装のポイントは以下の2つです。
+
+\begin{itemize}
+    \item スキップテーブルの作成
+    \item 前処理で用意したスキップテーブルを使った文字列照合
+\end{itemize}
+
+\begin{lstlisting}[caption=KMP法の実装, frame=TRBL, label={KMP}]
+def create_table(pattern: str) -> list[int]:
+    skip = [0] * (len(pattern) - 1)
+    j = 0
+
+    for i in range(1, len(pattern) - 1):
+        if pattern[i] == pattern[j]:
+            j += 1
+            skip[i] = j
+        else:
+            while j > 0 and pattern[i] != pattern[j]:
+                j = skip[j-1]
+            
+            # 例によっては忘れがちなので注意
+            if pattern[i] == pattern[j]:
+                j += 1
+            
+            skip[i] = j
+    
+    return skip
+
+def kmp(text: str, patten: str) -> int:
+    skip_table = create_table(patten)
+    pattern_cursor = 0
+    # len(text) - len(pattern) + 1ではないことに注意
+    for text_cursor in range(len(text)):
+        if text[text_cursor] == patten[pattern_cursor]:
+            pattern_cursor += 1
+        else:
+            while pattern_cursor > 0 and text[text_cursor] != patten[pattern_cursor]:
+                pattern_cursor = skip_table[pattern_cursor - 1]
+            
+            if text[text_cursor] == pattern[pattern_cursor]:
+                pattern_cursor += 1
+                
+        
+        if pattern_cursor == len(patten):
+            return text_cursor - len(patten) + 1
+        
+    return - 1
+\end{lstlisting}
+
+\newpage
+
+\section{BM法}
+\subsection{BM法の仕組み}
+BM法は照合パターンの前からではなくて、後ろから照合を開始します。照合パターンの一番最後つまりDから照合を開始
+します。CとDは一致していないので、ずらします。
+\vspace{0.5cm}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+BM法では以下のように最初から多くスキップすることが多いです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+またAとDは一致していないのでスキップします。今回はAという文字で照合が失敗していますが、照合パターンにもAがあるので先ほどのように一気に飛ばせません。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+次も同様に考えると以下のようになり、一致します。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{C} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B}  & \makebox[0.5cm]{D} & \makebox[0.5cm]{B}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A}  & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+上の例では、照合パターンの最後の文字から照合を開始しました。その際にtextで一致しない文字に応じてtextの照合cursorの位置を動かしていました。では、その動かす
+大きさはどのように決まるでしょうか？KMP法と同様にスキップテーブルを作成します。スキップテーブルを以下のポイントを意識して作成します。
+照合パターンの長さを$l$とします。
+
+\begin{itemize}
+    \item パターンに含まれない文字とパターンの一番最後にしかない文字の移動量は$l$
+    \item 一番最後以外に含まれる文字に関しては、末尾に最も近い出現位置が$i (0 \leq i < l)$ならば、そのときの移動量は$l - i + 1$
+    \item 移動量はtextに出現する文字をすべて網羅する辞書で管理
+\end{itemize}
+
+text照合中にどの文字で失敗したかに応じて移動量が変化するので、textに登場する文字が文字が予め分かっている必要があります。textに登場する文字に応じてUS-ASCIIやUTF-8
+などの文字コードを使って辞書を作成します。今回はUS-ASCIIで実装します。
+
+\subsection{パターンテーブルだけの実装の問題点}
+実はパターンテーブルだけでは問題が起こることがあります。プログラムの停止性に関わる問題です。例えば以下のようなtextとpatternを考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+マッチテーブルは以下のようです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{C} & \makebox[0.5cm]{D} & \makebox[0.5cm]{E} \\
+        \hline
+    \end{tabular}
+
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{2} & \makebox[0.5cm]{5} & \makebox[0.5cm]{3} & \makebox[0.5cm]{1} & \makebox[0.5cm]{5} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+まず、Dで失敗しているのでスキップテーブルのDを見ると1になっています。textの照合開始位置を一つ進めます。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+今度もDで失敗しているので、textの照合開始位置を1進めましょう。今回はtextの途中までは照合が成功しているので、+1するのは照合が失敗したindexであることに注意してください。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+これは最初に見たパターンと同じになっているため、無限ループが発生しています。問題の原因は、スキップテーブルだけだとtextの照合開始indexが
+後戻りすることがあるためです。スキップテーブルを用いることで、照合開始地点よりも前から照合してもパターンと一致することがないことが
+保証されているので、そもそも後戻りする意味はないです。つまり、不一致の場合に次の照合開始地点は前の照合開始地点よりも後ろになって欲しいです。
+
+\vspace{0.5cm}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{D} & \makebox[0.5cm]{B} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{A} & \makebox[0.5cm]{C} & \makebox[0.5cm]{A} & \makebox[0.5cm]{B} & \makebox[0.5cm]{D} & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}  & \makebox[0.5cm]{} & \makebox[0.5cm]{} & \makebox[0.5cm]{}\\ 
+        \hline
+    \end{tabular}
+\end{center}
+\vspace{0.5cm}
+
+上の例では照合失敗を検知するまで4回比較しており、最後に照合した1点のindex + 4の地点から照合を開始しても問題ありません。よってスキップする大きさを決めるには、
+
+\begin{equation*}
+    skip\_size = \max(比較回数、スキップテーブルの値)
+\end{equation*}
+
+とすれば良いです。
+
+\subsection{BM法の実装}
+
+実装のポイントは以下の通りです。
+
+\begin{itemize}
+    \item スキップテーブルの実装
+    \item スキップテーブルを利用して文字列照合
+\end{itemize}
+
+\begin{lstlisting}[caption=BM法の実装, frame=TRBL, label={BM}]
+def bm(text: str, pattern: int) -> int:
+	def create_table(pattern: str) -> list[int]:
+		skip = [0] * (1 << 7)
+		for i in range(1 << 7):
+			last_match = -1
+			for j in range(len(pattern)):
+				if pattern[j] == chr(i):
+					last_match = j
+			
+			if last_match == -1 or last_match == len(pattern) - 1:
+				skip[i] = len(pattern)
+			else:
+				skip[i] = len(pattern) - last_match - 1
+		return skip
+
+	skip = create_table(pattern)
+
+	text_cursor = len(pattern) - 1
+	
+	while text_cursor < len(text):
+		moving_text_cursor = text_cursor
+		pattern_cursor = len(pattern) - 1
+  
+		while text[moving_text_cursor] == pattern[pattern_cursor] and pattern_cursor > 0:
+			moving_text_cursor -= 1
+			pattern_cursor -= 1
+   
+		if pattern_cursor == 0:
+			return text_cursor - len(pattern) + 1
+		
+		# スキップテーブルを見てtextの参照開始位置を更新
+		compared_times = len(pattern) - pattern_cursor
+		skip_table_value = skip[ord(text[moving_text_cursor])]
+  
+		text_cursor += max(skip_table_value, compared_times)
+	
+	return -1
+  
+  
+text = input()
+pattern = input()
+
+print(bm(text, pattern))
+
+\end{lstlisting}
+
+\newpage
+
+\section{ラビン・カープ法(ローリングハッシュ)}
+
+照合パターンとテキストのハッシュを計算し、そのハッシュが一致するか否かで文字列の一致を判定する方法を紹介します。照合パターンの長さを$l$
+とすると、ハッシュを利用することで比較の計算量を$O(l)$から$O(1)$へと定数時間にすることが可能です。
+
+ハッシュは以下のように計算します。互いに素な定数$a, h(1 < a < h)$を用意して、照合パターン($p_0 \cdots p_{l-1}$)に対して、
+
+\begin{equation}
+    H(P) = (a^{l-1} p_0 + a^{l-2} p_1 + \cdots + a^0 p_{l-1}) \mod h
+\end{equation}
+
+テキストの部分文字列(text[0]からtext[l-1])のハッシュも同様に計算して$H(S, 0, l -1)$とすると、
+H(P)とH(S, 0, l - 1)が一致するとき、text[0]からtext[l-1]と照合パターンが一致すると考える。もちろんハッシュが衝突する可能性もあるので実際に一致しているか
+確認する必要があります
+が、今回はハッシュが一致していれば文字列も一致しているとします。
+
+しかし、このハッシュの計算をテキストの大きさだけ計算すると、$O(nl)$の計算量になってしまいます。ここで、テキストのハッシュは$\mod h$を取ったものであるため、
+
+\begin{equation}
+    a^{l-1} p_0 + a^{l-2} p_1 + \cdots + a^0 p_{l-1} = H(S, 0, l - 1) + Ah (\text{Aは整数})
+\end{equation}
+
+と表せます。
+
+これを利用すると、$H(S, 1, l)$は前の$H(S, 0, l - 1)$を用いて以下のように表せます。
+
+\begin{align}
+    H(S, 1, l) &= a^{l-1}s_1 + a^{l-2}s_2 + \cdots + a^0s_l \nonumber\\ 
+    &= a(a^{l-2}s_1 + a^{l-3}s_2 + \cdots + a^1s_{l-1}) + s_l \nonumber\\
+    &= a(a^{l-1} s_0 + a^{l-2}s_1 + \cdots + a^0 s_{l-1}) - a^{l} s_0 + a^0 s_l \nonumber \\
+    &= aH(S, 0, l - 1) - a^{l} s_0 + a^0 s_l 
+\end{align}
+
+よって、テキストのそれぞれのハッシュは前のハッシュを利用することで、定数時間で計算できることがわかりました。これを\textbf{ローリングハッシュ}といいます。
+
+\subsection{ラビン・カープ法の実装}
+
+実装のポイントは以下通りです。
+
+\begin{itemize}
+    \item $a, h$を適当に決める
+    \item 文字を数値に変換する
+    \item テキストと照合パターンのハッシュを保持して尺取法のように計算する
+\end{itemize}
+
+\newpage
+
+\begin{lstlisting}[caption=ラビン・カープ法の実装, frame=TRBL, label={Rabin-Karp}]
+def rolling_hash(text: str, pattern: str) -> list[int]:
+    a = 31
+    h = 998244353
+    
+    text_length, pattern_length = len(text), len(pattern)
+    text_hash = pattern_hash = 0
+    
+    # a^lを先に計算　剰余を取らないと実行時間が非常に長くなる
+    a_l = 1
+    for i in range(pattern_length):
+        a_l = (a_l * a) % h
+    
+    
+    # 最初のハッシュを計算する. 式(1)より
+    for i in range(pattern_length):
+        text_hash = (a * text_hash + ord(text[i])) % h
+        pattern_hash = (a * pattern_hash + ord(pattern[i])) % h
+    
+    for i in range(text_length - pattern_length + 1):
+        if pattern_hash == text_hash:
+            return i
+        
+        if i < text_length - pattern_length:
+            # テキストのハッシュを更新
+            text_hash = (a * text_hash - a_l * ord(text[i]) + ord(text[i + pattern_length])) % h
+        
+            if text_hash < 0:
+                text_hash += h
+    
+    return -1
+\end{lstlisting}
+
+\section{問題}
+
+問題1 ABC 276 A - Right
+
+英子文字からなる文字列が与えられます。最後に現れるaのindexを求める問題です。存在しなければ、-1を出力する問題です。力任せ法とPythonの標準ライブラリ
+を使って2つの解法を使って解いてみましょう。実際にAtCoderに参加するときなどは、標準ライブラリを使った解法を使うことが多いですが、
+勉強中は自分で実装することが大切です。
+
+\begin{lstlisting}[caption=問題1の解答, frame=TRBL, label={problem1}]
+def brute_force_last_index(text: str, pattern: str) -> int:
+    last_index = -1
+    for text_cursor in range(len(text) - len(pattern) + 1):
+        pattern_cursor = 0
+        moving_text_cursor = text_cursor
+        while pattern_cursor < len(pattern) and text[moving_text_cursor] == pattern[pattern_cursor]:
+            pattern_cursor += 1
+            moving_text_cursor += 1
+        
+        if pattern_cursor == len(pattern):
+            last_index = text_cursor
+        
+    
+    return last_index
+
+text = input()
+pattern = "a"
+
+last_index = brute_force_last_index(text, pattern)
+
+print(last_index + 1 if last_index != -1 else last_index)
+
+# 標準ライブラリを使った解法
+text = input()
+pattern = "a"
+
+last_index = text.rfind(pattern)
+
+print(last_index + 1 if last_index != -1 else last_index)
+\end{lstlisting}
+
+問題2 ABC 336 B - CTZ
+\begin{lstlisting}[caption=問題2の解答, frame=TRBL, label={problem2}]
+def cal_ctz(number: int) -> int:
+    bit_size = number.bit_length()
+    shift_size = 0
+    
+    while shift_size < bit_size:
+        if number & (1 << shift_size):
+            return shift_size
+        else:
+            shift_size += 1
+
+def main():
+    n = int(input())
+    ctz = cal_ctz(n)
+    
+    print(ctz)
+        
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+問題 3 yukicoder No.430 文字列検索
+ローリングハッシュの練習問題です。
+
+参考
+\begin{itemize}
+    \item \url{https://blog.hamayanhamayan.com/entry/2016/10/03/083532}
+\end{itemize}
+
+問題 ABC 141 E - Who Says a Pun?
+ローリングハッシュ + $\alpha$の難しい問題です。

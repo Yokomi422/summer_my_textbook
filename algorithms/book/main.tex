@@ -1,0 +1,117 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% url
+\usepackage{url}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+\usepackage{amssymb} 
+
+\newtcolorbox{definitionbox}[1][]{
+    enhanced,
+    title=#1, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+}
+
+% 定理環境
+\newtcolorbox{theorembox}[1][]{
+    enhanced,
+    colback=white!95!green,
+    colframe=green!40!black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title=#1,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=green!30!white, size=small},
+    drop fuzzy shadow,
+    boxrule=0.5mm,
+    sharp corners,
+    top=4mm, bottom=4mm,
+}
+
+\begin{document}
+\tableofcontents
+\input{search}
+\input{strings}
+\input{integer}
+\input{data_structure}
+\end{document}

@@ -4,6 +4,11 @@
 \usepackage{listings}
 \usepackage{fancyhdr}
 
+% 表環境
+\usepackage{lscape} % 表を横向きにする場合に必要
+\usepackage{longtable} % 長い表の場合に必要
+\usepackage{array} % 表の幅をカスタマイズするために必要
+
 % url
 \usepackage{url}
 
@@ -82,5 +87,50 @@
 
 
 \begin{document}
+
+\section{OWASP Juice Shopを通じてWebセキュリティを学ぶ}
+本章では、OWASP Juice Shopを通じてWebセキュリティについて学ぶ。OWASP Juice Shopは、OWASP（Open Web Application Security Project）が提供するWebアプリケーションであり、脆弱性を含んでいる。この脆弱性を利用して、Webセキュリティについて学ぶことができる。
+OWASP Juice Shopにはさまざまな脆弱性が含まれており、その中には、SQLインジェクション、XSS（Cross-Site Scripting）、CSRF（Cross-Site Request Forgery）などが含まれている。これらの詳細に踏み入るのではなく、OWASP Juice Shopを通じてCTFのWebの問題をどのように解くか、そしてWebセキュリティの概要について紹介する。次の章では、脆弱性を具体的に学んでいく。
+
+\subsection{OWASPとは}
+OWASPはOpen Worldwide Application Security Projectのことで、主にWebアプリケーションのセキュリティ関わる調査や情報共有を行うコミュニティである。中でもOWASP Top 10は、Webアプリケーションの脆弱性のトップ10をまとめたものであり、2024年8月時点では2021年版が最新である。OWASP Top 10\footnote{\url{https://owasp.org/Top10/ja/}}は、Webアプリケーションの脆弱性を理解する上で重要な情報源である。
+
+2021年のOWASP Top 10は、以下の通りである。ここでは詳細な説明は避けるが、OWASP Top 10ではこれらの主要な脆弱性の概要や対策が丁寧に記載されているため、Webセキュリティに興味がある方は参照することをお勧めします。
+
+\vspace{0.5cm}
+
+\begin{longtable}{|>{\centering\arraybackslash}m{1cm}|>{\centering\arraybackslash}m{10cm}|}
+  \hline
+  \textbf{順位} & \textbf{脆弱性名} \\
+  \hline
+  1 & \textbf{Broken Access Control} \\
+  \hline
+  2 & \textbf{Cryptographic Failures} \\
+  \hline
+  3 & \textbf{Injection} \\
+  \hline
+  4 & \textbf{Insecure Design} \\
+  \hline
+  5 & \textbf{Security Misconfiguration} \\
+  \hline
+  6 & \textbf{Vulnerable and Outdated Components} \\
+  \hline
+  7 & \textbf{Identification and Authentication Failures}  \\
+  \hline
+  8 & \textbf{Software and Data Integrity Failures} \\
+  \hline
+  9 & \textbf{Security Logging and Monitoring Failures} \\
+  \hline
+  10 & \textbf{Server-Side Request Forgery (SSRF)} \\
+  \hline
+  \end{longtable}
+
+\subsection{OWASP Juice Shop}
+それでは、\footnote{\url{https://tryhackme.com/r/room/owaspjuiceshop}}OWASP Juice Shopを見ながら、Webセキュリティについて学んでいこう。OWASP Juice Shopは、OWASPが提供するWebアプリケーションであり、脆弱性を含んでいる。
+OWASP Juice ShopにアクセスしてStart Machineのボタンをクリックすると、Juice Shopが起動する。
+
+\subsubsection{偵察}
+Start Machineボタンを押すとターゲットマシンのIPアドレスが表示されるので、IPアドレスを使ってターゲットの偵察を行う。まずは、nmapを使ってポートスキャンを行う。
+
 
 \end{document}

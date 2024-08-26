@@ -4,6 +4,8 @@
 \usepackage{listings}
 \usepackage{fancyhdr}
 
+\usepackage{url}
+
 % \adjustbox
 \usepackage{adjustbox}
 
@@ -172,4 +174,159 @@
 	\end{enumerate}
 \end{problem}
 
+参考
+\begin{itemize}
+  \item \url{https://www.chart.co.jp/subject/sugaku/suken_tsushin/76/76-3.pdf}
+  \item \url{https://mathematicsgarden.com/cschwarzprac/}
+\end{itemize}
+
+\section{座標空間と数ベクトル空間}
+ここでは2次元と3次元の座標空間の問題を解いてみよう。
+
+\begin{theorembox}[直線のパラメータ表示]
+  直線$l$上の1点$\boldsymbol{p} = (x_0, y_0, z_0)$と方向ベクトル$\boldsymbol{a} = (a, b, c)$が与えられたとき、直線$l$上の任意の点$\boldsymbol{r} = (x, y, z)$は次のように表される。
+
+  \begin{equation*}
+    \begin{pmatrix}
+      x \\ y \\ z 
+    \end{pmatrix}
+    = \boldsymbol{p} + t \boldsymbol{a} = 
+    \begin{pmatrix}
+      x_0 + t a \\ y_0 + t b \\ z_0 + t c
+    \end{pmatrix}
+  \end{equation*}
+  パラメータ$t$を消去すると、直線$l$の方程式は次のように表される。
+
+  \begin{equation*}
+    \frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}
+  \end{equation*}
+\end{theorembox}
+
+\begin{theorembox}[平面の方程式]
+  平面上の点$\boldsymbol{p} = (x_0, y_0, z_0)$と法線ベクトル$\boldsymbol{n} = (a, b, c)$が与えられたとき、平面上の任意の点$\boldsymbol{r} = (x, y, z)$は
+  $\boldsymbol{n} \cdot (\boldsymbol{r} - \boldsymbol{p}) = 0$を満たす。よって
+  \begin{equation*}
+    a(x - x_0) + b(y - y_0) + c(z - z_0) = 0
+  \end{equation*}
+
+  となる。これを整理すると、
+  \begin{equation*}
+    ax + by + cz = a x_0 + b y_0 + c z_0 = d
+  \end{equation*}
+   となり、これが平面の方程式となる。
+\end{theorembox}
+
+それでは問題を解いてみよう。
+
+\begin{problem}
+  点$(0, 2, 1)$を通り、$\boldsymbol{n} = (1, -2, 3)$を法線ベクトルとする平面の方程式を求めよ。
+\end{problem}
+
+\begin{problem}
+  $xyz$平面の平面$P: 2x - y + 3z = 1$に関して、点$A \begin{pmatrix} 1 \\ 2 \\ 4 \end{pmatrix}$と対照な
+  点$A'$を求めよ。
+
+  \dotfill
+  解答 \\
+  
+\end{problem}
+
+\section{線形写像}
+
+\subsection{線形写像}
+\begin{definitionbox}[線形写像]
+  $\forall \boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^n$, $\forall \lambda \in \mathbb{R}$に対して、次の2つの条件を満たす写像$f: \mathbb{R}^n \to \mathbb{R}^m$を\textbf{線形写像}という。
+
+  \begin{enumerate}
+    \item $f(\boldsymbol{x} + \boldsymbol{y}) = f(\boldsymbol{x}) + f(\boldsymbol{y})$
+    \item $f(\lambda \boldsymbol{x}) = \lambda f(\boldsymbol{x})$
+  \end{enumerate}
+\end{definitionbox}
+
+\subsection{表現行列}
+
+\begin{theorembox}[表現行列]
+  どんな線形写像$f: \mathbb{R}^n \to \mathbb{R}^m$に対しても、ある一意な行列$A$が存在して、
+  \begin{equation*}
+    f(\boldsymbol{x}) = A \boldsymbol{x}
+  \end{equation*}
+  と表される。この行列$A$を$f$の\textbf{表現行列}という。
+\end{theorembox}
+
+表現行列に関わる問題を解いてみよう。
+
+\begin{problem}
+  線形写像$f: \mathbb{R}^2 \to \mathbb{R}^2$が次のように定義されるとき、$f$の表現行列を求めよ。
+  \begin{equation*}
+    \text{fは}y = (\tan x) \text{での鏡映}
+  \end{equation*}
+  \dotfill
+
+  解答 \\
+  線形写像の表現行列を求めるには、以下の2つの方法がある。
+  \begin{itemize}
+    \item 定義域の写像の元を一般的に表して、終域の元を求める。
+    \item 基底を用いて表現行列を求める。
+  \end{itemize}
+
+  今回は2の方法を用いて表現行列を求める。$xy$座標では$(1, 0)$と$(0, 1)$を基底として用いることができるので、
+  それぞれの写像$f$による像を求める。
+
+  \begin{equation*}
+    f(1, 0) = (\tan 1, 0) = (\cos 2 x, \sin 2 x)
+  \end{equation*}
+  \begin{equation*}
+    f(0, 1) = (0, \tan 1) = (\sin 2 x, -\cos 2 x)
+  \end{equation*}
+  よって求める表現行列は、
+  \begin{equation*}
+    A = \begin{pmatrix}
+      \cos 2 x & \sin 2 x \\
+      \sin 2 x & -\cos 2 x
+    \end{pmatrix}
+  \end{equation*}
+\end{problem}
+
+\section{基底と次元}
+\begin{definitionbox}[基底]
+  ベクトル空間$V$のベクトルたち$\boldsymbol{v}_1, \boldsymbol{v}_2, \ldots, \boldsymbol{v}_n$が次の2つの条件を満たすとき、これらは$V$の\textbf{基底}をなすという。
+
+  \begin{enumerate}
+    \item $\boldsymbol{v}_1, \boldsymbol{v}_2, \ldots, \boldsymbol{v}_n$は$V$の1次独立である。
+    \item $V$の任意のベクトル$\boldsymbol{v}$は$\boldsymbol{v}_1, \boldsymbol{v}_2, \ldots, \boldsymbol{v}_n$の線形結合で表される。
+  \end{enumerate}
+\end{definitionbox}
+
+\begin{definitionbox}[次元]
+  ベクトル空間$V$の基底の数を$V$の\textbf{次元}といい、$\dim V$で表す。
+  $V$が有限個のベクトルで生成できないとき、$V$は無限次元であるという($\dim V = \infty$)。
+\end{definitionbox}
+
+
+\begin{definitionbox}[基底の変換行列]
+  $V$を$\mathbb{R}$上のベクトル空間とし、$\dim V = n$とする。$V$の2つの基底
+  \begin{equation*}
+   A:  \boldsymbol{u}_1, \boldsymbol{u}_2, \ldots, \boldsymbol{u}_n
+  \end{equation*}
+  \begin{equation*}
+    B: \boldsymbol{v}_1, \boldsymbol{v}_2, \ldots, \boldsymbol{v}_n
+  \end{equation*}
+  が与えられたとき、これらの基底の間の変換行列$P$は次のように定義される。
+
+  \begin{equation*}
+    \begin{pmatrix}
+      \boldsymbol{v}_1 & \boldsymbol{v}_2 & \cdots & \boldsymbol{v}_n
+    \end{pmatrix} = 
+    \begin{pmatrix}
+      \boldsymbol{u}_1 & \boldsymbol{u}_2 & \cdots & \boldsymbol{u}_n
+    \end{pmatrix}
+    \begin{pmatrix}
+      p_{11} & p_{12} & \cdots & p_{1n} \\
+      p_{21} & p_{22} & \cdots & p_{2n} \\
+      \vdots & \vdots & \ddots & \vdots \\
+      p_{n1} & p_{n2} & \cdots & p_{nn}
+    \end{pmatrix}
+  \end{equation*}
+  行列$P$を$A$から$B$への基底の変換行列という。
+\end{definitionbox}
 \end{document}
