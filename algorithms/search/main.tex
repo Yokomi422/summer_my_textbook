@@ -1087,8 +1087,6 @@ AVL木の例を以下に示します。ノードの横に書いてあるのがba
 
 \newpage
 
-\subsubsection{回転}
-
 1. 左回転
 \begin{center}
 \begin{tikzpicture}[scale=0.7, every node/.style={circle, draw, minimum size=1.2cm}]
@@ -1255,14 +1253,171 @@ AVL木の例を以下に示します。ノードの横に書いてあるのがba
     \node[draw=none, fill=none] at (22, 0 + 1 + 0.2) {0};
   \end{tikzpicture}
 \end{center}
+
+\begin{center}
+  \begin{lstlisting}[caption=二分ヒープの実装, label=binaryheap, frame=TRBL, label={binaryheap}]
+  class Node:
+      def \_\_init\_\_(self, value: int) -> None:
+          self.data: int = value
+          self.left: Node | None = None
+          self.right: Node | None = None
+          self.height: int = 0
+      
+      def \_\_str\_\_(self) -> str:
+          return f"Node: data = {self.data} height = {self.height}"
+          
+  class AVLTree:
+      def \_\_init\_\_(self):
+          self.root = None
+      
+      def \_height(self, node: Node | None) -> int:
+          if node is None:
+              return -1
+          
+          return node.height
+          
+      def \_update\_height(self, node:
+       Node) -> None:
+          node.height = 1 + max(self.\_height(node.left), self.\_height(node.right))
   
+      def \_balance\_factor(self, node: Node) -> int:
+          return self.\_height(node.left) - self.\_height(node.right)
+  
+      def \_right\_rotate(self, node: Node) -> Node:
+          new\_root = node.left
+          node.left = new\_root.right
+          new\_root.right = node
+          
+          self.\_update\_height(node)
+          self.\_update\_height(new\_root)
+          
+          return new\_root 
+      
+      def \_left\_rotate(self, node: Node) -> Node:
+          new\_root = node.right
+          node.right = new\_root.left
+          new\_root.left = node
+          
+          self.\_update\_height(node)
+          self.\_update\_height(new\_root)
+          
+          return new\_root
+          
+      def create(self, values: list[int]) -> None:
+          for value in values:
+              self.insert(value)
+      
+      def insert(self, value: int) -> None:
+          if self.root is None:
+              self.root = Node(value)
+              return self.root
+          else:
+              self.root = self.\_insert\_recursively(self.root, value)
+              return self.root
+      
+      def \_insert\_recursively(self, node: Node, value: int) -> Node:
+          if value <= node.data:
+              if node.left is None:
+                  node.left = Node(value)
+              else:
+                  node.left = self.\_insert\_recursively(node.left, value)
+          else:
+              if node.right is None:
+                  node.right = Node(value)
+              else:
+                  node.right = self.\_insert\_recursively(node.right, value)
+          
+          self.\_update\_height(node)
+          
+          balance\_factor = self.\_balance\_factor(node)
+          
+          if balance\_factor > 1 and value < node.left.data:
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor > 1 and value > node.left.data:
+              node.left = self.\_left\_rotate(node.left)
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and value > node.right.data:
+              return self.\_left\_rotate(node)
+          
+          if balance\_factor < -1 and value < node.right.data:
+              node.right = self.\_right\_rotate(node.right)
+              return self.\_left\_rotate(node)
+          
+          return node
+          
+      
+      def search(self, value: int) -> Node | None:
+          if self.root is None:
+              return None
+          
+          return self.\_search\_recursively(self.root, value)
+  
+      def \_search\_recursively(self, node: Node, value: int) -> Node | None:
+          if value == node.data:
+              return node
+          
+          if value < node.data:
+              if node.left is None:
+                  return None
+              else:
+                  return self.\_search\_recursively(node.left, value)
+          else:
+              if node.right is None:
+                  return None
+              else:
+                  return self.\_search\_recursively(node.right, value)
+              
+      
+      def delete(self, value: int) -> Node | None:
+          if self.root is None:
+              return self.root
+          else:
+              self.root = self.\_delete\_recursively(self.root, value)
+              return self.root
+      
+      def \_delete\_recursively(self, node: Node, value: int) -> Node | None:
+          if value < node.data:
+              node.left = self.\_delete\_recursively(node.left, value)
+          elif value > node.data:
+              node.right = self.\_delete\_recursively(node.right, value)
+          else:
+              if node.left is None and node.right is None:
+                  return None
+              elif node.left is None:
+                  return node.right
+              elif node.right is None:
+                  return node.left
+              else:
+                  min\_node = self.\_find\_min(node.right)
+                  node.data = min\_node.data
+                  node.right = self.\_delete\_recursively(node.right, min\_node.data)
+          
+          self\.\_update\_height(node)
+          
+          balance\_factor = self.\_balance\_factor(node)
+          
+          if balance\_factor > 1 and self.\_balance\_factor(node.left) >= 0:
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and self.\_balance\_factor(node.right) <= 0:
+              return self.\_left\_rotate(node)
+          
+          if balance\_factor > 1 and self.\_balance\_factor(node.left) < 0:
+              node.left = self.\_left\_rotate(node.left)
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and self.\_balance\_factor(node.right) > 0:
+              node.right = self.\_right\_rotate(node.right)
+              return self.\_left\_rotate(node)
+          
+          return node
+  \end{lstlisting}
+  \end{center}
 
-\subsection{赤黒木}
-
+\newpage
 \subsection{B木}
-
-\subsection{Treap}
-
 
 \section{参考}
 \textbf{二分探索}
