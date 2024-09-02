@@ -228,7 +228,6 @@
 
   \dotfill
   解答 \\
-  
 \end{problem}
 
 \section{線形写像}
@@ -283,6 +282,28 @@
     A = \begin{pmatrix}
       \cos 2 x & \sin 2 x \\
       \sin 2 x & -\cos 2 x
+    \end{pmatrix}
+  \end{equation*}
+\end{problem}
+
+\begin{problem}
+  $\mathbb{R}^3$の点$A$を、$A$から平面$x - 2y + z = 0$へ下ろした垂線の足に写す線形写像の表現行列を求めよ。
+  \dotfill
+
+  解答 \\
+  $\mathbb{R}^3$の単位ベクトルがどのように写るかを考える。$\boldsymbol{e}_1 = (1, 0, 0)$に対して
+  法線ベクトル$\boldsymbol{n} = (1, -2, 1)$を用いて、$\boldsymbol{e}_1$から平面へ下ろした垂線の足は
+  \begin{equation*}
+    \boldsymbol{n} + t \boldsymbol{e}_1 = (1 + t, -2t, t)
+  \end{equation*}
+  これが平面$x - 2y + z = 0$上にあればよいので、$t = -\frac{1}{6}$となる。どうの様にすることで、
+  $\boldsymbol{e}_2 = (0, 1, 0)$と$\boldsymbol{e}_3 = (0, 0, 1)$が写るかを考えると、求める表現行列は
+
+  \begin{equation*}
+    A = \begin{pmatrix}
+      \frac{5}{6} & \frac{1}{3} & -\frac{1}{6} \\
+      -\frac{1}{3} & \frac{1}{3} & \frac{1}{3} \\
+      -\frac{1}{6} & \frac{1}{3} & \frac{5}{6}
     \end{pmatrix}
   \end{equation*}
 \end{problem}

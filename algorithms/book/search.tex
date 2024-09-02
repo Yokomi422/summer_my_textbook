@@ -993,8 +993,6 @@ AVL木の例を以下に示します。ノードの横に書いてあるのがba
 
 \newpage
 
-\subsubsection{回転}
-
 1. 左回転
 \begin{center}
 \begin{tikzpicture}[scale=0.7, every node/.style={circle, draw, minimum size=1.2cm}]
@@ -1161,13 +1159,303 @@ AVL木の例を以下に示します。ノードの横に書いてあるのがba
     \node[draw=none, fill=none] at (22, 0 + 1 + 0.2) {0};
   \end{tikzpicture}
 \end{center}
+
+  \begin{lstlisting}[caption=二分ヒープの実装, label=binaryheap, frame=TRBL, label={binaryheap}]
+  class Node:
+      def \_\_init\_\_(self, value: int) -> None:
+          self.data: int = value
+          self.left: Node | None = None
+          self.right: Node | None = None
+          self.height: int = 0
+      
+      def \_\_str\_\_(self) -> str:
+          return f"Node: data = {self.data} height = {self.height}"
+          
+  class AVLTree:
+      def \_\_init\_\_(self):
+          self.root = None
+      
+      def \_height(self, node: Node | None) -> int:
+          if node is None:
+              return -1
+          
+          return node.height
+          
+      def \_update\_height(self, node:
+       Node) -> None:
+          node.height = 1 + max(self.\_height(node.left), self.\_height(node.right))
   
+      def \_balance\_factor(self, node: Node) -> int:
+          return self.\_height(node.left) - self.\_height(node.right)
+  
+      def \_right\_rotate(self, node: Node) -> Node:
+          new\_root = node.left
+          node.left = new\_root.right
+          new\_root.right = node
+          
+          self.\_update\_height(node)
+          self.\_update\_height(new\_root)
+          
+          return new\_root 
+      
+      def \_left\_rotate(self, node: Node) -> Node:
+          new\_root = node.right
+          node.right = new\_root.left
+          new\_root.left = node
+          
+          self.\_update\_height(node)
+          self.\_update\_height(new\_root)
+          
+          return new\_root
+          
+      def create(self, values: list[int]) -> None:
+          for value in values:
+              self.insert(value)
+      
+      def insert(self, value: int) -> None:
+          if self.root is None:
+              self.root = Node(value)
+              return self.root
+          else:
+              self.root = self.\_insert\_recursively(self.root, value)
+              return self.root
+      
+      def \_insert\_recursively(self, node: Node, value: int) -> Node:
+          if value <= node.data:
+              if node.left is None:
+                  node.left = Node(value)
+              else:
+                  node.left = self.\_insert\_recursively(node.left, value)
+          else:
+              if node.right is None:
+                  node.right = Node(value)
+              else:
+                  node.right = self.\_insert\_recursively(node.right, value)
+          
+          self.\_update\_height(node)
+          
+          balance\_factor = self.\_balance\_factor(node)
+          
+          if balance\_factor > 1 and value < node.left.data:
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor > 1 and value > node.left.data:
+              node.left = self.\_left\_rotate(node.left)
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and value > node.right.data:
+              return self.\_left\_rotate(node)
+          
+          if balance\_factor < -1 and value < node.right.data:
+              node.right = self.\_right\_rotate(node.right)
+              return self.\_left\_rotate(node)
+          
+          return node
+          
+      
+      def search(self, value: int) -> Node | None:
+          if self.root is None:
+              return None
+          
+          return self.\_search\_recursively(self.root, value)
+  
+      def \_search\_recursively(self, node: Node, value: int) -> Node | None:
+          if value == node.data:
+              return node
+          
+          if value < node.data:
+              if node.left is None:
+                  return None
+              else:
+                  return self.\_search\_recursively(node.left, value)
+          else:
+              if node.right is None:
+                  return None
+              else:
+                  return self.\_search\_recursively(node.right, value)
+              
+      
+      def delete(self, value: int) -> Node | None:
+          if self.root is None:
+              return self.root
+          else:
+              self.root = self.\_delete\_recursively(self.root, value)
+              return self.root
+      
+      def \_delete\_recursively(self, node: Node, value: int) -> Node | None:
+          if value < node.data:
+              node.left = self.\_delete\_recursively(node.left, value)
+          elif value > node.data:
+              node.right = self.\_delete\_recursively(node.right, value)
+          else:
+              if node.left is None and node.right is None:
+                  return None
+              elif node.left is None:
+                  return node.right
+              elif node.right is None:
+                  return node.left
+              else:
+                  min\_node = self.\_find\_min(node.right)
+                  node.data = min\_node.data
+                  node.right = self.\_delete\_recursively(node.right, min\_node.data)
+          
+          self\.\_update\_height(node)
+          
+          balance\_factor = self.\_balance\_factor(node)
+          
+          if balance\_factor > 1 and self.\_balance\_factor(node.left) >= 0:
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and self.\_balance\_factor(node.right) <= 0:
+              return self.\_left\_rotate(node)
+          
+          if balance\_factor > 1 and self.\_balance\_factor(node.left) < 0:
+              node.left = self.\_left\_rotate(node.left)
+              return self.\_right\_rotate(node)
+          
+          if balance\_factor < -1 and self.\_balance\_factor(node.right) > 0:
+              node.right = self.\_right\_rotate(node.right)
+              return self.\_left\_rotate(node)
+          
+          return node
+  \end{lstlisting}
+
+\newpage
+\subsection{B木}
+AVL木は二分木であるため、データの数が多い場合に気が高くなり検索や挿入に時間がかかってしまう問題があります。そこで枝の数が
+2本よりも多く取るB木というデータ構造を紹介します。B木は応用範囲が広く以下の様な様々なものに使われています。
+
+\begin{itemize}
+  \item データベース
+  \item ファイルシステム
+\end{itemize}
+
+B木はノードが持てる最大の枝の本数$order$によって定義されます。二分木ではノードは1つの値を持っていてその値との大小比較で
+左右の子ノードに振り分けていましたが、B木ではノードが複数の値を持ち、その値の範囲で子ノードに振り分けます。
+order=$3$のB木の例を以下に示します。\texttt{[10, 5, 3, 2, 8, 4, 1, 6]}
+のデータをorder=$3$のB木に入れていきます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.7, every node/.style={circle, draw, minimum size=1.2cm}]    
+    \node [rectangle, minimum width=3cm, minimum height=1cm, draw] (A) at (0, 0) {};
+    \draw (0.7, 0.5) -- (0.7, -0.5);
+    \draw (-0.7, 0.5) -- (-0.7, -0.5);
+  \end{tikzpicture}
+\end{center}
+
+\subsubsection{B木の実装}
+
+\begin{lstlisting}[caption=B木の実装, label=btree, frame=TRBL, label={btree}]
+from bisect import bisect_left, bisect_right
+
+class Node:
+    def __init__(self):
+        self.keys: list[int] = []
+        self.children: list[Node] = []
+
+class BTree:
+    def __init__(self, order: int) -> None:
+        self.order = order
+        self.root = Node()
+    
+    def _median(self, array: list[int]) -> int:
+        return array[len(array) // 2]
+
+    def insert(self, value: int) -> None:
+        node = self._insert_recursively(self.root, value)
+        if node:
+            new_root = Node()
+            new_root.keys = [node[0]]
+            new_root.children = [node[1], node[2]]
+            self.root = new_root
+    
+    def _insert_recursively(self, node: Node, value: int):
+        # 葉ノード
+        if not node.children:
+            node.keys.append(value)
+            node.keys.sort()
+            if len(node.keys) < self.order:
+                return None 
+            else:
+                return self._split(node)
+        else:  
+            index = bisect_right(node.keys, value)
+            result = self._insert_recursively(node.children[index], value)
+            
+            if result is not None:
+                median, left_node, right_node = result
+                node.keys.insert(index, median)
+                
+                # 修正：左ノードを適切に設定し、右ノードを挿入
+                node.children[index] = left_node  # 左の子ノードを置き換える
+                node.children.insert(index + 1, right_node)  # 右の子ノードを挿入
+
+                if len(node.keys) < self.order:
+                    return None
+                else:
+                    return self._split(node) 
+            return None
+
+    def _split(self, node: Node):
+        median_index = len(node.keys) // 2
+        median = node.keys[median_index]
+
+        left_node = Node()
+        right_node = Node()
+
+        left_node.keys = node.keys[:median_index]
+        right_node.keys = node.keys[median_index + 1:]
+
+        if node.children:
+            left_node.children = node.children[:median_index + 1]
+            right_node.children = node.children[median_index + 1:]
+
+        return median, left_node, right_node
+
+    def search(self, value: int) -> bool:
+        node = self.root
+        if value in node.keys:
+            return True
+        else:
+            return self._search_recursively(self.root, value)
+    
+    def _search_recursively(self, node: Node, value: int) -> bool:
+        if len(node.children) == 0:
+            return False
+        
+        index = bisect_left(node.keys, value)
+        next_node = node.children[index]
+        
+        if value in next_node.keys:
+            return True
+        else:
+            return self._search_recursively(node.children[index], value)
+
+b_tree = BTree(order=3)
+b_tree.insert(5)
+b_tree.insert(10)
+b_tree.insert(15)
+b_tree.insert(20)
+b_tree.insert(30)
+
+b_tree.insert(21)
+b_tree.insert(22)
+\end{lstlisting}
+
+\newpage
 
 \subsection{赤黒木}
+赤黒木はAVL木同様平衡二分探索木の１つで、以下の特徴を持っています。
 
-\subsection{B木}
-
-\subsection{Treap}
+\begin{itemize}
+  \item 各ノードは赤か黒の色を持つ
+  \item 根ノードは黒である
+  \item 赤のノードの子ノードは黒である
+  \item あるノードからその子孫の葉ノードまでの黒の数は同じである
+  \item 葉ノードは黒である
+\end{itemize}
 
 
 \section{参考}
@@ -1181,4 +1469,18 @@ AVL木の例を以下に示します。ノードの横に書いてあるのがba
 \noindent \textbf{二分探索木}
 \begin{itemize}
   \item \url{https://www.geeksforgeeks.org/introduction-to-avl-tree/}
+\end{itemize}
+
+\noindent \textbf{B木}
+\begin{itemize}
+  \item \url{https://www.geeksforgeeks.org/b-tree-in-python/}
+  \item \url{https://www.javatpoint.com/b-tree}
+  \item \url{https://wqwq3215.medium.com/b-tree%E3%82%92%E7%90%86%E8%A7%A3%E3%81%97%E3%81%A6%E3%81%84%E3%81%8F-142f93fc3c6c}
+\end{itemize}
+
+\noindent \textbf{赤黒木}
+
+\begin{itemize}
+  \item \url{https://qiita.com/kgoto/items/b15b9a494deae010d660}
+  \item \url{http://wwwa.pikara.ne.jp/okojisan/rb-tree/index.html}
 \end{itemize}
