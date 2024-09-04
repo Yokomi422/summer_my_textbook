@@ -676,6 +676,7 @@ print(return_value)
 	\item 根ノードは常に最大(または最小)となる
 \end{itemize}
 
+ヒープは最大値や最小値を根に持つため、最大値や最小値を取り出すのが高速です。
 さらに今回はヒープの中でさらに、complete binary treeになっている\textbf{二分ヒープ}というデータ構造を扱います。ヒープはcomplete binary tree
 に対して、以下の操作を行います。
 
@@ -686,8 +687,6 @@ print(return_value)
 
 要素の追加に関して、二分ヒープがcomplete binary treeになっているため、根がある階層(level)の一番右に要素を追加してきます。
 追加時に、追加したノードから根までヒープの条件を満たすように再帰的にノードを交換していきます。以下は最小ヒープの例です。
-
-\vspace{1cm}
 
 \begin{figure}[htbp]
 	\begin{center}
@@ -738,9 +737,35 @@ print(return_value)
 	\end{center}
 	\end{figure}
 
+2を追加すると、第二階層において親の値は子以下であるという性質を満たさなくなってしまいます。そこで、2と3を交換します。実装としては
+追加したノードから根に向かって再帰的に親ノードと比較してヒープの条件を満たすまでノードを交換していきます。
+
+\begin{center}
+	\begin{tikzpicture}[scale=0.4]
+		\node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {};
+		\node[circle, draw, minimum size=1.2cm] (B) at (-4, -5) {};
+		\node[circle, draw, minimum size=1.2cm] (C) at (4, -5) {};
+		\node[circle, draw, minimum size=1.2cm] (D) at (-8, -10) {};
+		\node[circle, draw, minimum size=1.2cm] (E) at (-1, -10) {};
+
+		% 線を引く
+		\draw (A) --(B);
+		\draw (A) -- (C);
+		\draw (B) -- (D);
+		\draw (B) -- (E);
+
+		% 値を入れる
+		\node at (0, 0) {1};
+		\node at (-4, -5) {2};
+		\node at (4, -5) {4};
+		\node at (-8, -10) {6};
+		\node at (-1, -10) {3};
+	\end{tikzpicture}
+\end{center}
+
 \vspace{1cm}
 
-二分ヒープからの削除は少し複雑です。以下のような操作を行います。
+二分ヒープからの削除は少し複雑です。ヒープでは必ず根から取り出すことに注意してください。以下のような操作を行います。
 
 \begin{enumerate}
 	\item 根ノードを取り除く
@@ -808,7 +833,7 @@ print(return_value)
 	\begin{center}
 		\begin{tabular}{cc}
 			\begin{tikzpicture}[scale=0.4]
-				\node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {};
+				\node[circle, draw, minimum size=1.2cm, dashed] (A) at (0, 0) {};
 				\node[circle, draw, minimum size=1.2cm] (B) at (-4, -5) {};
 				\node[circle, draw, minimum size=1.2cm] (C) at (4, -5) {};
 				\node[circle, draw, minimum size=1.2cm] (D) at (-8, -10) {};
@@ -821,7 +846,7 @@ print(return_value)
 				\draw (B) -- (E);
 
 				% 値を入れる
-				\node at (0, 0) {1};
+				\node at (0, 0) {};
 				\node at (-4, -5) {3};
 				\node at (4, -5) {4};
 				\node at (-8, -10) {6};
@@ -857,11 +882,11 @@ print(return_value)
 上の例では、根を取り除き一番右のノードを根に移動すると木がヒープの性質を満たしていますが、一般的にはヒープの性質を満たすまで
 根から下に向かってノードを再帰的に交換していきます。
 
-\subsection{ヒープの実装}
 二分ヒープの実装のポイントは
 
 \begin{itemize}
 	\item 1-indexedの配列で実装する(要素数 + 1の大きさの配列を用意する)
+	\item 追加、削除時にヒープの条件を満たす様に再帰的に更新する
 \end{itemize}
 
 
@@ -875,17 +900,16 @@ class Heap:
 		self.heap = [self.inf] * self.size
 		self.tail = 0 # 現在のヒープのデータ数
 		
-	# 複数回swap処理が登場するためメソッドにした
-	def swap(self, index1: int, index2: int) -> None:
+	def _swap(self, index1: int, index2: int) -> None:
 		self.heap[index1], self.heap[index2] = self.heap[index2], self.heap[index1]
 
 	def push(self, value: int) -> None:
 		if self.tail != self.size - 1:
 			self.tail += 1
 			self.heap[self.tail] = value
-			self.check_from_leaf(self.tail)
+			self._check_from_leaf(self.tail)
 
-	def check_from_leaf(self, node: int) -> None:
+	def _check_from_leaf(self, node: int) -> None:
 		# nodeが根なら再帰終了
 		if node == 1:
 			return
@@ -893,8 +917,8 @@ class Heap:
 		parent = node // 2
 		# ヒープの条件を満たさない
 		if self.heap[parent] > self.heap[node]:
-			self.swap(parent, node)
-			self.check_from_leaf(parent)
+			self._swap(parent, node)
+			self._check_from_leaf(parent)
 		
 
 	def pop(self) -> int | None:
@@ -903,12 +927,12 @@ class Heap:
 			# 一番右の葉ノードを根ノードに移動
 			self.heap[1] = self.heap[self.tail]
 			self.tail -= 1
-			self.check_from_root(1)
+			self._check_from_root(1)
 			return popping_value
 		else:
 			return None
 
-	def check_from_root(self, node: int) -> None:
+	def _check_from_root(self, node: int) -> None:
 		left_child, right_child = 2 * node, 2 * node + 1
 		
 		# left > rightよりこれだけで十分
@@ -924,11 +948,17 @@ class Heap:
 		
 		# 親ノードと小さい方の子ノードを比較
 		if self.heap[node] > self.heap[smaller_node]:
-			self.swap(node, smaller_node)
+			self._swap(node, smaller_node)
 			# 小さい方だけで十分
-			self.check_from_root(smaller_node)
+			self._check_from_root(smaller_node)
 
 \end{lstlisting}
+
+\subsection{問題}
+問題1 \\
+ABC 141 D - Powerful Discount Tickets \\
+とにかく一番高い商品の値段を半分の値段で買っていくのが良さそうです。上で実装した自作ヒープと
+Pythonの標準ライブラリのheapqの両方を使って解いてみましょう。
 
 \newpage
 
@@ -1044,7 +1074,6 @@ $op(x, y) = x + y$は閉じた演算ですが、$op(x, y) = x - y$は閉じた�
 は$a_4 * a_5 * a_6$になります。同様に、そのほかの?も埋めていくと以下の図のようになります。
 
 \vspace{1cm}
-
 
 \begin{center}
 \begin{tikzpicture}[scale=0.7, transform shape]

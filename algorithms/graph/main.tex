@@ -80,6 +80,45 @@
 % tikzの設定
 \usepackage{tikz}
 
+% 定理環境
+\newtcolorbox{theorembox}[1][]{
+    enhanced,
+    colback=white!95!green,
+    colframe=green!40!black,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title=#1,
+    attach boxed title to top left={yshift=-2mm, xshift=2mm},
+    boxed title style={colback=green!30!white, size=small},
+    drop fuzzy shadow,
+    boxrule=0.5mm,
+    sharp corners,
+    top=4mm, bottom=4mm,
+}
+
+\newtcolorbox{definitionbox}[1][]{
+    enhanced,
+    title=#1, 
+    attach boxed title to top left, 
+    colback=white!95!blue,
+    colbacktitle=white!10!blue!50!black,
+    drop fuzzy shadow,
+    boxrule=0.25mm,
+}
+% 問題用のボックス環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
 \begin{document}
 \section{グラフの用語整理}
 グラフはノードとエッジからなるデータ構造です。グラフの用語を整理します。
@@ -757,25 +796,868 @@ def dfs(graph: list[list[int]], start: int, visited: list[bool]) -> list[bool]:
 \end{lstlisting}
 
 \newpage
-\section{BFSとDFSを用いた問題}
-BFSとDFSは実装はシンプルですが、応用先は広いです。以下にいくつかの問題を紹介します。
-\subsection{最短経路問題}
-\subsection{オイラーツアー}
-\subsection{LCA}
-\subsection{橋の検出}
+
+\section{素集合データ構造(Union-Find木)}
+Union-Find木はノードの集合の連結性を管理するデータ構造です。下の例では、AとDが同じノードにあるかを高速に判定したり、逆にAとDを連結したりする操作を
+行うことができます。Union-Find木は以下の操作を行います。
+
+\vspace{0.5cm}
+
+\begin{itemize}
+  \item Union 2つの集合を結合する
+  \item Find: 2つのノードが同じ集合に属しているかを判定する
+\end{itemize}
+
+\vspace{0.5cm}
+
+\begin{tabular}{c @{\hspace{3cm}} c @{\hspace{3cm}} c} 
+
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 2) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (-1, 0) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1, 0) {C};
+
+    \draw[<-] (A) -- (B);
+    \draw[<-] (A) -- (C);
+  \end{tikzpicture}
+  &
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (D) at (0, 2) {D};
+  \end{tikzpicture}
+  &
+  % 右の木
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 2) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (0, 0) {B};
+
+    \draw[->] (B) -- (A);
+  \end{tikzpicture}
+
+\end{tabular}
+
+
+
+
+\begin{lstlisting}[caption=Union-Find木の実装, label=union_find, frame=TRBL, label={union_find}]
+class UnionFind:
+  def __init__(self, size: int) -> None:
+      self.size: int= size
+      self.parent: list[int] = [i for i in range(self.size)] 
+      self.depth: list[int] = [1] * self.size
+  
+  def _root(self, x: int) -> int:
+      if self.parent[x] == x:
+          return x
+      # 経路圧縮
+      self.parent[x] = self._root(self.parent[x])
+      return self.parent[x]
+      
+  def is_same(self, x: int, y: int) -> bool:
+      return self._root(x) == self._root(y)
+  
+  def unite(self, x: int, y: int) -> None:
+      x, y = map(self.root, (x, y))
+      # すでに同じグループに属するなら何もしない
+      if x == y:
+          return
+      # union by size y側のサイズが小さくなるようにする
+      if self.depth[x] < self.depth[y]:
+          x, y = y, x
+      # yをxの子とする
+      self.parent[y] = x 
+      self.depth[x] += self.depth[y]
+      
+
+
+\end{lstlisting}
+
 
 \newpage
 \section{最短経路問題}
-DFSを用いた最短経路は上で紹介しましたが、今回はより効率的な最短経路問題の解法を紹介します。
+BFSを用いた最短経路は上で紹介しましたが、今回はより効率的な最短経路問題の解法を紹介します。DFSでは重さが1のグラフでしか最短経路を求めることができませんが、
+ダイクストラ法を用いることで重み付きグラフでも最短経路を求めることができます。また、負の重みがあっても最短経路を求めることができるベルマンフォード法も紹介します。
 
 \subsection{ダイクストラ法}
-\subsection{ベルマンフォード法}
+ダイクストラ法を理解する上で重要な重み付きグラフの性質を紹介します。
+
+\begin{theorembox}[経路緩和性]
+  最短経路の部分経路も最短経路である
+
+
+  \dotfill \\
+  簡単な証明 \\
+  Pを最短経路とし、その部分経路をQとする。もしもQよりも短い経路Rが存在するとすると、Rを使った経路の方がPよりも短い経路になるため、Pは最短経路ではない。
+  Pが最短経路であるという過程に矛盾が生じるため、Qも最短経路である。
+\end{theorembox}
+
+具体例を挙げて説明します。以下のグラフを考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+AからHまでの最短経路は以下の通りです。もしもゴールがG、F、D、Cいずれの場合でも、最短経路はA→C→D→F→G→Hの経路になります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 最短経路に赤色を塗る
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (G) at (6.5, -3) {G};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (H) at (7.5, -0.5) {H};
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw[line width=1.5pt, ->] (A) -- node[below] {4} (C);
+    \draw[line width=1.5pt, ->] (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw[line width=1.5pt, ->] (D) -- node[below] {1} (F);
+    \draw[line width=1.5pt, ->]  (G) -- node[right] {2} (H);
+    \draw[line width=1.5pt, ->]  (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+以上の性質より、あるノードまでの最短経路を考えるときはそのノードの前のノードまでの最短経路を考えればよいことがわかります。この性質を利用したのアルゴリズムがダイクストラ法です。
+ダイクストラ法は以下の手順で最短経路を求めることができます。
+
+\begin{enumerate}
+  \item まだ距離が確定していないノードのうち、最も距離が短いノード$x$を選択する
+  \item ノード$x$に繋がっているノードの距離を更新する
+  \item 更新が終わるとノード$x$の距離を確定する
+  \item すべての頂点が確定するまで1から3を繰り返す
+\end{enumerate}
+
+距離は$\infty$、スタート地点は0で初期化します。上のグラフを例にしてダイクストラ法の例を見てみます。
+最初の距離が確定していないのーどで最も距離が短いノードはAです。Aに繋がっているノードの距離を更新します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (A_label) at (-0.2, 0) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] (B_label) at (2.2, 2.5) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (C_label) at (1.5, -2.5) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (D_label) at (3.8, -0.5) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (E_label) at (4, -2.8) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (F_label) at (6.5, 2) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (G_label) at (6.3, -4) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (H_label) at (9.5, -0.5) {$\infty$};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+最初の距離が確定していないのーどで最も距離が短いノードはAです。Aに繋がっているノードの距離を更新します。
+更新が終わったので、Aの距離を確定します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 確定したノードに赤色を塗る
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (A_label) at (-0.2, 0) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] (B_label) at (2.2, 2.5) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (C_label) at (1.5, -2.5) {4};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (D_label) at (3.8, -0.5) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (E_label) at (4, -2.8) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (F_label) at (6.5, 2) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (G_label) at (6.3, -4) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (H_label) at (9.5, -0.5) {$\infty$};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+次に距離が確定していないノードで最も距離が短いノードを選択します。今回はCです。Cに繋がっているノードの距離を更新します。
+Cに繋がっているノードを更新したら、Cの距離を確定します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 確定したノードに赤色を塗る
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (1.5, -2.5) {C};
+
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (A_label) at (-0.2, 0) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] (B_label) at (2.2, 2.5) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (C_label) at (1.5, -2.5) {4};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (D_label) at (3.8, -0.5) {6};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (E_label) at (4, -2.8) {7};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (F_label) at (6.5, 2) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (G_label) at (6.3, -4) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (H_label) at (9.5, -0.5) {$\infty$};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+次に距離が確定していないノードで最も距離が短いノードを選択します。今回はBです。Bに繋がっているノードの距離を更新します。
+Dに関しては、すでにわかっている経路の方が短いので更新しません。Bの距離を確定します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 確定したノードに赤色を塗る
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (A_label) at (-0.2, 0) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] (B_label) at (2.2, 2.5) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (C_label) at (1.5, -2.5) {4};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (D_label) at (3.8, -0.5) {6};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (E_label) at (4, -2.8) {7};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (F_label) at (6.5, 2) {14};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (G_label) at (6.3, -4) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (H_label) at (9.5, -0.5) {$\infty$};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+以下同様に更新すると、最終的に以下のような結果になります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 確定したノードに赤色を塗る
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (G) at (6.5, -3) {G};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (H) at (7.5, -0.5) {H};
+
+
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (A_label) at (-0.2, 0) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] (B_label) at (2.2, 2.5) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (C_label) at (1.5, -2.5) {4};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (D_label) at (3.8, -0.5) {6};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (E_label) at (4, -2.8) {7};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (F_label) at (6.5, 2) {7};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (G_label) at (6.3, -4) {9};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] (H_label) at (9.5, -0.5) {11};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\subsubsection{ダイクストラ法の実装}
+ダイクストラ法はとてもシンプルなアルゴリズムです。ダイクストラ法の実装のポイントは以下の通りです。
+
+\begin{itemize}
+  \item 最短距離を格納する配列を用意する
+  \item まだ確定していないノードのうち、最も距離が短いノードを選択する。最も短いノードを$O(\log n)$で取得するためにヒープを使う
+  \item 選択したノードに繋がっているノードの距離を前回の距離と比較して更新する
+  \item すべてのノードが確定するまで繰り返す
+\end{itemize}
+
+Pythonの標準ライブラリのヒープはtupleなどを渡すindexが早い要素から比較してくれるので、ダイクストラ法の実装に適しています。
+(移動距離、ノード)のtupleでヒープに追加することで、最短距離が短いノードを取得することができます。もちろん自分で実装したヒープを使っても問題ありません。
+
+与えられる重み付きグラフは(終点、重み)の形式で隣接リストで与えられるとします。以下にダイクストラ法の実装を示します。
+\begin{lstlisting}[caption=ダイクストラ法の実装, label=dijkstra, frame=TRBL, label={dijkstra}]
+from heapq import heappop, heappush
+
+def dijkstra(graph: list[list[int]], start: int) -> list[int]:
+      done = [False] * len(graph)
+      dist = [1 << 60] * len(graph)
+      todo = []
+      
+      # 初期化
+      dist[start] = 0
+      heappush(todo, (dist[start], 0))
+      
+      while todo:
+          distance, node = heappop(todo)
+          if done[node]:
+              continue
+          
+          # 更新
+          for connected_node, weight in graph[node]:
+              if distance + weight < dist[connected_node]:
+                  dist[connected_node] = distance + weight
+                  heappush(todo, (dist[connected_node], connected_node))
+          
+          done[node] = True
+      
+      return dist
+                  
+\end{lstlisting}
+
+\newpage
+
+\subsection{ベルマン・フォード法}
+ベルマン・フォード法はダイクストラ法と異なり、負の重みを持つ辺があっても機能する単一始点全点間最短路を求めるアルゴリズムです。負の閉路の検出も可能です。
+ダイクストラ法とは違って最短距離の選択を行わずに、毎回すべての辺を更新します。
+
+ベルマン・フォード法のアルゴリズムを例を使って説明します。以下のグラフを例に考えます。概要はダイクストラ法とあまり変わりません。ただし、
+グラフの情報が(始点、終点、重み)のlistで与えられるとします。例えば、(A, B, 5)はAからBへでている重みが5のノードであることを示します。
+
+すべて列挙すると、以下の様になります。
+
+\begin{equation*}
+  \begin{aligned}
+    \text{edges} =
+    &(A, B, 5), (B, C, -4), (C, A, -3), (C, D, 2), (B, D, 3), (B, F, 9), (F, H, 5), \\
+    &(C, E, 3), (E, G, 8), (D, G, 7), (D, F, 1), (G, H, 2), (F, G, 2)
+  \end{aligned}
+\end{equation*}
+
+初期化として始点の距離は0, それ以外は$\infty$とします。ベルマン・フォード法は以下のアルゴリズムに従っています。
+
+\begin{enumerate}
+  \item edgesをすべて列挙し、始点から終点への重みを更新する
+  \item 1をV - 1回繰り返す(Vはノードの数)
+\end{enumerate}
+
+V-1回の更新で、最短距離が確定します。もし、V回目にも更新がある場合は負の閉路が存在することになります。最短経路を求めるのにV - 1回の更新で十分な理由は、
+経路緩和性によって開始地点から終点が最も遠い場合でも、V - 1回の更新で確定するからです。
+
+\vspace{0.5cm}
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    % distを表示する小さな四角を追加
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] at (A) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (B) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] at (C) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (D) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (E) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (F) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (G) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (H) {$\infty$};
+
+    % エッジの定義（有向グラフ）
+    \draw[->] (A) -- node[above] {5} (B);
+    \draw[->] (B) -- node[right] {-4} (C);
+    \draw[->] (C) -- node[left] {-3} (A); % 負の閉路を形成するエッジ
+    \draw[->] (C) -- node[above] {2} (D);
+    \draw[->] (B) -- node[right] {3} (D);
+    \draw[->] (B) -- node[above] {9} (F);
+    \draw[->] (F) -- node[above] {5} (H);
+    \draw[->] (C) -- node[below] {3} (E);
+    \draw[->] (E) -- node[below] {8} (G);
+    \draw[->] (D) -- node[below] {7} (G);
+    \draw[->] (D) -- node[below] {1} (F);
+    \draw[->] (G) -- node[right] {2} (H);
+    \draw[->] (F) -- node[right] {2} (G);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+ベルマン・フォード法の流れを確認します。最初はAと繋がっているBが更新されます。他のノードもedgesをすべて列挙して更新を図りますが、
+$\infty +$有限の値と考えるため、更新されないとみなすことができます。
+\vspace{0.5cm}
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    % distを表示する小さな四角を追加
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] at (A) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (B) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] at (C) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (D) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (E) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (F) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (G) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (H) {$\infty$};
+
+    % エッジの定義（有向グラフ）
+    \draw[->] (A) -- node[above] {5} (B);
+    \draw[->] (B) -- node[right] {-4} (C);
+    \draw[->] (C) -- node[left] {-3} (A); % 負の閉路を形成するエッジ
+    \draw[->] (C) -- node[above] {2} (D);
+    \draw[->] (B) -- node[right] {3} (D);
+    \draw[->] (B) -- node[above] {9} (F);
+    \draw[->] (F) -- node[above] {5} (H);
+    \draw[->] (C) -- node[below] {3} (E);
+    \draw[->] (E) -- node[below] {8} (G);
+    \draw[->] (D) -- node[below] {7} (G);
+    \draw[->] (D) -- node[below] {1} (F);
+    \draw[->] (G) -- node[right] {2} (H);
+    \draw[->] (F) -- node[right] {2} (G);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+2回目の更新です。
+
+\vspace{0.5cm}
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {F};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {H};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {G};
+
+    % distを表示する小さな四角を追加
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=0.5cm] at (A) {0};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (B) {5};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=-0.8cm, yshift=-0.5cm] at (C) {1};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (D) {8};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (E) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (F) {14};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=-0.5cm] at (G) {$\infty$};
+    \node[rectangle, draw, minimum size=0.5cm, xshift=0.8cm, yshift=0.5cm] at (H) {$\infty$};
+
+    % エッジの定義（有向グラフ）
+    \draw[->] (A) -- node[above] {5} (B);
+    \draw[->] (B) -- node[right] {-4} (C);
+    \draw[->] (C) -- node[left] {-3} (A); % 負の閉路を形成するエッジ
+    \draw[->] (C) -- node[above] {2} (D);
+    \draw[->] (B) -- node[right] {3} (D);
+    \draw[->] (B) -- node[above] {9} (F);
+    \draw[->] (F) -- node[above] {5} (H);
+    \draw[->] (C) -- node[below] {3} (E);
+    \draw[->] (E) -- node[below] {8} (G);
+    \draw[->] (D) -- node[below] {7} (G);
+    \draw[->] (D) -- node[below] {1} (F);
+    \draw[->] (G) -- node[right] {2} (H);
+    \draw[->] (F) -- node[right] {2} (G);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+以下のように更新を繰り返すと、最終的に以下のような結果になります。
+
+\begin{lstlisting}[caption=ベルマン・フォード法の実装, label=berman, frame=TRBL, label={berman}]
+def bellman_ford(v: int, edges: list[tuple[int, int, int]]) -> list[int] | int:
+  # 初期化
+  dist = [1 << 60] * v
+  dist[0] = 0
+
+  for _ in range(v - 1):
+      for start, end, weight in edges:
+          if dist[start] != 1 << 60 and dist[start] + weight < dist[end]:
+              dist[end] = dist[start] + weight
+  
+  # 一度v-1回更新した後に負の閉路を検出
+  for start, end, weight in edges:
+      if dist[start] != 1 << 60 and dist[start] + weight < dist[end]:
+          return -1  
+
+  return dist
+\end{lstlisting}
+
+\newpage
+
 \subsection{SPFA(Shortest Path Faster Algorithm)}
+SPFAはベルマン・フォード法を高速化したアルゴリズムです。基本はベルマン・フォード法と同じですが、毎回すべての辺をチェックすること
+防ぐ工夫がされています。あるノード$x$が更新されなければ、そのノードに繋がっている他のノードの距離も更新されません。実装上は
+更新が必要なノードが出てきたらそれをqueueに入れ、queueがからになるまで処理を続けます。
+
+SPFA実装の実装は以下の様になります。
+
+\begin{lstlisting}[caption=SPFAの実装, label=spfa, frame=TRBL, label={spfa}]
+from collections import deque
+
+def spfa(v: int, edges: list[list[tuple[int, int]]]):
+      inf = 1 << 60
+      dist = [inf] * v
+      dist[0] = 0
+      
+      node_to_check = deque()
+      in_queue = [False] * v
+      
+      while node_to_check:
+          current_node = node_to_check.popleft()
+          in_queue[current_node] = False
+          
+          for end, weight in edges[current_node]:
+              if dist[current_node] + weight < dist[end]:
+                  dist[end] = dist[current_node] + weight 
+              
+              if not in_queue[end]:
+                  in_queue[end] = True
+                  node_to_check.append(end)
+      
+      return dist
+\end{lstlisting}
+
+\newpage
+
 \subsection{ワーシャルフロイド法}
+\begin{lstlisting}[caption=ワーシャルフロイド法の実装, label=warshall, frame=TRBL, label={warshall}]
+def warshall_floyd(n: int, dist: list[list[int]]):
+  for i in range(n):
+      for j in range(n):
+          for k in range(n):
+              dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k])
+\end{lstlisting}
+
 
 \newpage
 
 \section{最小全域木}
+\textbf{全域木}とは、すべてのノードが繋がっている木のことをいいます。また\textbf{最小全域木}とは、全域木の中で重さが最小になるもののことをいいます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {3} (E);
+    \draw (B) -- node[above] {9} (F);
+    \draw (E) -- node[below] {8} (G);
+    \draw (G) -- node[below] {7} (D);
+    \draw (D) -- node[below] {5} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+最小全域木を求めるには、辺ベースのアプローチとノードベースのアプローチの2種類があります。それぞれ\textbf{クラスカル法}、\textbf{プリム法}と
+呼ばれています。
+
+\subsection{クラスカル法}
+クラスカル法は、存在する辺を重さが小さい順に並べて入れていき、閉路ができないことが確認できた場合は追加し、すべての辺をチェックし終えたら終了するアルゴリズムです。
+以下のアルゴリズムに従っています。
+
+\begin{enumerate}
+  \item すべての辺を重さの小さい順にソート
+  \item 重さの最も小さい辺を選ぶ
+  \item 今までに選んだ辺から構成される木に2で選んだ辺を追加した時に、閉路が生まれないことを確認する。閉路が新しくできないならこの辺を追加する
+  \item すべての辺をチェックし終えるまで2から3を繰り返す
+\end{enumerate}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw[dotted] (A) -- node[below] {4} (C);
+    \draw[dotted] (C) -- node[above] {3} (E);
+    \draw[dotted] (B) -- node[above] {9} (F);
+    \draw[dotted] (E) -- node[below] {8} (G);
+    \draw[dotted] (G) -- node[below] {7} (D);
+    \draw[dotted] (D) -- node[below] {5} (H);
+    \draw[dotted] (B) -- node[below] {3} (D);
+    \draw[dotted] (C) -- node[below] {2} (D);
+    \draw[dotted] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}クラスカル法の例を見てみましょう。まずは、すべての辺の中で最も重さが小さい辺を選んでそれを木に追加したときに、閉路ができないのでその辺を追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw[dotted] (A) -- node[below] {4} (C);
+    \draw[dotted] (C) -- node[above] {3} (E);
+    \draw[dotted] (B) -- node[above] {9} (F);
+    \draw[dotted] (E) -- node[below] {8} (G);
+    \draw[dotted] (G) -- node[below] {7} (D);
+    \draw[dotted] (D) -- node[below] {5} (H);
+    \draw[dotted] (B) -- node[below] {3} (D);
+    \draw[dotted] (C) -- node[below] {2} (D);
+    \draw (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+同様に、CD、CE、BD、AC、DHを順に追加しても閉路はできないので、追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {3} (E);
+    \draw[dotted] (B) -- node[above] {9} (F);
+    \draw[dotted] (E) -- node[below] {8} (G);
+    \draw[dotted] (G) -- node[below] {7} (D);
+    \draw (D) -- node[below] {5} (H);
+    \draw (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+しかし、AB、DG、EGを繋げると閉路ができてしまうので追加しません。最後にBFを追加するとすべての辺をチェックし終えたので以下のような
+最小全域木ができあがります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {3} (E);
+    \draw (B) -- node[above] {9} (F);
+    \draw[dotted] (E) -- node[below] {8} (G);
+    \draw[dotted] (G) -- node[below] {7} (D);
+    \draw (D) -- node[below] {5} (H);
+    \draw (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+クラスカル法の実装上のポイントは以下の2つです。
+
+\begin{itemize}
+  \item すべての辺を重さの小さい順にソートする
+  \item 辺を追加したときに閉路かどうかを判定する
+\end{itemize}
+
+最初のポイントは、辺を重さの小さい順にソートすることで、簡単に実装できます。2つ目のポイントは、BFSやDFSを使っても実装できますが、効率が良くありません。
+そこで、Union-Find木を使って実装することが一般的です。
+\subsection{プリム法}
 \newpage
 
 \section{トポロジカルソート}
@@ -784,6 +1666,11 @@ DFSを用いた最短経路は上で紹介しましたが、今回はより効�
 
 \section{最大流問題}
 
+\section{参考}
 
-\end{document}
+\textbf{ベルマンフォード法}
+\begin{itemize}
+    \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
+\end{itemize}
+
 \end{document}
