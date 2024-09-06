@@ -840,33 +840,31 @@ Union-Find木はノードの集合の連結性を管理するデータ構造で�
 
 \begin{lstlisting}[caption=Union-Find木の実装, label=union_find, frame=TRBL, label={union_find}]
 class UnionFind:
-  def __init__(self, size: int) -> None:
-      self.size: int= size
-      self.parent: list[int] = [i for i in range(self.size)] 
-      self.depth: list[int] = [1] * self.size
+  def __init__(self, n: int) -> None:
+      self.parent = [i for i in range(n)]
+      self.rank = [0] * n
   
-  def _root(self, x: int) -> int:
-      if self.parent[x] == x:
-          return x
-      # 経路圧縮
-      self.parent[x] = self._root(self.parent[x])
-      return self.parent[x]
-      
-  def is_same(self, x: int, y: int) -> bool:
-      return self._root(x) == self._root(y)
+  def _root(self, node: int) -> int:
+      if self.parent[node] == node:
+          return node
+      else:
+          # 経路圧縮
+          self.parent[node] = self._root(node)
+          return self.parent[node]
   
   def unite(self, x: int, y: int) -> None:
-      x, y = map(self.root, (x, y))
-      # すでに同じグループに属するなら何もしない
-      if x == y:
-          return
-      # union by size y側のサイズが小さくなるようにする
-      if self.depth[x] < self.depth[y]:
-          x, y = y, x
-      # yをxの子とする
-      self.parent[y] = x 
-      self.depth[x] += self.depth[y]
+      root_x = self._root(x)
+      root_y = self._root(y)
       
+      if root_x != root_y:
+          if self.rank[root_x] < self.rank[root_y]:
+              self.parent[root_x] = root_y
+          else:
+              self.parent[root_y] = root_x
+              if self.parent[root_x] == self.parent[root_y]:
+                  self.rank[root_x] += 1
+  def is_same(self, x: int, y: int) -> bool:
+      return self.parent[x] == self.parent[y]
 
 
 \end{lstlisting}
@@ -874,8 +872,8 @@ class UnionFind:
 
 \newpage
 \section{最短経路問題}
-BFSを用いた最短経路は上で紹介しましたが、今回はより効率的な最短経路問題の解法を紹介します。DFSでは重さが1のグラフでしか最短経路を求めることができませんが、
-ダイクストラ法を用いることで重み付きグラフでも最短経路を求めることができます。また、負の重みがあっても最短経路を求めることができるベルマンフォード法も紹介します。
+BFSを用いた最短経路は上で紹介しましたが、今回はより効率的な最短経路問題の解法を紹介します。DFSでは重さが同じのグラフでしか最短経路を求めることができませんが、
+ダイクストラ法を用いることで重さに異なる重み付きグラフでも最短経路を求めることができます。また、負の重みがあっても最短経路を求めることができるベルマン・フォード法も紹介します。
 
 \subsection{ダイクストラ法}
 ダイクストラ法を理解する上で重要な重み付きグラフの性質を紹介します。
@@ -1657,14 +1655,479 @@ def warshall_floyd(n: int, dist: list[list[int]]):
 
 最初のポイントは、辺を重さの小さい順にソートすることで、簡単に実装できます。2つ目のポイントは、BFSやDFSを使っても実装できますが、効率が良くありません。
 そこで、Union-Find木を使って実装することが一般的です。
+
+ある辺をグラフに木に挿入しようとしたとき、辺を作る2点が同じ集合に属している場合に辺を繋げると閉路が
+できてしまいます。つまり、Union-Findを使ってふたつのノードが同じ集合に属しているかを判断します。
+
+\begin{lstlisting}[caption=クラスカル法の実装, label=kruskal, frame=TRBL, label={kruskal}]
+class UnionFind:
+  def __init__(self, n: int) -> None:
+      self.parent = [i for i in range(n)]
+      self.rank = [0] * n
+  
+  def _root(self, node: int) -> int:
+      if self.parent[node] == node:
+          return node
+      else:
+          # 経路圧縮
+          self.parent[node] = self._root(node)
+          return self.parent[node]
+  
+  def unite(self, x: int, y: int) -> None:
+      root_x = self._root(x)
+      root_y = self._root(y)
+      
+      if root_x != root_y:
+          if self.rank[root_x] < self.rank[root_y]:
+              self.parent[root_x] = root_y
+          else:
+              self.parent[root_y] = root_x
+              if self.parent[root_x] == self.parent[root_y]:
+                  self.rank[root_x] += 1
+  def is_same(self, x: int, y: int) -> bool:
+      return self.parent[x] == self.parent[y]
+
+def kruskal(v: int, edges: list[tuple[int, int, int]]) -> list[list[int, int]]:
+    """
+    args:
+        v: node size
+        edges: (start, end, weight)
+    """
+    sorted_edge_costs = []
+    for edge in edges:
+        sorted_edge_costs.append([edges[2], edges[0], edges[1]])
+    
+    sorted_edge_costs.sort()
+    
+    uf_tree = UnionFind(v)
+    
+    minimum_spanning_tree = []
+    
+    for weight, start, end in sorted_edge_costs:
+        if not uf_tree.is_same(start, end):
+            uf_tree.unite(start, end)
+            minimum_spanning_tree.append([start, end])
+    
+    return minimum_spanning_tree
+\end{lstlisting}
+
+\newpage
+
 \subsection{プリム法}
+\textbf{プリム法}とは、すでに到達した頂点の集合からまだ到達していない頂点の集合への辺のうち、距離が
+最短のものを追加し、すべてのノードがつながったら終了するアルゴリズムです。プリム法は以下のアルゴリズム
+に従っています。
+
+\begin{enumerate}
+  \item 任意のノードを選び、訪問済みにする
+  \item そのノードに繋がっているすべての辺を最小全域木の候補の辺として追加する
+  \item 最小全域木の候補の辺の中から、接続先のノードが未訪問である最短の距離の辺を選ぶ
+  \item 選んだ辺を最小全域木に入れ、その接続先のノードを訪問済にする。 
+  \item 4で新しく訪問したノードから、さらにその先に繋がっている辺のうち、接続先のノードが未訪問のすべての辺を最小全域木の候補に追加する
+  \item すべてのノードが訪問済になるまで2から4を繰り返す
+\end{enumerate}
+
+プリム法の具体例を見てみましょう。まずは、任意にノードを選び、訪問済にします。ここではDを選びます。Dから繋がっているエッジを青色で示します。その中で
+最も距離が短いエッジはCとDを繋ぐエッジです。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw[dotted] (A) -- node[below] {4} (C);
+    \draw[dotted] (C) -- node[above] {3} (E);
+    \draw[dotted] (B) -- node[above] {9} (F);
+    \draw[draw=blue!70] (G) -- node[below] {7} (D);
+    \draw[draw=blue!70] (D) -- node[below] {5} (H);
+    \draw[draw=blue!70] (B) -- node[below] {3} (D);
+    \draw[draw=blue!70] (C) -- node[below] {2} (D);
+    \draw[] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+Cは未訪問なので、Cを訪問済にして、Cから繋がっているエッジを最小全域木の候補に追加します。青色のエッジの中で
+距離が一番小さいエッジはBとDを繋ぐエッジです。
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw[draw=blue!70] (A) -- node[below] {4} (C);
+    \draw[draw=blue!70] (C) -- node[above] {3} (E);
+    \draw[dotted] (B) -- node[above] {9} (F);
+    \draw[draw=blue!70] (G) -- node[below] {7} (D);
+    \draw[draw=blue!70] (D) -- node[below] {5} (H);
+    \draw[draw=blue!70] (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw[] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+Bは未訪問なので、Bを訪問済にして、Bから繋がっているエッジを最小全域木の候補に追加します。青色のエッジの中で
+最も短いエッジはCとEを繋ぐエッジです。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[draw=blue!70] (A) -- node[above] {5} (B);
+    \draw[draw=blue!70] (A) -- node[below] {4} (C);
+    \draw[draw=blue!70] (C) -- node[above] {3} (E);
+    \draw[draw=blue!70] (B) -- node[above] {9} (F);
+    \draw[draw=blue!70] (G) -- node[below] {7} (D);
+    \draw[draw=blue!70] (D) -- node[below] {5} (H);
+    \draw (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw[] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+同様にして、AとCを結ぶエッジ、DとHを結ぶエッジ、GとHを結ぶエッジを追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[draw=blue!70] (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw[draw=blue!70] (C) -- node[above] {3} (E);
+    \draw[draw=blue!70] (B) -- node[above] {9} (F);
+    \draw[draw=blue!70] (G) -- node[below] {7} (D);
+    \draw (D) -- node[below] {5} (H);
+    \draw (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw[] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+残りは、AとBを結ぶエッジ、DとGを結ぶエッジがありますが、AとBを結ぶエッジとDとGを結ぶエッジを追加すると閉路ができてしまうので追加しません。
+最後にDとGを結ぶエッジを追加すると、すべてのノードがつながったので終了です。以下のような最小全域木ができあがります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (D) at (4.5, -0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (E) at (4.5, -2.7) {E};
+    \node[circle, draw, minimum size=1.2cm,fill=red!20] (F) at (7.0, 2.0) {F};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (G) at (8.0, -2.3) {G};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (H) at (9.5, 0.3) {H};
+
+    % エッジを引く
+    \draw[dotted] (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw[draw=blue!70] (C) -- node[above] {3} (E);
+    \draw (B) -- node[above] {9} (F);
+    \draw[dotted] (G) -- node[below] {7} (D);
+    \draw (D) -- node[below] {5} (H);
+    \draw (B) -- node[below] {3} (D);
+    \draw (C) -- node[below] {2} (D);
+    \draw[] (G) -- node[below] {1} (H);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+プリム法の実装例を以下に示します。
+
+\begin{lstlisting}[caption=プリム法の実装, label=prim, frame=TRBL, label={prim}]
+import heapq
+
+def prim(v: int, edges: list[list[int, int, int]]):
+    edges_from = [[] for _ in range(v)]
+    
+    for start, end, weight in edges:
+        edges_from[start].append([weight, start, end])
+    
+    edge_heap = []
+    minimum_spanning_tree = []
+    included = [False] * v
+    
+    # nodeをひとつ選ぶ この実装では0を選ぶ
+    included[0] = True
+    # node0につながる辺をすべてヒープに入れる
+    for edge in edges_from[0]:
+        heapq.heappush(edge_heap, edge)
+    
+    while edge_heap:
+        weight, start, end = heapq.heappop(edge_heap)
+        if not included[end]:
+            included[end] = True
+            minimum_spanning_tree.append([start, end])
+            
+            for edge in edges_from[end]:
+                if not included[end]:
+                    heapq.heappush(edge_heap, edge)
+    
+    return minimum_spanning_tree
+\end{lstlisting}
+
 \newpage
 
 \section{トポロジカルソート}
+DAGという性質を持ったグラフをソートするアルゴリズムであるトポロジカルソートを扱います。\textbf{DAG}(Directed Acyclic Graph)
+とは、その名の通り有向グラフで閉路を持たないグラフのことを指します。
+
+以下にDAGの例を示します。有向グラフで閉路がないため、どこのノードから辿っても元の位置に戻ってくることはできません。
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\begin{center}
+  DAGの例
+\end{center}
+
+\vspace{0.5cm}
+
+トポロジカルソートはすべての辺が同じ方向を向くようにノードをソートするアルゴリズムです。上のDAGをトポロジカルソートをすると、
+以下のようになります。有向辺がすべて右向きになっていることがわかります。注意点として、トポロジカルソートの結果は
+一意ではありません。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (3, 0) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (6.0, 0) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (9.5, 0) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (12, -0) {E};
+
+    \draw[->] (A) to (B);
+    \draw[->, bend right] (A) to (C);
+    \draw[->, bend left] (B) to (D);
+    \draw[->] (C) to (D);
+    \draw[->, bend right] (C) to (E);
+    \draw[->] (D) to (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+有向グラフの性質をより理解するために\textbf{次数、入次数、出次数}という用語を導入します。次数とは、ノードにつながっている辺の数を指します。
+入次数とは、ノードに入ってくる辺の数を指し、出次数とは、ノードから出ていく辺の数を指します。$\text{次数} = \text{入次数} + \text{出次数}$です。
+DAGの性質として、必ず入次数0のノードが存在します。
+
+トポロジカルソートの代表的なアルゴリズムとして、KahnのアルゴリズムとTarjanのアルゴリズムを紹介します。
+
+\subsection{Kahnのアルゴリズム}
+Kahnのアルゴリズムは、トポロジカルソートを行うアルゴリズムの一つです。アルゴリズムの流れは以下の通りです。
+
+\begin{enumerate}
+  \item 入次数が0のノードをグラフから取り除き、ソート済配列に追加する
+  \item 1を入次数0のノードがなくなるまで繰り返す
+\end{enumerate}
+
+Kahnのアルゴリズムの例を以下に示します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+入次数0のノードAを取り除き、Aに繋がっているノードの次数を更新します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+入次数0のノードBを取り除きます。
+
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+入次数0のノードCを取り除きます。最後にノードDとEを順に取り出せばトポロジカルソートは完成です。
+
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+Kahnのアルゴリズムの実装例を以下に示します。
+\begin{lstlisting}[caption=Kahnのアルゴリズムの実装, label=kahn, frame=TRBL, label={kahn}]
+from collections import deque
+
+def kahn_topological_sort(v: int, e: int, edges: list[list[int, int]]) -> list[int]:
+    indeg = [0] * v
+    outedge = [[] for _ in range(v)]
+    
+    for start, end in edges:
+        indeg[end] += 1
+        outedge[start].append[end]
+    
+    sorted_g = [i for i in range(v) if indeg[i] == 0]
+    deq = deque(sorted_g)
+    
+    while deq:
+        node = deq.popleft()
+        for connected_node in outedge[node]:
+            e -= 1
+            indeg[connected_node] -= 1
+            if indeg[connected_node] == 0: 
+                sorted_g.append(connected_node)
+                deq.append(connected_node)
+    
+    if e != 0:
+        return None
+    
+    return sorted_g
+\end{lstlisting}
+
+\subsection{Tarjanのアルゴリズム}
+Tarjanのアルゴリズムは、深さ優先探索を用いてトポロジカルソートを行うアルゴリズムです。アルゴリズムの流れは以下の通りです。
+
+\begin{enumerate}
+  \item 未訪問のノードを訪問済にする
+  \item そのノードに繋がっているノードを再帰的に訪問する
+  \item そのノードのすべての子ノードを訪問し終えたら、そのノードをソート済配列に追加する
+\end{enumerate}
+
+Tarjanのアルゴリズムの実装例を以下に示します。
+
+\begin{lstlisting}[caption=Tarjanのアルゴリズムの実装, label=tarjan, frame=TRBL, label={tarjan}]
+def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
+    def dfs(node: int):
+        visited[node] = True
+        for connected_node in outedge[node]:
+            if not visited[connected_node]:
+                dfs(connected_node)
+        sorted_g.append(node)
+    
+    outedge = [[] for _ in range(v)]
+    visited = [False] * v
+    sorted_g = []
+    
+    for start, end in edges:
+        outedge[start].append(end)
+    
+    for i in range(v):
+        if not visited[i]:
+            dfs(i)
+    
+    return sorted_g[::-1]
+\end{lstlisting}
 
 \newpage
 
 \section{最大流問題}
+\subsection{最大流問題と貪欲法の限界}
+\subsection{フォード・ファルカーソン法}
+
+\section{最小費用流問題}
+
+\section{二部グラフ}
 
 \section{参考}
 
@@ -1673,4 +2136,5 @@ def warshall_floyd(n: int, dist: list[list[int]]):
     \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
 \end{itemize}
 
+\noindent \textbf{トポロジカルソート}
 \end{document}
