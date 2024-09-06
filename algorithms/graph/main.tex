@@ -2127,11 +2127,59 @@ def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
 
 \section{最小費用流問題}
 
-\section{二部グラフ}
+\subsection{プライマル・デュアル法}
+
+\section{二部グラフ(bipartite graph)}
+二部グラフとは、ノードを2つのグループに分けて、同じグループに属するノード同士は辺で結ばれていないグラフのことを指します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 左側の赤いノード
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (0, 2) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (0, 0) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (0, -2) {E};
+
+    % 右側の青いノード
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (C) at (4, 2) {C};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (D) at (4, 0) {D};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, -2) {F};
+
+    % ノード間の線を引く
+    \draw[-] (A) -- (C);
+    \draw[-] (A) -- (D);
+    \draw[-] (B) -- (D);
+    \draw[-] (B) -- (F);
+    \draw[-] (E) -- (C);
+    \draw[-] (E) -- (F);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\subsection{二部グラフ判定}
+
+\subsection{重み付き二部グラフの最大マッチング問題}
+
+\section{問題}
+\textbf{問題1} AtCoder Typical Contest 001 深さ優先探索 \\
+DFSを2次元グリッドグラフに応用した問題です。DFSやBFSを用いてグラフの到達可能性を調べる問題です。練習なので
+DFSをスタックと再帰を使った両方で解いてみましょう。再帰で実装する際にPythonでは再帰の実行回数に制限があるので、
+sys.setrecursionlimit(10**7)を使って再帰の制限を調整してください。 \\
+
+\noindent \textbf{問題2 連結成分の個数} \\
+グラフの連結成分の個数もDFSを用いることで求められます。すべてのノードを列挙して、DFSを使って到達可能なノードを調べることで
+連結成分の個数を求めることができます。 \\
 
 \section{参考}
 
-\textbf{ベルマンフォード法}
+\textbf{BFSとDFS}
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/a803d4fc4a727e02f7ba}
+\end{itemize}
+
+\noindent \textbf{ベルマンフォード法}
 \begin{itemize}
     \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
 \end{itemize}
