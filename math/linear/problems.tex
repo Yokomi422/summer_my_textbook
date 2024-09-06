@@ -120,7 +120,8 @@
   sharp corners,
   width=\textwidth,
   title=\textbf{問題},
-  #1
+  #1,
+  breakable
 }
 
 \begin{document}
@@ -230,6 +231,237 @@
   解答 \\
 \end{problem}
 
+\section{行列式}
+行列式は大学院入試数学において基本中の基本の問題である。行列式に関する問題を解いて理解を深めよう。
+\begin{problem}
+  以下の行列の行列式を求めよ。
+  \begin{center}
+    \begin{tabular}{cc}
+      $\displaystyle
+        \begin{pmatrix}
+          2015 & 2014 & 2014 \\
+          2015 & 2015 & 2014 \\
+          2015 & 2015 & 2015
+        \end{pmatrix}
+      $
+      & \hspace{2cm} % スペースを空けるための調整
+      $\displaystyle
+        \begin{pmatrix}
+          1 & 3 & 2 & -1 \\
+          2 & 0 & 1 & -2 \\
+          -1 & 5 & 1 & 1 \\
+          2 & 7 & -6 & 3
+        \end{pmatrix}
+      $
+    \end{tabular}
+  \end{center}
+  \dotfill
+
+  解答 \\
+  (1) \\
+  行列式は\textbf{余因子展開}により行または列で展開することができる。また、行列式は基本変形に関して以下の性質があります。
+
+  \begin{itemize}
+    \item 行列の行(列)を交換すると、行列式の符号が変わる。
+    \item 行列の行(列)に定数をかけると、行列式もその定数倍になる。
+    \item 行列の行(列)に他の行(列)の定数倍を加えると、行列式は変わらない。
+  \end{itemize}
+
+  これらの性質を用いて計算します。
+
+  \begin{equation*}
+    \det \begin{pmatrix}
+      2015 & 2014 & 2014 \\
+      2015 & 2015 & 2014 \\
+      2015 & 2015 & 2015
+    \end{pmatrix} = \det \begin{pmatrix}
+      2015 & 2014 & 2014 \\
+      0 & 1 & 0 \\
+      0 & 1 & 1
+    \end{pmatrix} = 2015 \det \begin{pmatrix}
+      1 & 0 \\
+      1 & 1
+    \end{pmatrix} = 2015
+  \end{equation*}
+
+  (2) \\
+  行基本変形と余因子展開を用いて計算する。
+  
+  \begin{equation*}
+    \det \begin{pmatrix}
+      1 & 3 & 2 & -1 \\
+      2 & 0 & 1 & -2 \\
+      -1 & 5 & 1 & 1 \\
+      2 & 7 & -6 & 3
+    \end{pmatrix} = \det \begin{pmatrix}
+      1 & 3 & 2 & -1 \\
+      0 & -6 & -3 & 0 \\
+      0 & 8 & 3 & 0 \\
+      0 & 1 & -10 & 5
+    \end{pmatrix}
+  \end{equation*}
+  \begin{equation*}
+    = \det \begin{pmatrix}
+      -6 & -3 & 0 \\
+      8 & 3 & 0 \\
+      1 & -10 & 5
+    \end{pmatrix} = (-1) ^ {3 + 3} \times 5 \times \det \begin{pmatrix}
+      -6 & -3 \\
+      8 & 3
+    \end{pmatrix} = 5 \times 6 = 30
+  \end{equation*}
+\end{problem}
+
+\begin{tcolorbox}[enhanced, title=コラム1 行列式の幾何的性質, breakable, colback=white, drop fuzzy shadow, attach boxed title to top center={yshift*=0.1cm}]
+  行列式を2次元平面で考えると、行列式は2つのベクトルが張る平行四辺形の面積を表す。平行四辺形の面積をとすると、
+  \begin{equation*}
+    \det \begin{pmatrix}
+      a & b \\
+      c & d
+    \end{pmatrix} = ad - bc
+  \end{equation*}
+  が成り立つ。証明は平行四辺形を囲う長方形から三角形を切り出すことで導出できる。行列$A = \begin{pmatrix}a & c \\ b & d\end{pmatrix}$
+  は単位ベクトルからなる正方形を変換する行列と考えることができる。つまり、行列式は正方形の面積の拡大率を表すとみなせる。また、
+  $\det A = 0$、つまり拡大率が0になるときは、2つのベクトルが一直線上にあることを意味する。2次元で考えたが、3次元以上でも同様の性質が成り立つ。
+
+  「行列 平行四辺形」と調べると面白い関係を述べた記事が見つかる。
+  \vspace{0.5cm}
+  \begin{center}
+    \begin{tikzpicture}
+        \draw [->] (0, 0) -- (4, 0);
+        \draw [->] (0, 0) -- (0, 4);
+
+        % ベクトルを描画
+        \draw [->] (0, 0) -- (2, 1);
+        \draw [->] (0, 0) -- (1, 3);
+
+        % 並行4辺形を描画
+        \draw [dashed] (2, 1) -- (3, 4);
+        \draw [dashed] (1, 3) -- (3, 4);
+
+        % ベクトルを表示
+        \node at (2, 0) [anchor = south west] {$\boldsymbol{a} = \begin{pmatrix} a \\ b \end{pmatrix}$};
+        \node at (1, 2) [anchor = south west] {$\boldsymbol{b} = \begin{pmatrix} c \\ d \end{pmatrix}$};
+
+        % 単位ベクトルからなる正方形
+        \draw [->] (0, 0) -- (1, 0);
+        \draw [->] (0, 0) -- (0, 1);
+        \draw [dotted] (1, 0) -- (1, 1);
+        \draw [dotted] (0, 1) -- (1, 1);
+    
+        % 文字を描画
+        \node at (-0.2, -0.2) {O};
+        \node at (4, -0.2) {x};
+        \node at (-0.2, 4) {y};
+    \end{tikzpicture}
+    \end{center}
+\end{tcolorbox}
+
+次に行列式の累乗の問題を扱う。
+
+\begin{problem}
+  Aを$n$次正方行列、$I$を単位行列とするとき、以下の問に答えよ。
+
+  \begin{equation*}
+    A = \begin{pmatrix}
+      I - A & A \\
+      -A & I + A
+    \end{pmatrix}
+  \end{equation*}
+  (1) \\
+  $A^3$を求めよ。
+  (2) \\
+  $A^m$を求めよ。
+
+  \dotfill
+
+  解答 \\
+  行列の累乗を求める問題には行列の対角化やケーリーハミルトンの定理を用いることがある。今回は行列の性質を用いて解く。
+  行列の対角化は具体的に行列の成分がわかっていない時には難しいため、行列の性質を用いて解く。
+  (1) \\
+  $A^3$を求めるためには、$A^2$を求める必要がある。$I$が単位行列であることに注意すると、
+
+  \begin{equation*}
+    A^2 = \begin{pmatrix}
+      I - 2A & 2A \\
+      -2A & I + 2A
+    \end{pmatrix}
+  \end{equation*}
+  より、$A^3$を計算すると以下の様になる。
+  \begin{equation*}
+    A^3 = \begin{pmatrix}
+      I - 3A & 3A \\
+      -3 A & I + 3A
+    \end{pmatrix}
+  \end{equation*}
+
+  (2) \\
+  $A^m$は以下の様に現させることが予想される。
+  \begin{equation*}
+    A^m = \begin{pmatrix}
+      I - mA & mA \\
+      -mA & I + mA
+    \end{pmatrix}
+  \end{equation*}
+  これを数学的帰納法を用いて証明する。
+
+  $m = 1, 2, 3$は(1)より成り立つ。$m \geq 4$のとき、$A^{m - 1}$を仮定すると、
+  \begin{equation*}
+    A^{m} = A^{m - 1} A = \begin{pmatrix}
+      I - (m - 1)A & (m - 1)A \\
+      -(m - 1)A & I + (m - 1)A
+    \end{pmatrix} \begin{pmatrix}
+      I - A & A \\
+      -A & I + A
+    \end{pmatrix}
+    = \begin{pmatrix}
+      I - mA & mA \\
+      -mA & I + mA
+    \end{pmatrix}
+  \end{equation*} 
+\end{problem}
+
+与えられた条件から成分の分布を求める行列方程式の典型問題を扱う。
+
+\begin{problem}
+  3次の正方行列に対して次の問題に答えよ。
+
+  \begin{equation*}
+    A = \begin{pmatrix}
+      1 & 0 & 0 \\
+      0 & 2 & 0 \\
+      0 & 0 & 3
+    \end{pmatrix}, \hspace{1cm}
+    B = \begin{pmatrix}
+      1 & 0 & 0 \\
+      0 & 2 & 0 \\
+      0 & 0 & 1
+    \end{pmatrix}, \hspace{1cm}
+    C = \begin{pmatrix}
+      1 & 0 & 1 \\
+      0 & 2 & 0 \\
+      -1 & 0 & 1
+    \end{pmatrix}
+  \end{equation*}
+  (1) $AX = XA$を満たす行列$X$は対角行列であることを示せ。 \\
+  (2) $BX = XB, BY = YB, XY = YX$を満たす行列$X, Y$の例を挙げよ。 \\
+  (3) $AX = XA, CX = XC$を満たす行列$X$は$a I + b B$と表せることを示せ。 
+
+  \dotfill
+
+  解答 \\
+  (1) \\
+  行列$A, X$の片方が対角行列という簡単な形式になっているので、
+  \begin{equation*}
+    X = \begin{pmatrix}
+      x_{11} & x_{12} & x_{13} \\
+      x_{21} & x_{22} & x_{23} \\
+      x_{31} & x_{32} & x_{33}
+    \end{pmatrix}
+  \end{equation*}
+  と行列$X$を一般的な形で表すして証明しよう。
+\end{problem}
+
 \section{連立方程式と階数}
 \begin{definitionbox}[階数]
   任意の行列$A$は行基本変形を繰り返すことによって、\textbf{階段行列}にすることができる。このとき、この階段行列
@@ -251,6 +483,62 @@
     \item rank $\boldsymbol{A} = $ rank $\boldsymbol{A} \boldsymbol{b} = r < n$のとき、連立方程式は解を持たない。
   \end{itemize}
 \end{theorembox}
+
+一元連立方程式の問題を解いてみよう。
+
+\begin{problem}
+  以下の連立一次方程式を解け。
+  \begin{equation*}
+    (1)  \left\{ \,
+    \begin{aligned}
+      5x_1 + 2x_2 + 3 x_3 = 28 \\
+      x_1 + 3 x_2 + x_3 = 15 \\
+      2x_1 + 2x_2 + 2 x_3 = 18
+    \end{aligned}
+\right.
+  \end{equation*}
+
+  \begin{equation*}
+    (2) \left\{ \,
+    \begin{aligned}
+      x_1 - x_2 + 2 x_3 = 0 \\
+      -2x_1 - x_2 - 2 x_3 = 0 \\
+      4x_1 - 7x_2 + 10 x_3 = 0
+    \end{aligned}
+\right.
+  \end{equation*}
+
+  \begin{equation*}
+    (3) \left\{ \,
+    \begin{aligned}
+      x_1 + x_2 + x_3 = 3 \\
+      3 x_1 + 2 x_2 - 2 x_3 = 5 \\
+      6 x_1 + 5 x_2 + x_3 = 14
+    \end{aligned}
+\right.
+  \end{equation*}
+  \dotfill
+
+  解答 \\
+  (1) \\
+  連立一次方程式の係数行列と拡大係数行列をそれぞれ$A, [A|b]$とすると、
+  \begin{equation*}
+    [A|b] = \begin{pmatrix}
+      5 & 2 & 3 & 28 \\
+      1 & 3 & 1 & 15 \\
+      2 & 2 & 2 & 18
+    \end{pmatrix} \to \begin{pmatrix}
+      1 & 0 & 0 & 2 \\
+      0 & 1 & 0 & 3 \\
+      0 & 0 & 1 & 4
+    \end{pmatrix}
+  \end{equation*}
+  のようになるので、一元連立方程式の解は$x_1 = 2, x_2 = 3, x_3 = 4$である。
+
+  (2) \\
+
+  (3) \\
+\end{problem}
 
 次に、行列の世界の積の逆元を意味する\textbf{逆行列}について紹介する。
 
