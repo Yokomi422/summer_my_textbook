@@ -2122,8 +2122,363 @@ def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
 \newpage
 
 \section{最大流問題}
+グラフに流れ(フロー)があるグラフを考えます。特に、フローは始点(source)のみから生まれ、終点(sink)でのみ消滅するという性質を持つ場合を考えます。
+グラフでフローを扱う分野をネットワークフローといいます。エッジに容量を導入して、各エッジを通るフローの量が容量を超えないという条件のもとで終点に最も多くのフローを流す問題を\textbf{最大流問題}といいます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (5, 0) {D};
+
+    \draw[->] (A) -- node[above] {0/7} (B);
+    \draw[->] (A) -- node[left] {0/7} (C);
+    \draw[->] (B) -- node[above] {0/4} (D);
+    \draw[->] (C) -- node[right] {0/6} (D);
+    \draw[->] (B) -- node[right] {0/2} (C);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
 \subsection{最大流問題と貪欲法の限界}
+DFSを使って見つかった道から順番にフローを流す貪欲法から考えてみます。下のネットワークグラフを例にして考えます。Aをsource、Fをsinkとして例を挙げます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {0/10} (B);
+    \draw[->] (A) -- node[left] {0/10} (C);
+    \draw[->] (B) -- node[above] {0/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {0/12} (F);
+    \draw[->] (D) -- node[above] {0/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {0/8};
+    \node at (5.6, 1) {0/7};
+
+    % 赤い太線で線を引く
+    % \draw[draw=red, very thick, ->] (A) -- (B);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+  DFSを使って順番に経路を見つけていきます。最初はABDFの経路にフローを流してみます。この経路の中で容量が最も小さい
+  経路に合わせて流さないと溢れてしまうので、今回はBDの経路の容量の4を流します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {4/10} (B);
+    \draw[->] (A) -- node[left] {0/10} (C);
+    \draw[->] (B) -- node[above] {4/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {0/12} (F);
+    \draw[->] (D) -- node[right] {4/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {0/8};
+    \node at (5.6, 1) {0/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (B);
+    \draw[draw=red, very thick, ->] (B) -- (D);
+    \draw[draw=red, very thick, ->] (D) -- (F);
+  \end{tikzpicture} 
+\end{center}
+
+\vspace{0.5cm}
+
+次にABEFの経路にフローを流します。経路を見ているとABの経路は残り6のフローを流せてABEFの経路で最も小さい経路なので、
+6のフローを流します。
+
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {10/10} (B);
+    \draw[->] (A) -- node[left] {0/10} (C);
+    \draw[->] (B) -- node[above] {4/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {6/12} (F);
+    \draw[->] (D) -- node[right] {4/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {6/8};
+    \node at (5.6, 1) {0/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (B);
+    \draw[draw=red, very thick, ->] (B) -- (E);
+    \draw[draw=red, very thick, ->] (E) -- (F);
+  \end{tikzpicture} 
+\end{center}
+
+\vspace{0.5cm}
+
+次にACDFの経路を考える。DFの残り容量4が経路の中で最も小さな容量なので、4のフローを流します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {10/10} (B);
+    \draw[->] (A) -- node[left] {4/10} (C);
+    \draw[->] (B) -- node[above] {4/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {6/12} (F);
+    \draw[->] (D) -- node[right] {8/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {6/8};
+    \node at (5.6, 1) {4/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (C);
+    \draw[draw=red, very thick, ->] (C) -- (D);
+    \draw[draw=red, very thick, ->] (D) -- (F);
+  \end{tikzpicture} 
+\end{center}
+
+\vspace{0.5cm}
+
+次はACEFの経路を考える。経路CEの残り容量4が経路の中で最小の容量になっているので、フロー4を流します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {10/10} (B);
+    \draw[->] (A) -- node[left] {8/10} (C);
+    \draw[->] (B) -- node[above] {4/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {4/4} (E);
+    \draw[->] (E) -- node[left] {10/12} (F);
+    \draw[->] (D) -- node[right] {8/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {6/8};
+    \node at (5.6, 1) {4/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (C);
+    \draw[draw=red, very thick, ->] (C) -- (E);
+    \draw[draw=red, very thick, ->] (E) -- (F);
+  \end{tikzpicture} 
+\end{center}
+
+\vspace{0.5cm}
+
+Fにつながっているエッジのフローを見てみると、18のフローが流れていることがわかります。しかし、このグラフの最大フローは
+20です。貪欲法では最大フローを求めることができません。貪欲法によるフロート最大フローのネットワークを見比べましょう。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tabular}{ccc} 
+    \begin{tikzpicture}[scale=0.8]
+      \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+      \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+      \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+      \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+      \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+      \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+  
+      % エッジを引く
+      \draw[->] (A) -- node[left] {10/10} (B);
+      \draw[->] (A) -- node[left] {8/10} (C);
+      \draw[->] (B) -- node[above] {4/4} (D);
+      \draw[->] (B) -- (E);
+      \draw[->] (C) -- node[below] {4/4} (E);
+      \draw[->] (E) -- node[left] {10/12} (F);
+      \draw[->] (D) -- node[right] {8/8} (F);
+      \draw[->] (C) -- (D);
+  
+      % 容量を書く
+      \node at (3, 1) {6/8};
+      \node at (5.6, 1) {4/7};
+  
+      % 赤い太線で線を引く
+      \draw[draw=red, very thick, ->] (A) -- (C);
+      \draw[draw=red, very thick, ->] (C) -- (E);
+      \draw[draw=red, very thick, ->] (E) -- (F);
+    \end{tikzpicture} 
+    &
+    \begin{tikzpicture}[scale=0.8]
+      \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+      \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+      \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+      \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+      \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+      \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+  
+      % エッジを引く
+      \draw[->] (A) -- node[left] {10/10} (B);
+      \draw[->] (A) -- node[left] {10/10} (C);
+      \draw[->] (B) -- node[above] {2/4} (D);
+      \draw[->] (B) -- (E);
+      \draw[->] (C) -- node[below] {4/4} (E);
+      \draw[->] (E) -- node[left] {12/12} (F);
+      \draw[->] (D) -- node[right] {8/8} (F);
+      \draw[->] (C) -- (D);
+  
+      % 容量を書く
+      \node at (3, 1) {8/8};
+      \node at (5.6, 1) {6/7};
+  
+      % 赤い太線で線を引く
+      \draw[draw=red, very thick, ->] (A) -- (C);
+      \draw[draw=red, very thick, ->] (C) -- (D);
+      \draw[draw=red, very thick, ->] (D) -- (F);
+    \end{tikzpicture}
+  \end{tabular}
+\end{center}
+
+\hspace{2.5cm} 貪欲法によるフロー \hspace{5.5cm} 最大フロー
+
+\vspace{0.5cm}
+
+最大フローのネットワークから貪欲法のネットワークを引いてみましょう。
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {2/10} (B);
+    \draw[->] (A) -- node[left] {8/10} (C);
+    \draw[->] (B) -- node[above] {2/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {4/4} (E);
+    \draw[->] (E) -- node[left] {6/12} (F);
+    \draw[->] (D) -- node[right] {8/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {6/8};
+    \node at (5.6, 1) {4/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (C);
+    \draw[draw=red, very thick, ->] (C) -- (D);
+    \draw[draw=red, very thick, ->] (D) -- (F);
+  \end{tikzpicture}
+\end{center}
+
 \subsection{フォード・ファルカーソン法}
+
+実装例は以下のようになります。
+
+\begin{lstlisting}[caption=フォード・ファルカーソン法の実装, label=ford_fulkerson, frame=TRBL, label={ford_fulkerson}]
+"""
+0がstart, n - 1がend
+"""
+  
+n, m = map(int, input().split())
+
+capacity = [[0] * n for _ in range(n)]
+
+for _ in range(m):
+    u, v, c = map(int, input().split())
+    u, v = u - 1, v - 1
+    capacity[u][v] = c
+
+# 使うもの
+max_flow = 0
+
+# (開始ノード, 終了ノード, 開始ノードの前のノードまで流せる最大流量)
+def dfs_ff(start: int, end: int, flow: int):
+    if start == end:
+        return flow
+    
+    visited[start] = True
+
+    for i in range(n):
+        if not visited[i] and capacity[start][i]:
+            next_capacity = capacity[start][i]
+            new_capacity = min(flow, next_capacity)
+            f = dfs_ff(i, end, new_capacity)
+
+            if f > 0:
+                capacity[start][i] -= f
+                capacity[i][start] += f
+                return f
+        
+    return 0
+
+while True:
+    visited = [False] * n
+    f = dfs_ff(0, n - 1, 10 ** 9)
+    if f == 0:
+        break
+
+    max_flow += f
+
+print(max_flow)
+\end{lstlisting}
 
 \section{最小費用流問題}
 
@@ -2185,4 +2540,9 @@ sys.setrecursionlimit(10**7)を使って再帰の制限を調整してくださ�
 \end{itemize}
 
 \noindent \textbf{トポロジカルソート}
+
+\noindent \textbf{最大流問題}
+\begin{itemize}
+    \item \url{https://www.nic.ad.jp/ja/materials/iw/2013/proceedings/s8/s8-kaneko.pdf}
+\end{itemize}
 \end{document}
