@@ -49,6 +49,20 @@
 
 % listingsの設定
 
+% 問題環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
 \renewcommand{\lstlistingname}{コード}
 
 \lstset{

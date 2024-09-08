@@ -80,6 +80,20 @@
 \usepackage{amsmath}
 \usepackage{url}
 
+% 問題用のボックス環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
 \begin{document}
 \section{動的計画法(Dynamic Programming)}
 動的計画法という競技プログラミングの最初の山となるアルゴリズムを紹介します。基本的な考え方はシンプルですが、さまざまな応用先がある重要なアルゴリズムです。
@@ -173,7 +187,38 @@ def max_sum(A: list[int]) -> int:
     return dp[len(A) - 1]
 \end{lstlisting}
 
-これで基本のDPの考え方は理解できたと思います。問題1を解いてみましょう。EDPCの基本問題です。
+これで基本のDPの考え方は理解できたと思います。問題1を解いてみましょう。EDPCの基本問題です。メモ化再帰と漸化式の両方で
+解いてみてください。
+
+\subsection{コイン問題}
+以下の問題を考えてみましょう。今までのDPの考え方に加えて少し応用を加えた問題です。後で扱うナップサック問題の基本となる問題です。
+
+\begin{problem}
+  $m$種類のコインがあり、それぞれのコインは無限にあるとする。コインの価値がそれぞれ$c_1, c_2, \ldots, c_m$であるとき、合計金額が$n$円になるようにコインを選ぶ方法の最小枚数を求めよ。
+\end{problem}
+
+価値が大きい方から選ぶという貪欲法では最適解が求められないため、DPを用いて解く必要があります。こちらの問題もメモ化再帰と漸化式の両方で解いてみます。
+
+\begin{lstlisting}[caption=メモ化再帰を用いたコイン問題の実装, frame=TRBL, label={memo_coin}]
+def minimum_coin_counts(coins: list[int], memo: dict[int], limit: int) -> int:
+  if limit in coins:
+      memo[limit] = 1
+      return 1
+  
+  if limit in memo:
+      return memo[limit]
+  if limit - coins[0]:
+      memo[limit] = minimum_coin_counts(coins, memo, limit - coins[0]) + 1    
+  
+  for coin in coins:
+      if limit - coin > 0:
+          memo[limit] = min(minimum_coin_counts(coins, memo, limit - coin) + 1, memo[limit])
+
+  return memo[limit]
+\end{lstlisting}
+
+\begin{lstlisting}[caption=漸化式を用いたコイン問題の実装, frame=TRBL, label={dp_coin}]
+\end{lstlisting}
 
 \subsection{問題}
 \textbf{問題1} EDPC A - Frog 1\\
