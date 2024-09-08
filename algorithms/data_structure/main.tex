@@ -78,8 +78,6 @@
 \usepackage{tikz}
 
 \begin{document}
-
-EEIC2024アルゴリズムの授業で扱ったデータ構造のアルゴリズムのシケプリです。扱った内容は以下の通りです。
 \begin{itemize}
 	\item スタック
 	\item キュー
@@ -954,12 +952,6 @@ class Heap:
 
 \end{lstlisting}
 
-\subsection{問題}
-問題1 \\
-ABC 141 D - Powerful Discount Tickets \\
-とにかく一番高い商品の値段を半分の値段で買っていくのが良さそうです。上で実装した自作ヒープと
-Pythonの標準ライブラリのheapqの両方を使って解いてみましょう。
-
 \newpage
 
 \section{セグメント木}
@@ -1360,6 +1352,17 @@ BITの実装例は以下の通りです。
             self.tree[index] += value
 						index += index & (~index + 1)
 \end{lstlisting}
+
+\subsection{問題}
+問題1 \\
+ABC 141 D - Powerful Discount Tickets \\
+とにかく一番高い商品の値段を半分の値段で買っていくのが良さそうです。上で実装した自作ヒープと
+Pythonの標準ライブラリのheapqの両方を使って解いてみましょう。\\
+
+問題2 \\
+ABC 368 D - Minimum Steiner Tree \\
+木構造の問題です。木構造でもいつでもノードを使って解くわけではないことを確認しましょう。木構造の問題を
+次数という視点から解くことができます。\\
 
 \end{document}
 

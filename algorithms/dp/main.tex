@@ -1,0 +1,186 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+\usepackage{amsmath}
+\usepackage{url}
+
+\begin{document}
+\section{動的計画法(Dynamic Programming)}
+動的計画法という競技プログラミングの最初の山となるアルゴリズムを紹介します。基本的な考え方はシンプルですが、さまざまな応用先がある重要なアルゴリズムです。
+動的計画法の原則は以下のようなものです。
+
+\begin{itemize}
+  \item 与えられた問題を部分問題に分割する
+  \item 部分問題の解を記録して再利用する
+\end{itemize}
+
+一度計算したものを記録して再び計算せずに利用することで効率的に計算を行うことができます。DPは慣れるまで難しいですが、慣れると非常に強力なアルゴリズムです。習うよりも慣れろということで、DPは具体的な問題を解きながら学ぶのが良いでしょう。
+
+\subsection{フィボナッチ数列}
+最も簡単なDPを紹介します。フィボナッチ数列を求める問題です。フィボナッチ数列は以下のように定義されます。
+
+\begin{align*}
+  F(0) &= 0 \\
+  F(1) &= 1 \\
+  F(n) &= F(n-1) + F(n-2) \quad (n \geq 2)
+\end{align*}
+
+この定義に基づいて、フィボナッチ数列を求めるプログラムを再帰関数を用いて実装すると以下のようになります。
+\begin{lstlisting}[caption=再帰関数を用いたフィボナッチ数列の実装, frame=TRBL, label={rec_fib}]
+def fib(n):
+  if n == 0:
+    return 0
+  if n == 1:
+    return 1
+  return fib(n-1) + fib(n-2)
+\end{lstlisting}
+
+実装はシンプルですが、$n = 40$程度の大きさになると計算に時間がかかります。これは再帰関数を用いることで、同じ計算を何度も行っているためです。この問題を解決するために、DPを用いてフィボナッチ数列を求めるプログラムを実装します。
+
+\begin{lstlisting}[caption=DPを用いたフィボナッチ数列の実装, frame=TRBL, label={dp_fib}]
+def fib(n):
+  dp = [0] * (n+1)
+  dp[0] = 0
+  dp[1] = 1
+  for i in range(2, n+1):
+    dp[i] = dp[i-1] + dp[i-2]
+  return dp[n]
+\end{lstlisting}
+
+フィボナッチ数列の例を通じて、漸化式の計算を効率的に行うためにDPを用いることができることがわかりました。
+
+\subsection{最大値問題}
+次のDPの例題として、最大値問題を紹介します。最大値問題は、与えられた数列の中からいくつかの数を選んで総和を最大化する問題です。例えば、数列$[1, 2, 3, 4, 5]$が与えられたとき、この数列の中からいくつかの数を選んで総和を最大化する問題を考えます。
+配列の中の正の数をすべて足せばいいですが、今回はDPを用いて解いてみます。ナイーブな実装では配列の要素を選ぶか選ばないかの$O(2^n)$の計算量になります。
+
+DPには2つの方針としてメモ化再帰と漸化式があります。メモ化再帰は再帰関数を用いて大きい問題を分割する方法で、漸化式は小さい問題から順に解いていき大きい問題を解くための漸化式を求める方法です。
+
+\subsubsection{メモ化再帰}
+メモ化再帰を用いて最大値問題を解くプログラムを実装します。メモ化再帰は再帰関数を用いて計算を行い、計算結果を記録して再利用する方法です。以下にメモ化再帰を用いた最大値問題のプログラムを示します。
+メモ化再帰の実装では、戻り値でメモした値を返すようにプログラムを書くことがポイントです。再帰をnから始めて
+徐々に小さい問題に分割していくことで、最終的に大きい問題を解くことができます。
+
+\begin{lstlisting}[caption=メモ化再帰を用いた最大値問題の実装, frame=TRBL, label={memo_max}]
+  def max_sum(A: list[int], memo: dict[int, int],limit: int):
+  if limit < 0:
+      return 0
+  
+  if limit in memo:
+      return memo[limit]
+  
+  choose_current = A[limit] + max_sum(A, memo, limit - 1)
+  skip_current = max_sum(A, memo, limit - 1)
+  
+  memo[limit] = max(choose_current, skip_current)
+  return memo[limit]
+\end{lstlisting}
+
+\subsubsection{漸化式}
+漸化式はメモ化再帰とは異なり、小さい問題から順に解いていき大きい問題を解くための漸化式を求める方法です。
+最大値問題ではindex($\leq n - 1$)は直前の値に足すか足さないかの2通りがあるため、漸化式は以下のようになります。
+
+\begin{align*}
+  dp[i] = \max(dp[i-1] + A[i], dp[i-1])
+\end{align*}
+
+この漸化式を用いて最大値問題を解くプログラムを実装します。
+
+\begin{lstlisting}[caption=漸化式を用いた最大値問題の実装, frame=TRBL, label={dp_max}]
+def max_sum(A: list[int]) -> int:
+    dp = [0] * len(A)
+    # 初期化
+    dp[0] = max(A[0], 0)
+    
+    for index, a in enumerate(A, 1):
+        dp[index] = max(dp[index - 1], dp[index - 1] + A[index])
+    
+    return dp[len(A) - 1]
+\end{lstlisting}
+
+これで基本のDPの考え方は理解できたと思います。問題1を解いてみましょう。EDPCの基本問題です。
+
+\subsection{問題}
+\textbf{問題1} EDPC A - Frog 1\\
+
+\section{参考}
+\begin{itemize}
+  \item \url{https://dai1741.github.io/maximum-algo-2012/docs/dynamic-programming/}
+\end{itemize}
+
+\end{document}
