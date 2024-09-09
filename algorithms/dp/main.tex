@@ -95,7 +95,7 @@
 }
 
 \begin{document}
-\section{動的計画法(Dynamic Programming)}
+\section{動的計画法(Dynamic Programming) 基本編}
 動的計画法という競技プログラミングの最初の山となるアルゴリズムを紹介します。基本的な考え方はシンプルですが、さまざまな応用先がある重要なアルゴリズムです。
 動的計画法の原則は以下のようなものです。
 
@@ -151,7 +151,7 @@ DPには2つの方針としてメモ化再帰と漸化式があります。メ�
 徐々に小さい問題に分割していくことで、最終的に大きい問題を解くことができます。
 
 \begin{lstlisting}[caption=メモ化再帰を用いた最大値問題の実装, frame=TRBL, label={memo_max}]
-  def max_sum(A: list[int], memo: dict[int, int],limit: int):
+def max_sum(A: list[int], memo: dict[int, int],limit: int):
   if limit < 0:
       return 0
   
@@ -207,7 +207,7 @@ def minimum_coin_counts(coins: list[int], memo: dict[int], limit: int) -> int:
   
   if limit in memo:
       return memo[limit]
-  if limit - coins[0]:
+  if limit - coins[0] > 0:
       memo[limit] = minimum_coin_counts(coins, memo, limit - coins[0]) + 1    
   
   for coin in coins:
@@ -218,14 +218,102 @@ def minimum_coin_counts(coins: list[int], memo: dict[int], limit: int) -> int:
 \end{lstlisting}
 
 \begin{lstlisting}[caption=漸化式を用いたコイン問題の実装, frame=TRBL, label={dp_coin}]
+def minimum_coin_count(m: int, n: int, coins: list[int]) -> int:
+  # dp table
+  dp = [1 << 60] * (n + 1)
+  # 初期化
+  dp[0] = 0
+  
+  for i in range(1, n + 1):
+      for coin in coins:
+          if i - coin >= 0:
+              dp[i] = min(dp[i], dp[i - coin] + 1)
+  
+  return dp[n]
+\end{lstlisting}
+
+メモ化再帰と漸化式の両方で、「ずらした値 + コスト」(dp[i - coin] + 1)という形で解いていることがわかります。動的計画法において
+前のどの結果を使うのかを考えることが重要です。続くナップサック問題でも同様の考え方が使われます。
+
+メモ化再帰と漸化式どちらが考えやすいかは人それぞれですが、漸化式の方が実装が簡単であることが多いです。
+
+\subsection{ナップサック問題}
+ナップサック問題はDPの中でも有名な問題です。ナップサック問題は以下のような設定の問題です。
+
+\begin{problem}
+  重さが$w_1, w_2, \ldots, w_n$で価値が$v_1, v_2, \ldots, v_n$である$n$個の品物があり、重さの総和が$W$を超えないようにナップサックに詰め込むとき、価値の総和の最大値を求めよ。
+\end{problem}
+
+各荷物について品物を入れるか入れないかの2通りがあるため、0/1ナップサック問題と呼ばれます。先ほどまでの問題とは違って価値と重さという2つの基準がある問題です。dpテーブルが2次元の配列になるため、実装が少し複雑になります。
+ナップサック問題はメモ化再帰と漸化式の両方で解いてみましょう。
+
+\begin{lstlisting}[caption=メモ化再帰を用いたナップサック問題の実装, frame=TRBL, label={memo_knapsack}]
+def recursive_knapsack(item_limit: int, weight_limit: int, memo: dict[tuple[int, int], int], items: list[tuple[int, int]]) -> int:
+    if (item_limit, weight_limit) in memo:
+        return memo[(item_limit, weight_limit)]
+    
+    if item_limit == 0 or weight_limit == 0:
+        return 0
+    
+    value, weight = items[item_limit]
+    
+    not_taken = recursive_knapsack(item_limit - 1, weight_limit, memo, items)
+    
+    taken = 0
+    if weight_limit - weight >= 0:
+        taken = value + recursive_knapsack(item_limit - 1, weight_limit - weight, memo, items)
+    
+    memo[(item_limit, weight_limit)] = max(not_taken, taken)
+    
+    return memo[(item_limit, weight_limit)]
+
+def main():
+    n, w = map(int, input().split())
+    items = [(0, 0)]  
+    for i in range(n):
+        value, weight = map(int, input().split())
+        items.append((value, weight))
+    
+    memo = dict()
+    
+    ans = recursive_knapsack(n, w, memo, items)
+    
+    print(ans)
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\begin{lstlisting}[caption=漸化式を用いたナップサック問題の実装, frame=TRBL, label={dp_knapsack}]
+def knapsack(n: int, w: int, items: list[tuple[int, int]]) -> int:
+    dp = [[0] * (w + 1) for _ in range(n + 1)]
+    
+    for i in range(1, n + 1):
+        value, weight = items[i]
+        for j in range(1, w + 1):
+            if j - weight >= 0:
+                dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight] + value)
+            else:
+                dp[i][j] = dp[i - 1][j]
+    
+    return dp[n][w]
 \end{lstlisting}
 
 \subsection{問題}
 \textbf{問題1} EDPC A - Frog 1\\
+\textbf{問題2} AtCoder Beginner Contest 032 ナップサック問題\\  
+上で扱ったナップサック問題とは少しだけ設定が異なる問題です。\\
 
 \section{参考}
 \begin{itemize}
   \item \url{https://dai1741.github.io/maximum-algo-2012/docs/dynamic-programming/}
+  \item \url{}
 \end{itemize}
+
+\section{動的計画法 応用編}
+\subsection{レーベンシュタイン距離}
+\subsection{最長共通部分列(LCS)}
+\subsection{動的時間伸縮法}
+
 
 \end{document}
