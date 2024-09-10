@@ -1,0 +1,228 @@
+\documentclass{jlreq}
+
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{fancyhdr}
+
+% \adjustbox
+\usepackage{adjustbox}
+
+% tcolorboxの設定
+\usepackage[most]{tcolorbox} 
+\tcbuselibrary{breakable}
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+% タイトルのフォーマットを変更
+\titleformat{\title}
+  {\centering\Huge\bfseries}
+  {}
+  {0em} 
+  {}
+
+\titleformat{\subtitle}
+  {\centering\Large\itshape}
+  {}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\arabic{subsubsection}.}
+  {1em}
+  {}
+
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}
+  {\Roman{section}.}
+  {1em} 
+  {}
+  [\titleline{\titlerule[1pt]}]
+
+\titleformat{\subsection}[block]
+  {\normalfont\normalsize\bfseries}
+  {\roman{subsection}.}
+  {1em}
+  {}
+
+% listingsの設定
+
+\renewcommand{\lstlistingname}{コード}
+
+\lstset{
+	breaklines = true,
+	language = Python,
+	keywordstyle = {\bfseries \color[cmyk]{0,1,0,0}},
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	numbers = left,
+	numberstyle = \tiny,
+	stepnumber = 1,
+	% frameとnumberの間の距離
+	numbersep = 10pt,
+	frame = single,
+	basicstyle = \ttfamily,
+	tabsize = 2,
+	captionpos = t,
+	backgroundcolor={\color[gray]{.90}},
+	showstringspaces = false,
+}
+
+% headerの設定
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[RO,RE]{\rightmark}
+\fancyhead[LO,LE]{\leftmark} 
+\fancyfoot[C]{\thepage}
+
+% tikzの設定
+\usepackage{tikz}
+
+\usepackage{amsmath}
+\usepackage{url}
+
+% 問題用のボックス環境
+\newtcolorbox{problem}[1][]{enhanced,
+  colback=white!85!gray,
+  drop fuzzy shadow,
+  boxrule=0.3mm,
+  arc=0mm,
+  left=0pt,
+  top=0pt,
+  sharp corners,
+  width=\textwidth,
+  title=\textbf{問題},
+  #1
+}
+
+\usepackage{url}
+
+\begin{document}
+\section{その他頻出アルゴリズム}
+\subsection{bit全探索}
+bit全探索とは、選ぶ選ばないの2択を全ての組み合わせで試すアルゴリズムです。例えば、$N$個の要素があるとき、それぞれの要素を選ぶか選ばないかの2択を$2^N$通り全て試すことができます。
+
+部分和問題を使ってbit全探索の概要を説明します。部分和問題とは、$N$個の整数$a_1, a_2, \ldots, a_N$が与えられたとき、それらの整数の中からいくつか選んで総和を$K$とすることができるかを判定する問題です。
+
+$N = 3, K = 10, a = \{1, 4, 5\}$のとき、$a$のそれぞれの要素を使うか使わないかの2択、全部で$2^3 = 8$通りの組み合わせがあります。それぞれの組み合わせに対して、総和が$K$となるかを判定します。
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    $1$ & $4$ & $5$ & 総和 & 判定 \\
+    \hline
+    0 & 0 & 0 & 0 & No \\
+    0 & 0 & 1 & 5 & No \\
+    0 & 1 & 0 & 4 & No \\
+    0 & 1 & 1 & 9 & No \\
+    1 & 0 & 0 & 1 & No \\
+    1 & 0 & 1 & 6 & No \\
+    1 & 1 & 0 & 5 & No \\
+    1 & 1 & 1 & 10 & Yes \\
+    \hline
+  \end{tabular}
+\end{table}
+
+すべての場合を列挙してしまえば、あとは簡単に処理できそうですね。ではどのようにして列挙すればよいでしょうか。Pythonの標準ライブラリの
+itertools.productを使った方法や、bit演算を使った方法があります。両方で部分和問題を解いてみましょう。
+
+\begin{lstlisting}[caption=itertools.productを使ったbit全探索, label=bit_search, frame=TRBL]
+from itertools import product
+
+def bit_search(array: list[int], value: int) -> bool:
+      size = len(array)
+      flag = False
+      
+      for prod in product([0, 1], repeat=size):
+          total = 0
+          for index, to_use in enumerate(prod):
+              if to_use:
+                  total += array[index]
+          
+          if total == value:
+              flag = True
+      
+      return flag
+  
+  def main():
+      n, v = map(int, input().split())
+      A = list(map(int, input().split()))
+      
+      is_ok = bit_search(A, v)
+      
+      print("Yes" if is_ok else "No")
+                  
+  
+  if __name__ == "__main__":
+      main()
+  
+\end{lstlisting}
+
+itertools.productを使った実装は直感的に実装できましたが、この実装はどの言語でもできるわけではないので、bit演算を使った実装を紹介します。
+bit演算は0と1からなる2進数の数の各桁に対して、配列の要素をマッピングして0なら使わない、1なら使うという処理を行います。
+$N = 3, K = 10, a = \{1, 4, 5\}$のとき対応する2進数を考えると以下のようになります。0と1の組み合わせをすべて列挙すればいいです。
+bit演算という処理を使うことで、$2^N$通りの組み合わせを簡単に列挙することができます。
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    $1$ & $4$ & $5$ & 総和 & 判定 \\
+    \hline
+    0 & 0 & 0 & 0 & No \\
+    0 & 0 & 1 & 5 & No \\
+    0 & 1 & 0 & 4 & No \\
+    0 & 1 & 1 & 9 & No \\
+    1 & 0 & 0 & 1 & No \\
+    1 & 0 & 1 & 6 & No \\
+    1 & 1 & 0 & 5 & No \\
+    1 & 1 & 1 & 10 & Yes \\
+    \hline
+  \end{tabular}
+\end{table}
+
+bit演算を理解するには、bitシフトや、ANDやORなどのbit演算子を理解する必要があります。bit演算を使った実装は以下のようになります。
+\texttt{1 << n}は$2^n$を表すbitシフトです。$2^n$通りの組み合わせを列挙するために、$2^N$を計算しています。
+\texttt{bit \& (1 << i)}は、\texttt{bit}の\texttt{i}番目のbitが立っているかどうかを判定しています。立っている場合は\texttt{A[i]}を総和に加えます。
+例えば、bitが010010であるとき、bit \& (1 < 2)とすれば1を2だけ左シフトした100と010010をANDするので、010010に右から3番目のbitが立っているかどうかを判定できます。
+bitの位置と配列の要素の位置のマッピングを適切に行えば、部分和問題を解くことができます。下のコードではbitの右の桁から順にAの元の要素に対応させています。
+
+\begin{lstlisting}[caption=bit演算を使ったbit全探索, label=bit_search, frame=TRBL]
+def main():
+  n, v = map(int, input().split())
+  A = list(map(int, input().split()))
+  
+  for bit in (1 << n):
+      total = 0
+      for i in range(n):
+          if bit & (1 << i):
+              total += A[i]
+      
+      if total == v:
+          print("Yes")
+          exit()
+  
+  print("No")
+              
+
+if __name__ == "__main__":
+  main()
+\end{lstlisting}
+
+\section{3つ以上の全列挙(再帰による全列挙)}
+
+\section{問題}
+
+\textbf{問題1} AtCoder Beginner Contest 214 B How many?\\
+\textbf{問題2}  AtCoder Beginner Contest 367 C Enumerate Sequences \\
+
+
+\section{参考}
+\textbf{bit全探索}
+\begin{itemize}
+	\item \url{https://qiita.com/u2dayo/items/68e35815659b1041c3c2}
+	\item \url{https://algo-method.com/tasks/1131I9eL}
+\end{itemize}
+
+
+\end{document}
