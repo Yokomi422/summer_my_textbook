@@ -78,10 +78,21 @@
 \usepackage{tikz}
 
 \begin{document}
-\section{はじめに}
-\section{情報量とエントロピー}
-\subsection{情報量とは}
+\section{情報源符号化}
+効率の良い情報源の符号化方法と復号方法について学習する。情報理論において、「効率がいい」符号化方法とは平均情報量が最も
+小さい符号化方法のことを指す。また「効率がいい」復号方法とは可逆で符号を前から見た時に瞬時に復号できる方法のことを指す。
 
-\subsection{エントロピー}
+効率の良い符号化方法と復号方法はどのような性質を持っていて欲しいかを考える。情報源アルファベットを$A = \{A, B, C, D\}$し確率分布が
+以下のようになる情報源を考える。
 
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+    \hline
+    情報源記号 & 確率 & $C_1$ & $C_2$ & $C_3$ & $C_4$ & $C_5$  & $C_6$ \\
+    \hline
+    A & 0.6 & 00 & 0 & 0 & 0 & 0 & 0\\
+    \hline
+  \end{tabular}
+\end{table}
 \end{document}

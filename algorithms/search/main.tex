@@ -454,11 +454,59 @@ def binary_search(array: list[int], key: int):
     return ok
 \end{lstlisting}
 
+\subsection{問題}
+\textbf{問題1} AtCoder 典型アルゴリズム問題集 A - 二分探索の練習問題
+bisect.bisect\_leftの実装問題です。自分で実装してACしましょう。また、bisect.bisect\_leftの使い方も同時に理解しましょう。\\
+
+解答は以下の通りです。
+
+\begin{lstlisting}[caption=問題1, frame=TRBL, label={problem1}]
+def is_ok(A: list[int], key: int, index: int) -> bool:
+    return A[index] >= key
+
+def my_bisect_left(A: list[int], key) -> int:
+    ok, ng = len(A), -1
+    while abs(ng - ok) > 1:
+        mid = (ng + ok) // 2
+
+        if is_ok(A, key, mid):
+            ok = mid
+        else:
+            ng = mid
+    
+    return ok
+
+def main():
+    n, k = map(int, input().split())
+    A = list(map(int, input().split()))
+    
+    index = my_bisect_left(A, k)
+    
+    print(index if index != n else -1)
+
+if __name__ == "__main__":
+    main()
+
+\end{lstlisting}
+
+\noindent \textbf{問題2} AtCoder Beginner Contest ARC 050 B 花束\\
+参考文献2.にある通り、「答えを決めつタイプ」の二分探索です。詳しくは参考文献に譲りますが、二分探索の応用性の高さを感じる問題です。\\
+
+
+
+\subsection{参考}
+\begin{enumerate}
+  \item \url{https://qiita.com/drken/items/97e37dd6143e33a64c8c}
+  \item \url{https://betrue12.hateblo.jp/entry/2019/05/11/013403}
+\end{enumerate}
+
 \newpage
 
 \section{二分探索木}
 二分探索は探索自体は$O(\log n)$で行うことができますが、配列がソートされているひつようがあり、データの挿入や削除がある場合は毎回ソートがあり非効率ではあります。
 解決策としては、\textbf{データ構造で解決}や\textbf{Treeq}などがあります。データ構造で解決する方法の一つが\textbf{二分探索木}です。
+
+\subsection{二分探索木の概要と実装}
 
 \textbf{二分探索木}は以下の性質を持った木構造です。
 
@@ -492,7 +540,7 @@ def binary_search(array: list[int], key: int):
   \item 削除
 \end{itemize}
 
-\subsection{二分探索木の作成}
+二分探索木を作成する手順を見てみましょう。
 \texttt{[22,18, 5, 82, 51, 39]}の配列を二分探索木に変換してみましょう。
 
 \vspace{0.5cm}
@@ -641,7 +689,7 @@ def binary_search(array: list[int], key: int):
   \textbf{39を挿入}
 \end{center}
 
-\subsection{二分探索木の探索}
+二分探索木での探索を考えます。
 上の木を例に51を探してみましょう。根から順に探していきます。
 \vspace{0.5cm}
 
@@ -746,8 +794,6 @@ def binary_search(array: list[int], key: int):
   \end{tikzpicture}
 \end{center}
 
-\subsection{二分探索木の削除}
-
 二分探索木からノードを削除する場合は以下の3つのケースがあります。
 
 \begin{itemize}
@@ -756,7 +802,7 @@ def binary_search(array: list[int], key: int):
   \item 子ノードが2つの場合
 \end{itemize}
 
-\subsubsection{子ノードがない場合}
+子ノードがない場合をばあいを扱います。
 例えば5を削除する場合を考えます。5は左右の子ノードがないので、他のノードに影響がないためそのまま削除します。
 
 \begin{center}
@@ -786,7 +832,7 @@ def binary_search(array: list[int], key: int):
   \end{tikzpicture}
 \end{center}
 
-\subsubsection{子ノードが1つの場合}
+子ノードが1つの場合を扱います。
 次に18を削除する場合を考えます。18は左の子ノードが5しか持っていないので、5を18の位置に移動させます。18は親ノードから見て
 左の子ノードですが、右ノードの場合も同様に処理します。
 
@@ -819,7 +865,7 @@ def binary_search(array: list[int], key: int):
   \end{tikzpicture}
 \end{center}
 
-\subsubsection{子ノードが2つの場合}
+子ノードが2つの場合を扱います。
 最後に22を削除する場合を考えます。削除するノードが2つの子ノードを持っている場合は、削除するノードの左の子ノードの最大値か、右の子ノードの最小値を持ってきて、
 削除するノードに移動させます。ここでは、22の右の子ノードの最小値39を持ってきて、22の位置に移動させます。
 
@@ -849,7 +895,7 @@ def binary_search(array: list[int], key: int):
   \end{tikzpicture}
 \end{center}
 
-\subsection{二分木の実装}
+最後に二分探索木の実装例を紹介します。
 \begin{lstlisting}[caption=二分木の実装, frame=TRBL, label={binary_tree}]
 class Node:
   def __init__(self, data: int) -> None:
