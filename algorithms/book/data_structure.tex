@@ -1,14 +1,3 @@
-EEIC2024アルゴリズムの授業で扱ったデータ構造のアルゴリズムのシケプリです。扱った内容は以下の通りです。
-\begin{itemize}
-	\item スタック
-	\item キュー
-	\item 線形リスト
-	\item ツリー
-	\item ヒープ
-	\item セグメント木(発展的な内容)
-	\item BIT(発展的な内容)
-\end{itemize}
-
 \section{スタック}
 
 スタックはLIFO(Last In First Out)といって、最後に入れたデータが最初に取り出されるデータ構造です。本を積み重ねるイメージで考えるとわかりやすいです。スタックには以下の操作があります。
@@ -66,7 +55,7 @@ EEIC2024アルゴリズムの授業で扱ったデータ構造のアルゴリズ
 \end{center}
 \vspace{0.5cm}
 
-\subsection{スタックの実装}
+
 実装のポイントは以下の3つです。Pythonのclassを使って実装します。
 \begin{itemize}
 	\item スタックは配列で実装する
@@ -130,9 +119,6 @@ main()
     return_value = stack.pop()
     
     print(f"returned value is {return_value}")
-    
-main()
-    	
 	\end{lstlisting}
 \end{tcolorbox}
 
@@ -269,7 +255,7 @@ main()
 リングバッファの仕組みを見てみましょう。enqueueをするときはtailの位置にデータを追加しtailを1だけ進めます。dequeueをするときはheadの位置のデータを取り出しheadを1だけ進めます。headとtailが同じ位置になったときは、キューが空になります。
 実装の際は、要素の数で割った余りを使ってheadとtailの位置を管理します。
 
-\subsection{キューの実装}
+
 キューの実装のポイントは以下の3つです。
 \begin{itemize}
 	\item キューは配列で実装する
@@ -585,9 +571,16 @@ print(return_value)
 
 \hspace{1.5cm} full binary treeの例 \hspace{4.5cm} complete binary treeの例
 
+\subsection{問題}
+問題1 \\
+ABC 368 D - Minimum Steiner Tree \\
+木構造の問題です。木構造でもいつでもノードを使って解くわけではないことを確認しましょう。木構造の問題を
+次数という視点から解くことができます。\\
+
 \newpage
 
 \section{ヒープ}
+\subsection{概要と実装}
 木構造を使ったデータ構造にヒープがあります。ヒープは以下の特徴があります。
 
 \begin{itemize}
@@ -819,16 +812,16 @@ class Heap:
 		self.heap = [self.inf] * self.size
 		self.tail = 0 # 現在のヒープのデータ数
 		
-	def swap(self, index1: int, index2: int) -> None:
+	def _swap(self, index1: int, index2: int) -> None:
 		self.heap[index1], self.heap[index2] = self.heap[index2], self.heap[index1]
 
 	def push(self, value: int) -> None:
 		if self.tail != self.size - 1:
 			self.tail += 1
 			self.heap[self.tail] = value
-			self.check_from_leaf(self.tail)
+			self._check_from_leaf(self.tail)
 
-	def check_from_leaf(self, node: int) -> None:
+	def _check_from_leaf(self, node: int) -> None:
 		# nodeが根なら再帰終了
 		if node == 1:
 			return
@@ -836,8 +829,8 @@ class Heap:
 		parent = node // 2
 		# ヒープの条件を満たさない
 		if self.heap[parent] > self.heap[node]:
-			self.swap(parent, node)
-			self.check_from_leaf(parent)
+			self._swap(parent, node)
+			self._check_from_leaf(parent)
 		
 
 	def pop(self) -> int | None:
@@ -846,12 +839,12 @@ class Heap:
 			# 一番右の葉ノードを根ノードに移動
 			self.heap[1] = self.heap[self.tail]
 			self.tail -= 1
-			self.check_from_root(1)
+			self._check_from_root(1)
 			return popping_value
 		else:
 			return None
 
-	def check_from_root(self, node: int) -> None:
+	def _check_from_root(self, node: int) -> None:
 		left_child, right_child = 2 * node, 2 * node + 1
 		
 		# left > rightよりこれだけで十分
@@ -867,9 +860,9 @@ class Heap:
 		
 		# 親ノードと小さい方の子ノードを比較
 		if self.heap[node] > self.heap[smaller_node]:
-			self.swap(node, smaller_node)
+			self._swap(node, smaller_node)
 			# 小さい方だけで十分
-			self.check_from_root(smaller_node)
+			self._check_from_root(smaller_node)
 
 \end{lstlisting}
 
@@ -877,124 +870,12 @@ class Heap:
 問題1 \\
 ABC 141 D - Powerful Discount Tickets \\
 とにかく一番高い商品の値段を半分の値段で買っていくのが良さそうです。上で実装した自作ヒープと
-Pythonの標準ライブラリのheapqの両方を使って解きます。
-
-\begin{lstlisting}[caption=問題1, label=問題1: heap, frame=TRBL]
-class MinHeap:
-    def __init__(self, size: int) -> None:
-        self.inf = 1 << 60
-        self.size = size + 1
-        self.heap = [self.inf] * self.size
-        self.tail = 0
-    
-    def _swap(self, index1: int, index2: int) -> None:
-        self.heap[index1], self.heap[index2] = self.heap[index2], self.heap[index1]
-    
-    def push(self, value: int) -> None:
-        if self.size - 1 <= self.tail:
-            raise OverflowError("the heap is full")
-        
-        self.tail += 1
-        self.heap[self.tail] = value
-        
-        self._reflesh_from_leaf(self.tail)
-    
-    def _reflesh_from_leaf(self, node: int) -> None:
-        if node == 1:
-            return
-        
-        child = node
-        parent = child // 2
-        
-        if self.heap[child] < self.heap[parent]:
-            self._swap(child, parent)
-            self._reflesh_from_leaf(parent)
-    
-    def pop(self) -> int | None:
-        if self.tail == 0:
-            return None
-
-        popping_value = self.heap[1]
-        self.heap[1] = self.heap[self.tail]
-        self.heap[self.tail] = self.inf
-        self.tail -= 1
-        
-        self._refresh_from_root(1)
-        
-        return popping_value
-
-    def _refresh_from_root(self, node: int) -> None:
-        if node > self.tail:
-            return 
-        left, right = 2 * node, 2 * node + 1
-        
-        if left <= self.tail and self.heap[node] > self.heap[left]:
-            self._swap(node, left)
-        
-        if right <= self.tail and self.heap[node] > self.heap[right]:
-            self._swap(node, right)
-        
-        self._refresh_from_root(left)
-        self._refresh_from_root(right)
-    
-    def all(self) -> int:
-        sm = 0
-        for i in range(1, self.tail + 1):
-            sm += self.heap[i]
-        
-        return sm
-    
-def main():
-    n, m = map(int, input().split())
-    A = list(map(int, input().split()))
-
-    heap = MinHeap(len(A))
-    
-    for a in A:
-        heap.push(-a)
-    
-    for _ in range(m):
-        max_price = -heap.pop()
-        discounted_price = max_price // 2
-        
-        heap.push(-discounted_price)
-        
-    print(-heap.all())
-    
-    
-if __name__ == "__main__":
-    main()
-
-
-# 別解 heapqを使用
-from heapq import heapify, heappush, heappop
-    
-def main():
-    n, m = map(int, input().split())
-    A = list(map(int, input().split()))
-    
-    # heapqは最小ヒープになっているため
-    for i in range(n):
-        A[i] = -A[i]
-    
-    heapify(A)
-    
-    for _ in range(m):
-        max_price = -heappop(A)
-        discount_price = max_price // 2
-        heappush(A, -discount_price)
-        
-    print(- sum(A))
-
-if __name__ == "__main__":
-    main()
-
-\end{lstlisting}
-
+Pythonの標準ライブラリのheapqの両方を使って解いてみましょう。\\
 
 \newpage
 
 \section{セグメント木}
+\subsection{概要と実装}
 セグメント木はある条件を満たす演算に関する区間の計算結果を高速に求めるデータ構造です。区間の計算結果を高速にもとめると聞いて
 累積和や尺取法を思い浮かべるかもしれませんが、セグメント木は扱うデータの要素が逐一変わるような状況でも区間の計算結果を高速に求めることができます。
 具体的な演算は、区間の最大・最小値や、合計値などがあります。
@@ -1016,9 +897,7 @@ if __name__ == "__main__":
 
 \subsubsection{閉じた演算}
 $x, y \in S$に対して$op(x, y) \in S$を満たすような演算を閉じた演算といいます。例えば、自然数の集合$S$において、
-$op(x, y) = x + y$は閉じた演算ですが、$op(x, y) = x - y$は閉じた演算ではありません。
-
-今回実装するセグメント木は、閉じた演算を扱うため、セグメント木の演算は閉じた演算になるようにします。
+$op(x, y) = x + y$は閉じた演算ですが、$op(x, y) = x - y$は閉じた演算ではありません。今回実装するセグメント木は、閉じた演算を扱います。
 
 \subsubsection{完全二分木}
 セグメント木は完全二分木になっています。以下の図のように根以外のすべてのノードが2つの子ノードを持っていて、すべての葉の深さが同じ木になっています。
@@ -1145,9 +1024,7 @@ $op(x, y) = x + y$は閉じた演算ですが、$op(x, y) = x - y$は閉じた�
 \end{center}
 
 \vspace{1cm}
-
-\subsection{セグメント木の実装}
-セグメント木も二分木なので配列で表現することが可能です。ヒープと同様に1-indexedで実装します。以下の操作ができるようなセグメント木
+セグメント木も完全二分木なので配列で表現することが可能です。ヒープと同様に1-indexedで実装します。以下の操作ができるようなセグメント木
 を実装します。
 
 \begin{itemize}
@@ -1157,9 +1034,7 @@ $op(x, y) = x + y$は閉じた演算ですが、$op(x, y) = x - y$は閉じた�
 \end{itemize}
 
 \subsubsection{セグメント木の構築}
-セグメント木では葉にデータが格納され、葉の数はデータの数以上でかつ$2^m$で表せられる最小の数になります。$2^m$は2進数表記にすると$2^m = 1\underbrace{00\cdots0}_{m}$となるので、2進数表記したときにm桁になる数と
-$2^m$になる数であるときは葉の数を$2^m$にします。つまり、データの数$n$が$2^{m-1} + 1 \leq n \leq 2^m$であるとき、葉の数は$2^m$になります。そして今回のセグメント木は1-indexedのedの木になっているため配列の0番目の
-要素は無視します。よって、配列全体の長さは$2 m$個になります。
+\indent セグメント木では葉にデータが格納されるため、葉の数はデータの数以上でかつ$2^m$で表せられる最小の数になります。データの数$n$が$2^{m-1} + 1 \leq n \leq 2^m$であるとき、葉の数は$2^m$になります。配列全体の長さとしては$2 m$になります。
 
 セグメント木では扱う演算についての単位元を用意する必要があります。例えば、区間の最大値を求めるセグメント木では、単位元は$-\infty$になります。区間和では単位元は0になります。
 
@@ -1241,15 +1116,16 @@ $2^m$になる数であるときは葉の数を$2^m$にします。つまり、�
 どのノードを使うかを機械的に判断していくにはどうすればいいでしょうか。それは、$left$と$right$が親ノードから見て右子ノードか左子ノードにあるかを見ていけばいいです。
 leftとrightが右か左にあるかを見ていき、両者の間隔を狭めていって、leftとrightが同じノードになるまで続けます。
 
-1. leftを右に移動する
+1. 左から狭めていく場合
 
 leftが指すノードを使うか、それともその親ノードを使うかの判定を考えます。leftとrightの間は連続した区間であることに注意すると、leftが親の左側にある場合は親ノードの値を使えばいいことがわかります。
-一方で、leftが親の右側にある場合は、leftが指すノードの値を使う必要があります。また1-indexedなセグメント木では右ノードと左ノードは偶奇で判定できます。
+一方で、leftが親の右側にある場合は、leftが指すノードの値自体を使う必要があります。また1-indexedなセグメント木では右ノードと左ノードは偶奇で判定できます。
 
-2. rightを左に移動する
+2. 右から狭めていく場合
 
-rightも同様に考えます。ただ、rightは開区間になっているためright - 1を使うか使わないかを考えます。rightが親の左側にある時はright - 1よりも左側の要素を使うことになりますが、それはright - 1の親ノード
-が含んでいるため、right - 1は使いません。一方、rightが親の右側にある場合はright - 1を使う必要があります。
+rightも同様に考えます。ただ、rightは開区間になっているためright - 1を使うか使わないかを考えます。rightが親の左側にある時はright - 1よりの親を使えばいいですが、一方、rightが親の右側にある場合はright - 1を使う必要があります。
+
+leftやrightが親から見て右側にあるときに、そのノードを計算に使うと判定するので実装はシンプルになります。
 
 \subsubsection{実装}
 
@@ -1265,23 +1141,32 @@ class SegmentTree:
         self.capacity = 1 << self.log
         self.e = - (1 << 60)
         self.tree = [self.e] * (2 * self.capacity)
+        self.tail = 0
 
         # データが事前に与えられている場合
         if v is not None:
             # 葉ノードを埋める
             for i in range(self.data_size):
                  self.tree[self.capacity + i] = v[i]
+                 self.tail += 1
                  
             # 葉ノード以外を埋める 
             for i in range(self.capacity - 1, 0, -1):
-                self.update(i)
+                self._update(i)
     
-    def update(self, index: int) -> None:
+    def _update(self, index: int) -> None:
         self.tree[index] = max(self.tree[2 * index], self.tree[2 * index + 1])
+
+    def insert(self, value: int) -> None:
+        self.tree[self.capacity + self.tail] = value
+        self.tail += 1
 
     # 更新クエリ
     def set(self, index: int, value: int) -> None:
-        # 葉に移動
+        """
+		index: データの追加は0-indexedで扱っていい
+		"""
+        # 葉に移動 
         index += self.capacity
         # 更新
         self.tree[index] = value
@@ -1299,12 +1184,12 @@ class SegmentTree:
         right += self.capacity
         
         while left < right:
-            # 範囲の左側が右のノード、本実装では奇数
+            # 範囲の左側が右のノード
             if left % 2 == 1:
                 left_value = max(left_value, self.tree[left])
                 left += 1
             
-            if right & 2 == 1:
+            if right % 2 == 1:
                 right -= 1
                 right_value = max(right_value, self.tree[right])
                 
@@ -1316,9 +1201,11 @@ class SegmentTree:
 
     def all_prod(self):
         return self.tree[1]
-    
-
 \end{lstlisting}
+
+\subsection{問題}
+問題1 AtCoder Regular Contest 033 C - データ構造 \\
+セグメント木を使って解いてみましょう。k番目の和を求めるために、セグメント木は数の出現回数を記録します。
 
 \newpage
 
@@ -1392,3 +1279,8 @@ BITの実装例は以下の通りです。
             self.tree[index] += value
 						index += index & (~index + 1)
 \end{lstlisting}
+
+\subsection{参考}
+\begin{itemize}
+	\item \url{https://hos.ac/slides/20140319_bit.pdf}
+\end{itemize}
