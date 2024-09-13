@@ -875,7 +875,6 @@ Pythonの標準ライブラリのheapqの両方を使って解いてみましょ
 \newpage
 
 \section{セグメント木}
-\subsection{概要と実装}
 セグメント木はある条件を満たす演算に関する区間の計算結果を高速に求めるデータ構造です。区間の計算結果を高速にもとめると聞いて
 累積和や尺取法を思い浮かべるかもしれませんが、セグメント木は扱うデータの要素が逐一変わるような状況でも区間の計算結果を高速に求めることができます。
 具体的な演算は、区間の最大・最小値や、合計値などがあります。
@@ -1204,8 +1203,8 @@ class SegmentTree:
 \end{lstlisting}
 
 \subsection{問題}
-問題1 AtCoder Regular Contest 033 C - データ構造 \\
-セグメント木を使って解いてみましょう。k番目の和を求めるために、セグメント木は数の出現回数を記録します。
+\noindent 問題1 AtCoder Regular Contest 033 C - データ構造 \\
+セグメント木を使って解いてみましょう。k番目に小さい値を取り出すという操作を言い換える必要があります。
 
 \newpage
 
@@ -1221,8 +1220,9 @@ BITはセグメント木に比べてシンプルです。
 1番目からi番目の要素の和を高速に求めるために、以下のような操作を行います。
 
 \begin{enumerate}
-	\item iを2進数表記にしたときに一番右にある1の要素を足していく
-	\item 1の要素を足していくときに、その要素を取り除いて次の1の要素を足していく
+	\item iを2進数表記にしたときに一番右にある1の要素を引いていく
+	\item iの一番右の1を0にした数字のindexの数を区間和に足す
+	\item 0になるまで1, 2を繰り返す
 \end{enumerate}
 
 例えば、$i = 7$の場合を考えると、$7 = 111(2)$となり、右から1を引いていくと、$111(2), 110(2), 100(2), 000(2)$、つまり$7, 6, 4, 0$となります。
@@ -1239,8 +1239,9 @@ BITのデータを持つ配列をbitとすると、1から7番目の要素の和
 要素の更新は和の計算と逆の操作を行います。具体的には、以下の操作を行います。
 
 \begin{enumerate}
-	\item iを2進数表記にしたときに一番右にある1の要素を引いていく
-	\item 1の要素を引いていくときに、その要素を取り除いて次の1の要素を引いていく
+	\item iを2進数表記にしたときに一番右にある1の要素を足していく
+	\item iの一番右の1を0にした数字のindexの数を更新する値を足す
+	\item 0になるまで1, 2を繰り返す
 \end{enumerate}
 
 例えば、$A = [1, 2, 3, 4, 5, 6, 7, 8]$という等差数列の5番目に6を足すと、$A = [1, 2, 3, 4, 11, 6, 7, 8]$になります。このような値の更新をBITで行ってみましょう。
@@ -1261,7 +1262,7 @@ BIT[8] += 6
 BITの実装例は以下の通りです。
 
 \begin{lstlisting}[caption=BITの実装, label=bit, frame=TRBL, label={bit}]
-	class BIT:
+class BIT:
     def __init__(self, size: int) -> None:
         self.size = size
         self.tree = [0] * (size + 1)
@@ -1277,8 +1278,12 @@ BITの実装例は以下の通りです。
     def update(self, index: int, value: int) -> None:
         while index < self.size:
             self.tree[index] += value
-						index += index & (~index + 1)
+            index += index & (~index + 1)
 \end{lstlisting}
+
+\subsection{問題}
+\noindent 問題1 AtCoder Regular Contest 033 C - データ構造 \\
+セグメント木でも扱いましたが、区間和を求めるときはBITの方が速く実装も簡単です。
 
 \subsection{参考}
 \begin{itemize}

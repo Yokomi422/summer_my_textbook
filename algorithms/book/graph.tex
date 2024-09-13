@@ -673,6 +673,22 @@ def dfs(graph: list[list[int]], start: int, visited: list[bool]) -> list[bool]:
     return visited
 \end{lstlisting}
 
+\subsection{問題}
+\textbf{問題1} AtCoder Typical Contest 001 深さ優先探索 \\
+DFSを2次元グリッドグラフに応用した問題です。DFSやBFSを用いてグラフの到達可能性を調べる問題です。練習なので
+DFSをスタックと再帰を使った両方で解いてみましょう。再帰で実装する際にPythonでは再帰の実行回数に制限があるので、
+sys.setrecursionlimit(10**7)を使って再帰の制限を調整してください。 \\
+
+\noindent \textbf{問題2 連結成分の個数} \\
+グラフの連結成分の個数もDFSを用いることで求められます。すべてのノードを列挙して、DFSを使って到達可能なノードを調べることで
+連結成分の個数を求めることができます。 \\
+
+\subsection{参考}
+
+\begin{itemize}
+  \item \url{https://qiita.com/drken/items/a803d4fc4a727e02f7ba}
+\end{itemize}
+
 \newpage
 
 \section{素集合データ構造(Union-Find木)}
@@ -1109,30 +1125,34 @@ Pythonの標準ライブラリのヒープはtupleなどを渡すindexが早い�
 \begin{lstlisting}[caption=ダイクストラ法の実装, label=dijkstra, frame=TRBL, label={dijkstra}]
 from heapq import heappop, heappush
 
-def dijkstra(graph: list[list[int]], start: int) -> list[int]:
-      done = [False] * len(graph)
-      dist = [1 << 60] * len(graph)
-      todo = []
-      
-      # 初期化
-      dist[start] = 0
-      heappush(todo, (dist[start], 0))
-      
-      while todo:
-          distance, node = heappop(todo)
-          if done[node]:
-              continue
-          
-          # 更新
-          for connected_node, weight in graph[node]:
-              if distance + weight < dist[connected_node]:
-                  dist[connected_node] = distance + weight
-                  heappush(todo, (dist[connected_node], connected_node))
-          
-          done[node] = True
-      
-      return dist
-                  
+def dijkstra(graph: list[list[int, int]], start: int) -> list[int]:
+    """
+    args:
+      graph: graph[i]は[(j, cost)]でiからjへのコストがcostであることを示す
+      start: 始点のノード番号
+    """
+    done = [False] * len(graph)
+    dist = [1 << 60] * len(graph)
+    todo = []
+    
+    # 初期化
+    dist[start] = 0
+    heappush(todo, [dist[start], start])
+    
+    while todo:
+        prev_distance, node = heappop(todo)
+        
+        if done[node]:
+            continue
+        
+        for next_node, next_distance in graph[node]:
+            if prev_distance + next_distance < dist[next_node]:
+                dist[next_node] = prev_distance + next_distance
+                heappush(todo, [dist[next_node], next_node])
+        
+        done[node] = True 
+    
+    return dist
 \end{lstlisting}
 
 \newpage
@@ -1314,6 +1334,12 @@ def bellman_ford(v: int, edges: list[tuple[int, int, int]]) -> list[int] | int:
   return dist
 \end{lstlisting}
 
+\subsection{参考}
+
+\begin{itemize}
+  \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
+\end{itemize}
+
 \newpage
 
 \subsection{SPFA(Shortest Path Faster Algorithm)}
@@ -1360,6 +1386,9 @@ def warshall_floyd(n: int, dist: list[list[int]]):
               dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k])
 \end{lstlisting}
 
+\subsection{問題}
+\textbf{問題1} AtCoder Beginner Contest 051 D - Candidates of No Shortest Paths
+経路を復元する問題です。ダイクストラ法やワーシャルフロイド法を使って解くことができます。
 
 \newpage
 
@@ -2358,6 +2387,12 @@ while True:
 print(max_flow)
 \end{lstlisting}
 
+\subsection{参考}
+
+\begin{itemize}
+  \item \url{https://www.nic.ad.jp/ja/materials/iw/2013/proceedings/s8/s8-kaneko.pdf}
+\end{itemize}
+
 \section{最小費用流問題}
 
 \subsection{プライマル・デュアル法}
@@ -2394,32 +2429,3 @@ print(max_flow)
 \subsection{二部グラフ判定}
 
 \subsection{重み付き二部グラフの最大マッチング問題}
-
-\section{問題}
-\textbf{問題1} AtCoder Typical Contest 001 深さ優先探索 \\
-DFSを2次元グリッドグラフに応用した問題です。DFSやBFSを用いてグラフの到達可能性を調べる問題です。練習なので
-DFSをスタックと再帰を使った両方で解いてみましょう。再帰で実装する際にPythonでは再帰の実行回数に制限があるので、
-sys.setrecursionlimit(10**7)を使って再帰の制限を調整してください。 \\
-
-\noindent \textbf{問題2 連結成分の個数} \\
-グラフの連結成分の個数もDFSを用いることで求められます。すべてのノードを列挙して、DFSを使って到達可能なノードを調べることで
-連結成分の個数を求めることができます。 \\
-
-\section{参考}
-
-\textbf{BFSとDFS}
-\begin{itemize}
-    \item \url{https://qiita.com/drken/items/a803d4fc4a727e02f7ba}
-\end{itemize}
-
-\noindent \textbf{ベルマンフォード法}
-\begin{itemize}
-    \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
-\end{itemize}
-
-\noindent \textbf{トポロジカルソート}
-
-\noindent \textbf{最大流問題}
-\begin{itemize}
-    \item \url{https://www.nic.ad.jp/ja/materials/iw/2013/proceedings/s8/s8-kaneko.pdf}
-\end{itemize}

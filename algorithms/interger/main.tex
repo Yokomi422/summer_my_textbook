@@ -110,25 +110,7 @@
 
 
 \begin{document} 
-整数に関しては以下の内容を扱います。
-
-\begin{itemize}
-  \item 最大公約数とユークリッドの互除法
-  \item 拡張ユークリッドの互除法
-  \item 素数判定
-  \begin{itemize}
-    \item ナイーブな実装
-    \item エラトステネスの篩
-
-  \end{itemize}
-  \item 素因数分解
-  \begin{itemize}
-    \item ナイーブな実装
-    \item SPFを用いた実装
-  \end{itemize}
-  \item 冪乗: 繰り返し二乗法
-  \item 逆元とフェルマーの小定理
-\end{itemize}
+以下の章からは整数を扱います。
 
 \section{最大公約数とユークリッドの互除法}
 
@@ -161,7 +143,7 @@ def gcd(a: int, b: int) -> int:
 
 最大公約数をアルゴリズムを理解するだけではなくて、図形を使って直感的に理解しましょう。参考に記したけんちょんさんの最大公約数の記事を参考にすると、最大公約数は$n$次元の立方体を考えたときにそれを均等に分割できる最大の立方体の辺の長さとして考えることができます。このように考えると、最大公約数が何を意味しているのかが直感的に理解できるかもしれません。
 
-\subsection{問題と解説}
+\subsection{問題}
 \subsubsection{ABC 118 C - Monsters Battle Royale}
 問題からはすぐには気づきにくいですが、最大公約数を利用します。$n$次元の立方体を考えたときにそれを均等に分ける最大の立方体の辺の長さを求める問題と同じです。配列Aのどの要素もgcd
 の倍数になっているので、gcdがこれ以上分割できない最小の辺の長さとなります。どんなに操作を加えても最小の辺の長さは変わりません。このように操作を繰り返しても
@@ -171,7 +153,7 @@ def gcd(a: int, b: int) -> int:
 \begin{tcolorbox}[enhanced, title=コラム 再帰関数, breakable, colback=white, drop fuzzy shadow, attach boxed title to top center={yshift*=0.1cm}]
   おそらく初めて再帰関数を見た方は再帰関数の動きがわかりにくいと思います。再帰関数は自分自身を呼び出す関数です。そのため、再帰関数を理解するためには、関数が呼び出された時にどのような動きをするのかを理解する必要があります。
   関数が呼び出されると、スタックに関数が積まれていきます。最初に呼び出したgcdは一番下に、最後に呼び出したgcdはスタックの一番上に置かれます。一番上の関数戻り値がわかったら、連鎖的にそれより下の関数の値もわかります。そして今回の場合シグネチャからもわかる通り、intのデータ型の値を返す関数です。
-  returnする箇所で再びintの値を返す関数を呼び出しているので、スタックに積まれた関数がreturnするまで関数が呼び出され続けます。イコールが
+  returnする箇所で再びintの値を返す関数を呼び出しているので、スタックに積まれた関数がreturnするまで関数が呼び出され続けます。=が
   終了条件を満たすまで連なっていると考えるとわかりやすいかもしれません。
 \end{tcolorbox}
 
@@ -236,6 +218,11 @@ def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
 
 \end{lstlisting}
 
+\subsection{参考}
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/0c88a37eec520f82b788}
+\end{itemize}
+
 \section{素数判定}
 
 \subsection{ナイーブな実装}
@@ -284,7 +271,8 @@ def is_prime(n: int) -> bool:
 
 例として$n = 100$の場合を見てみます。
 
-\vspace{0.5cm}
+\newpage
+
 
 \begin{center}
   \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
@@ -541,6 +529,12 @@ def is_prime(n: int) -> list[bool]:
     return is_prime_list
 \end{lstlisting}
 
+\subsection{参考}
+
+\begin{itemize}
+    \item \url{https://algo-method.com/tasks/318}
+\end{itemize}
+
 \section{素因数分解}
 \subsection{ナイーブな実装}
 
@@ -605,7 +599,21 @@ def spf(n: int) -> list[int]:
         return primes
 \end{lstlisting}
 
-\subsection{互いに素}
+\subsection{問題}
+問題1. ABC 057 C - Digits in Multiplication
+約数列挙の問題です。
+
+問題2. ARC 052 C - Factors of Factorial \\
+約数の個数を求める問題です。約数の個数も素因数分解の結果から求めることを利用します。
+
+問題3. ARC 026 B - 完全数\\
+約数の総和
+
+\subsection{参考}
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/a14e9af0ca2d857dad23#%E5%95%8F%E9%A1%8C-10-abc-150-d---semi-common-multiple-400-%E7%82%B9}
+\end{itemize}
+\section{互いに素}
 
 \begin{definitionbox}[互いに素]
     $a, b \in \mathbb{Z}$が互いに素であるとは、$a, b$の最大公約数が1であることをいう。
@@ -769,7 +777,15 @@ def count_grid_points(x1: int, y1: int, x2: int, y2: int) -> int:
     を満たす$x \in \mathbb{Z}$が$m$を法としてただ一つ在する。特に、$b = 1$の場合を逆元という。
 \end{theorembox}
 
+\subsection{中国剰余定理}
+
+
 \begin{theorembox}[中国剰余定理]
+    $n_1, n_2 \in \mathbb{N}$が互いに素であるとき、
+    \begin{equation*}
+        x \equiv a_1 \mod{n_1}, x \equiv a_2 \mod{n_2}
+    \end{equation*}
+    を満たす$x$は、$n_1 n_2$を法としてただ一つ存在する。
 \end{theorembox}
 
 \begin{theorembox}[Euler関数は乗法的]
@@ -779,76 +795,6 @@ def count_grid_points(x1: int, y1: int, x2: int, y2: int) -> int:
 \end{theorembox}
 
 \newpage
-\subsection{問題1. }
-素因数分解に関する問題です。
-
-\begin{tcolorbox}[enhanced,
-    colback=white!85!gray,
-    drop fuzzy shadow,
-    boxrule=0.3mm,
-    arc=0mm,
-    left=0pt,
-    top=0pt,
-    sharp corners,
-    width=\textwidth,
-    ]
-    \textbf{問題 約数列挙} \\
-    自然数$N$が与えられるので、$N$の約数を昇順に列挙せよ。ただし、$N$は$1 \leq N \leq 10^12$を満たす。
-
-    例 \\
-    入力: 12 \\
-    出力: 1 2 3 4 6 12
-  \tcblower
-  
-  \begin{tcolorbox}[
-    coltext=white!10!blue,
-    colback=white!90!purple!90!blue,
-    drop fuzzy shadow,
-    boxrule=0mm,
-    arc=0mm,
-    width=1.3cm,
-    left=0pt,
-    right=0pt,
-    top=0pt,
-    bottom=0pt,
-    halign=flush left,
-  ]
-  \end{tcolorbox}
-  \tcblower
-  \textbf{回答:}
-  \begin{lstlisting}
-def enumerate_divisors(n: int) -> list[int]:
-    divisors = set()
-    for i in range(1, int(n ** 0.5) + 1):
-        if n % i == 0:
-            divisors.add(i)
-            if i != n // i:
-                divisors.add(n // i)
-    
-    return list(divisors)
-
-
-def main():
-    n = int(input())
-    divisors = enumerate_divisors(n)
-    
-    print(*divisors)
-    
-if __name__ == "__main__":
-    main()
-
-  \end{lstlisting}
-  \end{tcolorbox}% タイトルの独立
-
-
-問題2. ABC 057 C - Digits in Multiplication \\
-約数列挙の問題です。
-
-問題3. ARC 052 C - Factors of Factorial \\
-約数の個数を求める問題です。約数の個数も素因数分解の結果から求めることを利用します。
-
-問題4. ARC 026 B - 完全数\\
-約数の総和
 \begin{tcolorbox}[enhanced,
     colback=white!85!gray,
     drop fuzzy shadow,
@@ -904,10 +850,18 @@ if __name__ == "__main__":
   \end{lstlisting}
   \end{tcolorbox}% タイトルの独立
 
-問題5 yukicoder No.442 和と積 \\
+\subsection{問題}
+
+問題1  yukicoder No.442 和と積 \\
 2つの整数$a, b$が与えられるので、$a + b, a \times b$の最大公約数を求める問題です。
 \begin{lstlisting}[caption=2点間の格子点の個数の実装, label=grid, frame=TRBL]
 \end{lstlisting}
+
+\subsection{参考}
+
+\begin{itemize}
+    \item \url{https://qiita.com/drken/items/ae02240cd1f8edfc86fd}
+\end{itemize}
 
 \section{冪乗: 繰り返し二乗法}
 
@@ -1018,7 +972,8 @@ def exp_mod(n: int, m: int, mod: int) -> int:
     \textbf{aで割ることは、aの逆元をかけることと等しい}
   \end{center}
 
-  逆元を使った問題を解いてみましょう。
+\subsection{問題}
+逆元を使った問題を解いてみましょう。
 
   \begin{tcolorbox}[enhanced,
     colback=white!85!gray,
@@ -1073,27 +1028,5 @@ memo = factorial(n)
 print(comb(n, k, memo) % DIV)
   \end{lstlisting}
   \end{tcolorbox}% 
-
-\section{参考}
-参考になるサイトには扱ったアルゴリズムの別の見方や演習問題などがあるので、以下にリンクを示します。\\
-\textbf{最大公約数}
-\begin{itemize}
-    \item \url{https://qiita.com/drken/items/0c88a37eec520f82b788}
-\end{itemize}
-
-
-\textbf{素数判定}
-
-\begin{itemize}
-    \item \url{https://algo-method.com/tasks/318}
-\end{itemize}
-
-\textbf{素因数分解}
-
-\begin{itemize}
-    \item \url{https://qiita.com/drken/items/a14e9af0ca2d857dad23#%E5%95%8F%E9%A1%8C-10-abc-150-d---semi-common-multiple-400-%E7%82%B9}
-\end{itemize}
-
-
 
 \end{document}
