@@ -865,7 +865,7 @@ class UnionFind:
           return node
       else:
           # 経路圧縮
-          self.parent[node] = self._root(node)
+          self.parent[node] = self._root(self.parent[node])
           return self.parent[node]
   
   def unite(self, x: int, y: int) -> None:
@@ -1500,18 +1500,139 @@ def spfa(v: int, edges: list[list[tuple[int, int]]]):
 \newpage
 
 \subsection{ワーシャルフロイド法}
+ワーシャルフロイド法は全点対最短経路問題を解くアルゴリズムです。負の閉路がない限り負のエッジがあっても最短経路を求めることができます。
+ワーシャルフロイド法はコードを見た方が理解しやすいと思うので、以下に実装を示します。
 \begin{lstlisting}[caption=ワーシャルフロイド法の実装, label=warshall, frame=TRBL, label={warshall}]
 def warshall_floyd(n: int, dist: list[list[int]]):
-  for i in range(n):
+  for k in range(n):
+    for i in range(n):
       for j in range(n):
-          for k in range(n):
-              dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k])
+        dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
 \end{lstlisting}
+
+ワーシャルフロイド法は3重ループのそれぞれがグラフの何に対応しているかを理解することが重要です。対応は以下のようになっています。
+
+\begin{itemize}
+  \item k: 経由するノード
+  \item i: 始点
+  \item j: 終点
+\end{itemize}
+
+始点と終点を決めて、その間に経由するノードを変えていくことで、最短経路を求めることができます。distは隣接行列で与えられるとします。
+
+理解を深めるために、例を見てみましょう。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 確定したノードに赤色を塗る
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {};
+
+
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {1};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {2};
+    \node[circle, draw, minimum size=1.2cm] (C) at (1.5, -2.5) {3};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, -0.5) {4};
+    \node[circle, draw, minimum size=1.2cm] (E) at (4, -3) {5};
+    \node[circle, draw, minimum size=1.2cm] (F) at (6.5, 2) {6};
+    \node[circle, draw, minimum size=1.2cm] (H) at (7.5, -0.5) {7};
+    \node[circle, draw, minimum size=1.2cm] (G) at (6.5, -3) {8};
+
+    \draw (A) -- node[above] {5} (B);
+    \draw (A) -- node[below] {4} (C);
+    \draw (C) -- node[above] {2} (D);
+    \draw (B) -- node[right] {3} (D);
+    \draw (B) -- node[above] {9} (F);
+    \draw (F) -- node[above] {5} (H);
+    \draw (C) -- node[below] {3} (E);
+    \draw (E) -- node[below] {8} (G);
+    \draw (D) -- node[below] {7} (G);
+    \draw (D) -- node[below] {1} (F);
+    \draw (G) -- node[right] {2} (H);
+    \draw (F) -- node[right] {2} (G);
+
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+上のグラフの隣接行列distは以下のようになっています。無向グラフなので直接繋がっているノード同士以外は無限大で表されています。
+
+\begin{center}
+  \begin{tabular}{c|cccccccc}
+    & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+  1 & 0 & 5 & 4 & \infty & \infty & \infty & \infty & \infty \\
+  2 & 5 & 0 & \infty & 3 & \infty & 9 & \infty & \infty \\
+  3 & 4 & \infty & 0 & 2 & 3 & \infty & \infty & \infty \\
+  4 & \infty & 3 & 2 & 0 & \infty & 1 & 7 & \infty \\
+  5 & \infty & \infty & 3 & \infty & 0 & \infty & 8 & \infty \\
+  6 & \infty & 9 & \infty & 1 & \infty & 0 & 2 & 5 \\
+  7 & \infty & \infty & \infty & 7 & 8 & 2 & 0 & 2 \\
+  8 & \infty & \infty & \infty & \infty & \infty & 5 & 2 & 0 \\
+  \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+k = 1, i = 1, j = $1 \cdots 8$の場合を考えましょう。1からスタートして$1 \cdots 8$に行く経路のうち1を経由する経路を考えます。
+
+\begin{itemize}
+  \item j = 1: dist[1][1] = min(dist[1][1] + dist[1][1])
+  \item j = 2:  dist[1][2] = min(dist[1][1] + dist[1][2], dist[1][2]) = min(5, $\infty$)
+  \item j = 3: dist[1][3] = min(dist[1][1] + dist[1][3], dist[1][3]) = min(4, $\infty$)
+  \item j = 4: dist[1][4] = min(dist[1][1] + dist[1][4], dist[1][4]) = min($\infty$, $\infty$)
+  \item j = 5: dist[1][5] = min(dist[1][1] + dist[1][5], dist[1][5]) = min($\infty$, $\infty$)
+  \item j = 6: dist[1][6] = min(dist[1][1] + dist[1][6], dist[1][6]) = min($\infty$, $\infty$)
+  \item j = 7: dist[1][7] = min(dist[1][1] + dist[1][7], dist[1][7]) = min($\infty$, $\infty$)
+  \item j = 8: dist[1][8] = min(dist[1][1] + dist[1][8], dist[1][8]) = min($\infty$, $\infty$)
+\end{itemize}
+
+以上を反映したdistは以下のようになります。
+
+\begin{center}
+  \begin{tabular}{c|cccccccc}
+    & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+  1 & 0 & 5 & 4 & \infty & \infty & \infty & \infty & \infty \\
+  2 & 5 & 0 & \infty & 3 & \infty & 9 & \infty & \infty \\
+  3 & 4 & \infty & 0 & 2 & 3 & \infty & \infty & \infty \\
+  4 & \infty & 3 & 2 & 0 & \infty & 1 & 7 & \infty \\
+  5 & \infty & \infty & 3 & \infty & 0 & \infty & 8 & \infty \\
+  6 & \infty & 9 & \infty & 1 & \infty & 0 & 2 & 5 \\
+  7 & \infty & \infty & \infty & 7 & 8 & 2 & 0 & 2 \\
+  8 & \infty & \infty & \infty & \infty & \infty & 5 & 2 & 0 \\
+  \end{tabular}
+\end{center}
+
+\vspace{0.5cm}
+
+1に繋がっていたノードへの最短距離が更新されました。以下同様に繰り返しを行うと最終的には以下のようになります。
+
+\begin{center}
+  \begin{tabular}{c|cccccccc}
+    & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+    1 & 0 & 5 & 4 & 6 & 7 & 7 & 9 & 11 \\
+    2 & 5 & 0 & 5 & 3 & 8 & 4 & 6 & 8 \\
+    3 & 4 & 5 & 0 & 2 & 3 & 3 & 5 & 7 \\
+    4 & 6 & 3 & 2 & 0 & 5 & 1 & 3 & 5 \\
+    5 & 7 & 8 & 3 & 5 & 0 & 6 & 8 & 10 \\
+    6 & 7 & 4 & 3 & 1 & 6 & 0 & 2 & 4 \\
+    7 & 9 & 6 & 5 & 3 & 8 & 2 & 0 & 2 \\
+    8 & 11 & 8 & 7 & 5 & 10 & 4 & 2 & 0 \\
+  \end{tabular}
+\end{center}
 
 \subsection{問題}
 \textbf{問題1} AtCoder Beginner Contest 051 D - Candidates of No Shortest Paths
-経路を復元する問題です。ダイクストラ法やワーシャルフロイド法を使って解くことができます。
-
+経路を復元する問題です。ダイクストラ法でも扱いましたが、ワーシャルフロイド法でも解くことができます。
 \newpage
 
 \section{最小全域木}
@@ -1547,13 +1668,13 @@ def warshall_floyd(n: int, dist: list[list[int]]):
 呼ばれています。
 
 \subsection{クラスカル法}
-クラスカル法は、存在する辺を重さが小さい順に並べて入れていき、閉路ができないことが確認できた場合は追加し、すべての辺をチェックし終えたら終了するアルゴリズムです。
+クラスカル法は、存在する辺を重さが小さい順に並べて入れていき、閉路ができないことが確認できた場合は追加し、すべての辺をチェックし終えたら終了する貪欲法です。
 以下のアルゴリズムに従っています。
 
 \begin{enumerate}
   \item すべての辺を重さの小さい順にソート
   \item 重さの最も小さい辺を選ぶ
-  \item 今までに選んだ辺から構成される木に2で選んだ辺を追加した時に、閉路が生まれないことを確認する。閉路が新しくできないならこの辺を追加する
+  \item 今までに選んだ辺から構成される木に2で選んだ辺BDを追加した時に、閉路が生まれないことを確認する。閉路が新しくできないならこの辺を追加する
   \item すべての辺をチェックし終えるまで2から3を繰り返す
 \end{enumerate}
 
@@ -1699,7 +1820,7 @@ class UnionFind:
           return node
       else:
           # 経路圧縮
-          self.parent[node] = self._root(node)
+          self.parent[node] = self._root(self.parent[node])
           return self.parent[node]
   
   def unite(self, x: int, y: int) -> None:
@@ -1711,12 +1832,13 @@ class UnionFind:
               self.parent[root_x] = root_y
           else:
               self.parent[root_y] = root_x
-              if self.parent[root_x] == self.parent[root_y]:
+              if self.rank[root_x] == self.rank[root_y]:
                   self.rank[root_x] += 1
+
   def is_same(self, x: int, y: int) -> bool:
       return self.parent[x] == self.parent[y]
 
-def kruskal(v: int, edges: list[tuple[int, int, int]]) -> list[list[int, int]]:
+def kruskal(v: intedges: list[tuple[int, int, int]]) -> list[list[int, int]]:
     """
     args:
         v: node size
@@ -1908,33 +2030,42 @@ Bは未訪問なので、Bを訪問済にして、Bから繋がっているエ�
 import heapq
 
 def prim(v: int, edges: list[list[int, int, int]]):
-    edges_from = [[] for _ in range(v)]
-    
-    for start, end, weight in edges:
-        edges_from[start].append([weight, start, end])
-    
-    edge_heap = []
-    minimum_spanning_tree = []
-    included = [False] * v
-    
-    # nodeをひとつ選ぶ この実装では0を選ぶ
-    included[0] = True
-    # node0につながる辺をすべてヒープに入れる
-    for edge in edges_from[0]:
-        heapq.heappush(edge_heap, edge)
-    
-    while edge_heap:
-        weight, start, end = heapq.heappop(edge_heap)
-        if not included[end]:
-            included[end] = True
-            minimum_spanning_tree.append([start, end])
-            
-            for edge in edges_from[end]:
-                if not included[end]:
-                    heapq.heappush(edge_heap, edge)
-    
-    return minimum_spanning_tree
+      edges_from = [[] for _ in range(v)]
+      
+      for start, end, weight in edges:
+          edges_from[start].append([weight, start, end])
+          edges_from[end].append([weight, end, start])  # 無向グラフのため逆方向のエッジも追加
+      
+      edge_heap = []
+      minimum_spanning_tree = []
+      included = [False] * v
+      
+      # ノード 0 を選択して開始
+      included[0] = True
+      for edge in edges_from[0]:
+          heapq.heappush(edge_heap, edge)
+      
+      while edge_heap:
+          weight, start, end = heapq.heappop(edge_heap)
+          if not included[end]:
+              included[end] = True
+              minimum_spanning_tree.append([start, end])
+              
+              for edge in edges_from[end]:
+                  if not included[edge[2]]: 
+                      heapq.heappush(edge_heap, edge)
+      
+      return minimum_spanning_tree
 \end{lstlisting}
+
+\subsection{問題}
+
+\textbf{問題1} AtCoder 典型アルゴリズム問題集 F - 最小全域木問題\\
+
+\subsection{参考}
+\begin{itemize}
+  \item \url{https://dai1741.github.io/maximum-algo-2012/docs/minimum-spanning-tree/}
+\end{itemize}
 
 \newpage
 
