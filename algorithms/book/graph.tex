@@ -683,7 +683,7 @@ sys.setrecursionlimit(10**7)を使って再帰の制限を調整してくださ�
 グラフの連結成分の個数もDFSを用いることで求められます。すべてのノードを列挙して、DFSを使って到達可能なノードを調べることで
 連結成分の個数を求めることができます。 \\
 
-\subsection{参考}
+\textbf{参考}
 
 \begin{itemize}
   \item \url{https://qiita.com/drken/items/a803d4fc4a727e02f7ba}
@@ -1334,7 +1334,7 @@ def bellman_ford(v: int, edges: list[tuple[int, int, int]]) -> list[int] | int:
   return dist
 \end{lstlisting}
 
-\subsection{参考}
+\textbf{参考}
 
 \begin{itemize}
   \item \url{https://qiita.com/ko-ya346/items/359a3e03c5e20b04c573}
@@ -1940,7 +1940,7 @@ def prim(v: int, edges: list[list[int, int, int]]):
 
 \textbf{問題1} AtCoder 典型アルゴリズム問題集 F - 最小全域木問題\\
 
-\subsection{参考}
+\textbf{参考}
 \begin{itemize}
   \item \url{https://dai1741.github.io/maximum-algo-2012/docs/minimum-spanning-tree/}
 \end{itemize}
@@ -2097,7 +2097,8 @@ Kahnのアルゴリズムの実装例を以下に示します。
 \begin{lstlisting}[caption=Kahnのアルゴリズムの実装, label=kahn, frame=TRBL, label={kahn}]
 from collections import deque
 
-def kahn_topological_sort(v: int, e: int, edges: list[list[int, int]]) -> list[int]:
+def topo_sort(v: int, edges: list[list[int, int]]) -> list[int] | None:
+    e = len(edges)
     indeg = [0] * v
     outedge = [[] for _ in range(v)]
     
@@ -2129,13 +2130,154 @@ Tarjanのアルゴリズムは、深さ優先探索を用いてトポロジカ�
 \begin{enumerate}
   \item 未訪問のノードを訪問済にする
   \item そのノードに繋がっているノードを再帰的に訪問する
-  \item そのノードのすべての子ノードを訪問し終えたら、そのノードをソート済配列に追加する
+  \item そのノードのすべての子ノードを訪問し終えたら、そのノードをソート済配列に先頭から追加する
 \end{enumerate}
+
+\newpage
+
+Tarjanのアルゴリズムの例を以下に示します。最初は任意のノードを選びます。今回はCを選びます。
+CからDFSを開始すると、Eを探索します。Eからはもう子ノードがないので、Eをソート済配列に追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[draw, minimum size=1.2cm] (A) at (0, 0) {};
+    \node[draw, minimum size=1.2cm] (B) at (1.2, 0) {};
+    \node[draw, minimum size=1.2cm] (C) at (2.4, 0) {};
+    \node[draw, minimum size=1.2cm] (D) at (3.6, 0) {};
+    \node[draw, minimum size=1.2cm] (E) at (4.8, 0) {E};
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+CからDにも移動でき、Dからはこれ以上移動することができないので、Dをソート済配列に追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[draw, minimum size=1.2cm] (A) at (0, 0) {};
+    \node[draw, minimum size=1.2cm] (B) at (1.2, 0) {};
+    \node[draw, minimum size=1.2cm] (C) at (2.4, 0) {};
+    \node[draw, minimum size=1.2cm] (D) at (3.6, 0) {D};
+    \node[draw, minimum size=1.2cm] (E) at (4.8, 0) {E};
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+Cからはもう移動できないので、Cをソート済配列に追加します。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[draw, minimum size=1.2cm] (A) at (0, 0) {};
+    \node[draw, minimum size=1.2cm] (B) at (1.2, 0) {};
+    \node[draw, minimum size=1.2cm] (C) at (2.4, 0) {C};
+    \node[draw, minimum size=1.2cm] (D) at (3.6, 0) {D};
+    \node[draw, minimum size=1.2cm] (E) at (4.8, 0) {E};
+  \end{tikzpicture}
+\end{center}
+\vspace{0.5cm}
+
+最後にAからBへの移動を考えると、トポロジカルソートの完成です。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (C) at (2.0, -2.2) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (D) at (4.5, 0.3) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=blue!20] (E) at (4.5, -2.2) {E};
+
+    \draw[->] (A) -- (B);
+    \draw[->] (A) -- (C);
+    \draw[->] (B) -- (D);
+    \draw[->] (C) -- (D);
+    \draw[->] (C) -- (E);
+    \draw[->] (D) -- (E);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[draw, minimum size=1.2cm] (B) at (1.2, 0) {B};
+    \node[draw, minimum size=1.2cm] (C) at (2.4, 0) {C};
+    \node[draw, minimum size=1.2cm] (D) at (3.6, 0) {D};
+    \node[draw, minimum size=1.2cm] (E) at (4.8, 0) {E};
+  \end{tikzpicture}
+\end{center}
+\vspace{0.5cm}
 
 Tarjanのアルゴリズムの実装例を以下に示します。
 
 \begin{lstlisting}[caption=Tarjanのアルゴリズムの実装, label=tarjan, frame=TRBL, label={tarjan}]
-def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
+def tarjan_topo_sort(v: int, edges: list[list[int, int]]) -> list[int]:
     def dfs(node: int):
         visited[node] = True
         for connected_node in outedge[node]:
@@ -2157,11 +2299,15 @@ def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
     return sorted_g[::-1]
 \end{lstlisting}
 
+\subsection{問題}
+
+\textbf{問題1} AtCoder Educational DP Contest G - Longest Path\\
+
 \newpage
 
 \section{最大流問題}
 グラフに流れ(フロー)があるグラフを考えます。特に、フローは始点(source)のみから生まれ、終点(sink)でのみ消滅するという性質を持つ場合を考えます。
-グラフでフローを扱う分野をネットワークフローといいます。エッジに容量を導入して、各エッジを通るフローの量が容量を超えないという条件のもとで終点に最も多くのフローを流す問題を\textbf{最大流問題}といいます。
+グラフでフローを扱う分野を\textbf{ネットワークフロー}といいます。エッジに容量を導入して、各エッジを通るフローの量が容量を超えないという条件のもとで終点に最も多くのフローを流す問題を\textbf{最大流問題}といいます。
 
 \vspace{0.5cm}
 
@@ -2183,7 +2329,7 @@ def tarjan_topological_sort(v: int, edges: list[list[int, int]]) -> list[int]:
 \vspace{0.5cm}
 
 \subsection{最大流問題と貪欲法の限界}
-DFSを使って見つかった道から順番にフローを流す貪欲法から考えてみます。下のネットワークグラフを例にして考えます。Aをsource、Fをsinkとして例を挙げます。
+DFSを使って見つかった道から順番にフローを流す貪欲法から考えてみます。下のネットワークグラフを例にして考えます。Aをsource、Fをsinkとします。
 
 \vspace{0.5cm}
 
@@ -2446,18 +2592,18 @@ Fにつながっているエッジのフローを見てみると、18のフロ�
     \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
 
     % エッジを引く
-    \draw[->] (A) -- node[left] {2/10} (B);
-    \draw[->] (A) -- node[left] {8/10} (C);
-    \draw[->] (B) -- node[above] {2/4} (D);
+    \draw[->] (A) -- node[left] {0/10} (B);
+    \draw[->] (A) -- node[left] {2/10} (C);
+    \draw[->] (B) -- node[above] {-2/4} (D);
     \draw[->] (B) -- (E);
-    \draw[->] (C) -- node[below] {4/4} (E);
-    \draw[->] (E) -- node[left] {6/12} (F);
-    \draw[->] (D) -- node[right] {8/8} (F);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {2/12} (F);
+    \draw[->] (D) -- node[right] {0/8} (F);
     \draw[->] (C) -- (D);
 
     % 容量を書く
-    \node at (3, 1) {6/8};
-    \node at (5.6, 1) {4/7};
+    \node at (3, 1) {2/8};
+    \node at (5.6, 1) {2/7};
 
     % 赤い太線で線を引く
     \draw[draw=red, very thick, ->] (A) -- (C);
@@ -2466,65 +2612,378 @@ Fにつながっているエッジのフローを見てみると、18のフロ�
   \end{tikzpicture}
 \end{center}
 
+\vspace{0.5cm}
+負の経路が現れました。負の経路を反対方向のフロートすると貪欲法では見えなかった経路が現れます。
+貪欲方に加えて、このA -> D -> B -> E -> Fの経路を考慮したアルゴリズムを考える必要があります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く
+    \draw[->] (A) -- node[left] {0/10} (B);
+    \draw[->] (A) -- node[left] {2/10} (C);
+    \draw[<-] (B) -- node[above] {2/4} (D);
+    \draw[->] (B) -- (E);
+    \draw[->] (C) -- node[below] {0/4} (E);
+    \draw[->] (E) -- node[left] {2/12} (F);
+    \draw[->] (D) -- node[right] {0/8} (F);
+    \draw[->] (C) -- (D);
+
+    % 容量を書く
+    \node at (3, 1) {2/8};
+    \node at (5.6, 1) {2/7};
+
+    % 赤い太線で線を引く
+    \draw[draw=red, very thick, ->] (A) -- (C);
+    \draw[draw=red, very thick, ->] (C) -- (D);
+    \draw[draw=red, very thick, ->] (D) -- (B);
+    \draw[draw=red, very thick, ->] (B) -- (E);
+    \draw[draw=red, very thick, ->] (E) -- (F);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
 \subsection{フォード・ファルカーソン法}
 
-実装例は以下のようになります。
+負の閉路まで考えた経路を考慮することで最大フローを求めるアルゴリズムがフォード・ファルカーソン法です。
+フォード・ファルカーソン法は基本的には貪欲法と同じですが、DFSで経路を辿るたびに流したフローのマイナスの経路を追加します。
+マイナスの経路を追加するとは、以下のように順方向のフローが流れたときに逆方向に容量を追加することを意味します。
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 0) {B};
+    
+    \draw[->] (A) to[out=30, in=150] node[above] {4/10} (B); 
+    \draw[<-] (A) to[out=-30, in=-150] node[below] {0/4} (B); 
+  \end{tikzpicture}
+\end{center}
+
+フォード・ファルカーソン法の例を見てみましょう。まずはA -> B -> D -> Fの経路を考えます。
+4のフローを流せるので逆方向の容量を4追加します。
+
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く（アンカーや座標を指定）
+    \draw[->] (A.east) -- node[below right] {4/10} (B.south west);
+    \draw[->] (A.south) -- node[below left] {4/10} (C.west); % Aの右下からCの左端へ
+    \draw[->] (B.east) -- node[below] {4/4} (D.west); % Bの右端からDの左端へ
+    \draw[->] (B.south) -- node[right] {} (E.north); % Bの下からEの上へ
+    \draw[->] (C.east) -- node[below] {0/4} (E.west); % Cの右端からEの左端へ
+    \draw[->] (E.east) -- node[below right] {0/12} (F.south west); % Eの右端からFの左下へ
+    \draw[->] (D.south east) -- node[below left] {4/8} (F.north west); % Dの右端からFの左上へ
+    \draw[->] (C.north east) -- (D.south); % Cの右上からDの左下へ
+
+    % 反対方向
+    \draw[<-] (A.north east) -- node[above left] {0/4} (B.west);
+    \draw[<-] (B.north east) -- node[above] {0/4} (D.north west);
+    \draw[<-] (D.east) -- node[above right] {0/4} (F.north);
+
+
+    % CDの重みを書く
+    \node at (4, -1.25) {0/7};
+    % DEの重みを書く
+    \node at (3.75, 1.25) {0/8};
+  \end{tikzpicture}
+\end{center}
+
+\newpage
+
+次にABEFの経路を考えます。
+
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く（アンカーや座標を指定）
+    \draw[->] (A.east) -- node[below right] {10/10} (B.south west);
+    \draw[->] (A.south) -- node[below left] {4/10} (C.west); % Aの右下からCの左端へ
+    \draw[->] (B.east) -- node[below] {4/4} (D.west); % Bの右端からDの左端へ
+    \draw[->] (B.south) -- node[right] {} (E.north west);
+    \draw[->] (C.east) -- node[below] {0/4} (E.west); % Cの右端からEの左端へ
+    \draw[->] (E.east) -- node[below right] {6/12} (F.south west); 
+    \draw[->] (D.south east) -- node[below left] {4/8} (F.north west); % Dの右端からFの左上へ
+    \draw[->] (C.north east) -- (D.south); % Cの右上からDの左下へ
+
+    % 反対方向
+    \draw[<-] (A.north east) -- node[above left] {0/10} (B.west);
+    \draw[<-] (B.north east) -- node[above] {0/4} (D.north west);
+    \draw[<-] (D.east) -- node[above right] {0/4} (F.north);
+    \draw[<-] (B.south east) -- node[above right] {} (E.north);
+    \draw[<-] (E.north east) -- node[above] {6/6} (F.west);
+
+
+    % CDの重みを書く
+    \node at (4, -1.25) {0/7};
+    % BEの重みを書く
+    \node at (4.3, 0.8) {0/6};
+    \node at (3, 0.8) {6/8};
+  \end{tikzpicture}
+\end{center}
+
+次にACDFの経路を考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く（アンカーや座標を指定）
+    \draw[->] (A.east) -- node[below right] {10/10} (B.south west);
+    \draw[->] (A.south) -- node[below left] {4/10} (C.west); % Aの右下からCの左端へ
+    \draw[->] (B.east) -- node[below] {4/4} (D.west); % Bの右端からDの左端へ
+    \draw[->] (B.south) -- node[right] {} (E.north west);
+    \draw[->] (C.east) -- node[below] {0/4} (E.west); % Cの右端からEの左端へ
+    \draw[->] (E.east) -- node[below right] {6/12} (F.south west); 
+    \draw[->] (D.south east) -- node[below left] {8/8} (F.north west); % Dの右端からFの左上へ
+    \draw[->] (C.north east) -- (D.south); % Cの右上からDの左下へ
+
+    % 反対方向
+    \draw[<-] (A.north east) -- node[above left] {0/10} (B.west);
+    \draw[<-] (B.north east) -- node[above] {0/4} (D.north west);
+    \draw[<-] (D.east) -- node[above right] {0/8} (F.north);
+    \draw[<-] (B.south east) -- node[above right] {} (E.north);
+    \draw[<-] (E.north east) -- node[left] {0/6} (F.west);
+    \draw[<-] (A.south east) -- node[above] {0/8} (C.north west);
+    \draw[<-] (C.north) -- node[above] {} (D.south west);
+
+    % CDの重みを書く
+    \node at (4, -1.25) {4/7};
+    \node at (2.5, -1.25) {0/4};
+    % BEの重みを書く
+    \node at (4.2, 0.8) {0/6};
+    \node at (3, 0.8) {6/8};
+  \end{tikzpicture}
+\end{center}
+
+
+次にACEFの経路を考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く（アンカーや座標を指定）
+    \draw[->] (A.east) -- node[below right] {10/10} (B.south west);
+    \draw[->] (A.south) -- node[below left] {8/10} (C.west); % Aの右下からCの左端へ
+    \draw[->] (B.east) -- node[below] {4/4} (D.west); % Bの右端からDの左端へ
+    \draw[->] (B.south) -- node[right] {} (E.north west);
+    \draw[->] (C.east) -- node[above] {4/4} (E.west); % Cの右端からEの左端へ
+    \draw[->] (E.east) -- node[below right] {10/12} (F.south west); 
+    \draw[->] (D.south east) -- node[below left] {8/8} (F.north west); % Dの右端からFの左上へ
+    \draw[->] (C.north east) -- (D.south); % Cの右上からDの左下へ
+
+    % 反対方向
+    \draw[<-] (A.north east) -- node[above left] {0/10} (B.west);
+    \draw[<-] (B.north east) -- node[above] {0/4} (D.north west);
+    \draw[<-] (D.east) -- node[above right] {0/8} (F.north);
+    \draw[<-] (B.south east) -- node[above right] {} (E.north);
+    \draw[<-] (E.north east) -- node[left] {0/10} (F.west);
+    \draw[<-] (A.south east) -- node[above] {0/8} (C.north west);
+    \draw[<-] (C.north) -- node[above] {} (D.south west);
+    \draw[<-] (C.south east) -- node[below] {0/4} (E.south west);
+
+    % CDの重みを書く
+    \node at (4, -1.25) {4/7};
+    \node at (2.5, -1.25) {0/4};
+    % BEの重みを書く
+    \node at (4.2, 0.8) {0/6};
+    \node at (3, 0.8) {6/8};
+  \end{tikzpicture}
+\end{center}
+
+貪欲法ではここで終了しました。負の経路があるのでまだACDBEFの経路があります。この経路を考えると、
+最大フローは20になります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % ノードの定義
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (6, 2.5) {D};
+    \node[circle, draw, minimum size=1.2cm] (E) at (6, -2.5) {E};
+    \node[circle, draw, minimum size=1.2cm] (F) at (8.5, 0) {F};
+
+    % エッジを引く（アンカーや座標を指定）
+    \draw[->] (A.east) -- node[below right] {10/10} (B.south west);
+    \draw[->] (A.south) -- node[below left] {10/10} (C.west); % Aの右下からCの左端へ
+    \draw[->] (B.east) -- node[below] {2/4} (D.west); % Bの右端からDの左端へ
+    \draw[->] (B.south) -- node[right] {} (E.north west);
+    \draw[->] (C.east) -- node[above] {4/4} (E.west); % Cの右端からEの左端へ
+    \draw[->] (E.east) -- node[below right] {12/12} (F.south west); 
+    \draw[->] (D.south east) -- node[below left] {8/8} (F.north west); % Dの右端からFの左上へ
+    \draw[->] (C.north east) -- (D.south); % Cの右上からDの左下へ
+
+    % 反対方向
+    \draw[<-] (A.north east) -- node[above left] {0/10} (B.west);
+    \draw[<-] (B.north east) -- node[above] {2/4} (D.north west);
+    \draw[<-] (D.east) -- node[above right] {0/8} (F.north);
+    \draw[<-] (B.south east) -- node[above right] {} (E.north);
+    \draw[<-] (E.north east) -- node[left] {0/12} (F.west);
+    \draw[<-] (A.south east) -- node[above] {0/8} (C.north west);
+    \draw[<-] (C.north) -- node[above] {} (D.south west);
+    \draw[<-] (C.south east) -- node[below] {0/4} (E.south west);
+
+    % CDの重みを書く
+    \node at (4, -1.25) {6/7};
+    \node at (2.5, -1.25) {0/4};
+    % BEの重みを書く
+    \node at (4.2, 0.8) {0/0};
+    \node at (3, 0.8) {8/8};
+  \end{tikzpicture}
+\end{center}
+
+\newpage
+
+最後にフォード・ファルカーソン法の実装について扱います。今までのグラフ探索アルゴリズムでは隣接リスト形式で
+グラフを表現してきましたが、今回は隣接行列を使ってグラフを表現します。例のグラフの隣接行列は以下のようになります。
+DFSで探索するたびに対象な位置の要素を更新していきます。
+
+\begin{equation*}
+\begin{array}{c|cccccc}
+   & A & B & C & D & E & F \\ \hline
+A  & 0 & 10 & 10 & 0 & 0 & 0 \\
+B  & 0 & 0  & 0  & 4 & 8 & 0 \\
+C  & 0 & 0  & 0  & 0 & 4 & 0 \\
+D  & 0 & 0  & 0  & 0 & 0 & 12 \\
+E  & 0 & 0  & 0  & 0 & 0 & 12 \\
+F  & 0 & 0  & 0  & 0 & 0 & 0  \\
+\end{array}
+\end{equation*}
 
 \begin{lstlisting}[caption=フォード・ファルカーソン法の実装, label=ford_fulkerson, frame=TRBL, label={ford_fulkerson}]
-"""
-0がstart, n - 1がend
-"""
-  
-n, m = map(int, input().split())
+def ford_fulkerson(cap: list[list[int]], n: int, start: int, end: int) -> int:
+  def dfs_ff(start: int, end: int, flow: int) -> int:
+      if start == end:
+          return flow
 
-capacity = [[0] * n for _ in range(n)]
+      visited[start] = True
 
-for _ in range(m):
-    u, v, c = map(int, input().split())
-    u, v = u - 1, v - 1
-    capacity[u][v] = c
+      for i in range(n):
+          if not visited[i] and cap[start][i] > 0: 
+              next_cap = cap[start][i]
+              new_cap = min(flow, next_cap)
+              f = dfs_ff(i, end, new_cap)
 
-# 使うもの
-max_flow = 0
+              if f > 0:
+                  cap[start][i] -= f
+                  cap[i][start] += f
+                  return f
 
-# (開始ノード, 終了ノード, 開始ノードの前のノードまで流せる最大流量)
-def dfs_ff(start: int, end: int, flow: int):
-    if start == end:
-        return flow
-    
-    visited[start] = True
+      return 0
 
-    for i in range(n):
-        if not visited[i] and capacity[start][i]:
-            next_capacity = capacity[start][i]
-            new_capacity = min(flow, next_capacity)
-            f = dfs_ff(i, end, new_capacity)
+  max_flow = 0
 
-            if f > 0:
-                capacity[start][i] -= f
-                capacity[i][start] += f
-                return f
-        
-    return 0
+  while True:
+      visited = [False] * n
+      f = dfs_ff(start, end, 10 ** 9)
+      if f == 0:
+          break
+      max_flow += f
 
-while True:
-    visited = [False] * n
-    f = dfs_ff(0, n - 1, 10 ** 9)
-    if f == 0:
-        break
-
-    max_flow += f
-
-print(max_flow)
+  return max_flow
 \end{lstlisting}
 
-\subsection{参考}
+\subsection{最大フロー問題の再考}
+最大フローに関わるグラフの性質を確認します。
+\subsubsection{s-tカット}
+\textbf{グラフのカット}はあるグラフを異なる2つの部分に分けることを指します。このとき、グラフの頂点集合Vを$S$と$T$に分けることを考えます。
+これは(S, V $\textbackslash$ S)のように表します。\textbf{カットエッジ}とは、SとTを結ぶ辺のことを指します。
+
+例を見てみましょう。以下のグラフを考えます。AとB、CとDとEからなるグループに分けます。
+カットエッジはAとCを結ぶエッジ、BとDを結ぶエッジ、BとCを結ぶエッジになります。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8]
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm, fill=red!20] (B) at (2.5, 2.5) {B};
+    \node[circle, draw, minimum size=1.2cm, fill=green!20] (C) at (2.5, -2.5) {C};
+    \node[circle, draw, minimum size=1.2cm, fill=green!20] (D) at (6, 1.5) {D};
+    \node[circle, draw, minimum size=1.2cm, fill=green!20] (E) at (6, -2.5) {E};
+
+    % 線を引く
+    \draw[->] (A) -- node[above] {8} (B);
+    \draw[->] (A) -- node[below] {5} (C);
+    \draw[->] (C) -- node[left] {4} (B);
+    \draw[<-] (C) -- node[below] {2} (D);
+    \draw[->] (D) -- node[right] {9} (E);
+    \draw[->] (C) -- node[below] {3} (E);
+    \draw[->] (B) -- node[above] {7} (D);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+\textbf{s-tカット}とは、集合Sに開始ノード、集合Tに終了ノードを含むカットのことを指します。上のグラフでは
+Aをソース、Eをシンクと考えれば上のカットはs-tカットになります。\textbf{最小カット}とは、
+s-tカットの中でSからTに向かう辺の容量の総和U(S $\rightarrow$ T)が最小になるカットのことを指します。
+
+\subsection{最大流・最小カットの定理}
+最大流と最小カットには以下の定理が成り立ちます。
+
+\begin{theorembox}[最大流・最小カットの定理]
+  グラフのおいて、s-tカットの最大フローは、s-tカットの最小カットと等しい。
+\end{theorembox}
+
+
+
+\textbf{参考}
 
 \begin{itemize}
   \item \url{https://www.nic.ad.jp/ja/materials/iw/2013/proceedings/s8/s8-kaneko.pdf}
 \end{itemize}
 
+\subsection{問題}
+\textbf{問題1} AtCoder 典型アルゴリズム問題集 上級~エキスパート編 E - 最大流
+
+\newpage
+
 \section{最小費用流問題}
+
 
 \subsection{プライマル・デュアル法}
 
@@ -2560,3 +3019,8 @@ print(max_flow)
 \subsection{二部グラフ判定}
 
 \subsection{重み付き二部グラフの最大マッチング問題}
+
+\textbf{参考} \\
+\begin{itemize}
+  \item \url{https://qiita.com/drken/items/e805e3f514acceb87602}
+\end{itemize}
