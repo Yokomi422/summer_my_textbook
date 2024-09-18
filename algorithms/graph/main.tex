@@ -1230,7 +1230,6 @@ Dに関しては、すでにわかっている経路の方が短いので更新�
 
 \vspace{0.5cm}
 
-\subsubsection{ダイクストラ法の実装}
 ダイクストラ法はとてもシンプルなアルゴリズムです。ダイクストラ法の実装のポイントは以下の通りです。
 
 \begin{itemize}
@@ -1283,16 +1282,16 @@ def dijkstra(graph: list[list[int, int]], start: int) -> list[int]:
 ベルマン・フォード法はダイクストラ法と異なり、負の重みを持つ辺があっても機能する単一始点全点間最短路を求めるアルゴリズムです。負の閉路の検出も可能です。
 ダイクストラ法とは違って最短距離の選択を行わずに、毎回すべての辺を更新します。
 
-ベルマン・フォード法のアルゴリズムを例を使って説明します。以下のグラフを例に考えます。概要はダイクストラ法とあまり変わりません。ただし、
-グラフの情報が(始点、終点、重み)のlistで与えられるとします。例えば、(A, B, 5)はAからBへでている重みが5のノードであることを示します。
+ベルマン・フォード法を例を使って説明します。以下のグラフを例に考えます。概要はダイクストラ法とあまり変わりません。ただし、
+グラフの情報が(始点、終点、重み)のlistで与えられるとします。例えば、(A, B, 5)はAからBへでている重みが5のエッジであることを示します。
 
 すべて列挙すると、以下の様になります。
 
 \begin{equation*}
   \begin{aligned}
     \text{edges} =
-    &(A, B, 5), (B, C, -4), (C, A, -3), (C, D, 2), (B, D, 3), (B, F, 9), (F, H, 5), \\
-    &(C, E, 3), (E, G, 8), (D, G, 7), (D, F, 1), (G, H, 2), (F, G, 2)
+    &[(A, B, 5), (B, C, -4), (C, A, -3), (C, D, 2), (B, D, 3), (B, F, 9), (F, H, 5), \\
+    &(C, E, 3), (E, G, 8), (D, G, 7), (D, F, 1), (G, H, 2), (F, G, 2)]
   \end{aligned}
 \end{equation*}
 
@@ -3105,9 +3104,203 @@ s-tカットの中でSからTに向かう辺の容量の総和U(S $\rightarrow$ 
 \newpage
 
 \section{最小費用流問題}
+最小費用流問題では、最大流問題で考えたグラフにコストを加えたグラフを考えます。コストを一定以下に抑えるという条件のもとで
+流量を最大にする問題です。
 
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2, 2) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2, -2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, 0) {D};
+
+  % 線を引く
+  \draw[->] (A) -- node[above left] {0/3, 6} (B);
+  \draw[->] (A) -- node[below left] {0/5, 2} (C);
+  \draw[->] (C) -- node[left] {0/7, 2} (B);
+  \draw[->] (B) -- node[above right] {0/4, 2} (D);
+  \draw[->] (C) -- node[below right] {0/6, 2} (D);
+  \end{tikzpicture}
+\end{center}
 
 \subsection{プライマル・デュアル法}
+最小費用流問題を解くアルゴリズムのプライマル・デュアル法を考えます。基本はフォード・ファルカーソンの考え方と同じで、
+経路を辿るたびに反対方向の経路を追加していきます。加えて最小費用を考えるためにベルマン・フォード法で探索します。
+
+フローを7流すときの最小費用を考えます。現在のネットワークから最小のコストの経路をベルマン・フォード法で探索すると、
+A -> C -> B -> Dの経路が最小コストになります。この経路を辿ると、最小容量は4になります。辿った経路の反対方向
+の容量を4増やし、コストはマイナスの経路を追加します。このとき、通った経路のフローの量だけコストを増やします。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=1.4]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2, 2) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2, -2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, 0) {D};
+
+  % 線を引く
+  \draw[->] (A.north) -- node[above left] {0/3, 6} (B.west);
+  \draw[->] (A.south) -- node[below left] {4/5, 2} (C.west);
+  \draw[->] (C.north west) -- node[left] {4/7, 3} (B.south west);
+  \draw[->] (B.east) -- node[above right] {4/4, 3} (D.north);
+  \draw[->] (C) -- node[below right] {0/6, 9} (D);
+  % 逆経路
+  % \draw[->] (B.south west) -- node[below] {4/3, -6} (A.north east);
+  \draw[->] (D.north west) -- node[] {0/4, -3} (B.south east);
+  \draw[->] (C.north west) -- node[above] {0/4, -2} (A.south east);
+  \draw[->] (B.south east) -- node[right] {0/4, -3} (C.north east);
+  \end{tikzpicture}
+\end{center}  
+
+\newpage
+再びベルマン・フォード法で最短経路を求めると、A -> C -> Dの経路が最小コストになります。この経路を辿ると、
+最小容量は1になります。辿った経路の反対方向の容量を1増やし、コストはマイナスの経路を追加します。
+
+\begin{center}
+  \begin{tikzpicture}[scale=1.4]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2, 2) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2, -2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, 0) {D};
+
+  % 線を引く
+  \draw[->] (A.north) -- node[above left] {0/3, 6} (B.west);
+  \draw[->] (A.south) -- node[below left] {5/5, 2} (C.west);
+  \draw[->] (C.north west) -- node[left] {4/7, 3} (B.south west);
+  \draw[->] (B.east) -- node[above right] {4/4, 3} (D.north);
+  \draw[->] (C.east) -- node[below right] {1/6, 9} (D.south);
+  % 逆経路
+  % \draw[->] (B.south west) -- node[below] {4/3, -6} (A.north east);
+  \draw[->] (D.north west) -- node[] {0/4, -3} (B.south east);
+  \draw[->] (C.north west) -- node[above] {0/5, -2} (A.south east);
+  \draw[->] (B.south east) -- node[right] {0/4, -3} (C.north east);
+  \draw[->] (D.south west) -- node[] {0/1, -9} (C.north east);
+  \end{tikzpicture}
+\end{center}  
+
+最後にA -> B -> C -> Dの経路を考えます。この経路を辿ると、最小容量は2になります。辿った経路の反対方向の容量を2増やし、
+コストはマイナスの経路を追加します。使用した経路のコスト計算も忘れずに行います。
+
+\begin{center}
+  \begin{tikzpicture}[scale=1.4]
+    \node[circle, draw, minimum size=1.2cm] (A) at (0, 0) {A};
+    \node[circle, draw, minimum size=1.2cm] (B) at (2, 2) {B};
+    \node[circle, draw, minimum size=1.2cm] (C) at (2, -2) {C};
+    \node[circle, draw, minimum size=1.2cm] (D) at (4, 0) {D};
+
+  % 線を引く
+  \draw[->] (A.north) -- node[above left] {2/3, 6} (B.west);
+  \draw[->] (A.south) -- node[below left] {5/5, 2} (C.west);
+  \draw[->] (C.north west) -- node[left] {2/7, 3} (B.south west);
+  \draw[->] (B.east) -- node[above right] {4/4, 3} (D.north);
+  \draw[->] (C.east) -- node[below right] {3/6, 9} (D.south);
+  % 逆経路
+  \draw[->] (B.south west) -- node[below] {0/2, -6} (A.north east);
+  \draw[->] (D.north west) -- node[] {0/4, -3} (B.south east);
+  \draw[->] (C.north west) -- node[above] {0/5, -2} (A.south east);
+  \draw[->] (B.south east) -- node[right] {2/4, -3} (C.north east);
+  \draw[->] (D.south west) -- node[] {0/3, -9} (C.north east);
+  \end{tikzpicture}
+\end{center} 
+
+\newpage
+
+プライマル・デュアル法の実装は以下のようになります。defaultdictを使用することで、反対方向のエッジも含めて初期化する必要がなくなっています。
+defaultdictは第一引数に関数(以下の実装ではlambda式を使用)を指定することで、キーが存在しない場合に自動的に初期化してくれます。
+
+\begin{lstlisting}[caption=プライマル・デュアル法の実装, label=primal_dual, frame=TRBL, label={primal_dual}]
+from collections import defaultdict
+
+def primal_dual(graph: list[defaultdict[int, list[int]]], flow: int, start: int, goal: int) -> int:
+      """
+      args:
+          graph: 各ノード i について、始点が i である全てのエッジを defaultdict を使った {終点: [容量, コスト]} の形式で持つ辞書のリスト。
+          flow: 流すべき流量（フロー）
+          start: フローの始点ノード
+          goal: フローの終点ノード
+      returns:
+          最小コストまたはフローを流すことが不可能な場合は -1
+      """
+      v = len(graph)
+      total_cost = 0
+      current_flow = 0
+  
+      # Bellman-Ford 
+      while current_flow < flow:
+          costs = [float('inf')] * v
+          costs[start] = 0
+          route = [-1] * v  # 最短経路を目指したときの直前のノード
+          updated = True
+  
+          # 最短経路探索
+          while updated:
+              updated = False
+              for i in range(v):
+                  for next_node in graph[i]:
+                      cap, cost = graph[i][next_node]
+                      if cap > 0 and costs[i] + cost < costs[next_node]:
+                          updated = True
+                          costs[next_node] = costs[i] + cost
+                          route[next_node] = i
+  
+          if costs[goal] == float('inf'):
+              return -1
+  
+          min_cap = flow - current_flow
+          current_node = goal
+  
+          # goalからstartへの最短経路を逆順にたどり、最小のフローを求める
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              min_cap = min(min_cap, graph[prev_node][current_node][0])
+              current_node = prev_node
+          
+          if current_node != start:
+              return -1
+          
+          # コスト計算
+          current_node = goal
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              total_cost += graph[prev_node][current_node][1] * min_cap
+              current_node = prev_node
+          current_flow += min_cap
+  
+          # フローの更新
+          current_node = goal
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              # 順方向の容量を減少
+              graph[prev_node][current_node][0] -= min_cap 
+              # 逆方向の容量を増加
+              reverse_cost = -graph[prev_node][current_node][1]
+              graph[current_node][prev_node][0] += min_cap 
+              graph[current_node][prev_node][1] = reverse_cost
+              current_node = prev_node
+  
+          if current_flow == flow:
+              break
+  
+      return total_cost
+  
+  flow = 7
+  graph = [
+    defaultdict(lambda: [int(), int()], {1: [3, 6], 2: [5, 2]}),
+    defaultdict(lambda: [int(), int()], {3: [4, 3]}),
+    defaultdict(lambda: [int(), int()], {1: [7, 3], 3: [6, 9]}),
+    defaultdict(lambda: [int(), int()], {})
+  ]
+  start = 0
+  goal = 3
+  
+  print(primal_dual(graph, flow, start, goal))
+\end{lstlisting}
+
+\newpage
 
 \section{二部グラフ(bipartite graph)}
 二部グラフとは、ノードを2つのグループに分けて、同じグループに属するノード同士は辺で結ばれていないグラフのことを指します。
