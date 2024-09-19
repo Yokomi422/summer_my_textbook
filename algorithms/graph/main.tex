@@ -3007,8 +3007,8 @@ DFSで探索するたびに対象な位置の要素を更新していきます�
    & A & B & C & D & E & F \\ \hline
 A  & 0 & 10 & 10 & 0 & 0 & 0 \\
 B  & 0 & 0  & 0  & 4 & 8 & 0 \\
-C  & 0 & 0  & 0  & 0 & 4 & 0 \\
-D  & 0 & 0  & 0  & 0 & 0 & 12 \\
+C  & 0 & 0  & 0  & 7 & 4 & 0 \\
+D  & 0 & 0  & 0  & 0 & 0 & 8 \\
 E  & 0 & 0  & 0  & 0 & 0 & 12 \\
 F  & 0 & 0  & 0  & 0 & 0 & 0  \\
 \end{array}
@@ -3331,13 +3331,351 @@ def primal_dual(graph: list[defaultdict[int, list[int]]], flow: int, start: int,
 
 \vspace{0.5cm}
 
-\subsection{二部グラフ判定}
+グラフ理論におけるマッチングとは、どの頂点も高々1本の辺としか接続していないような辺の集合のことです。二部グラフでの
+マッチングの例は以下のようになります。赤い線の集合がマッチングになります。元々の二部グラフの辺の集合を条件を
+満たすように選んだものがマッチングです。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}
+    % 左側の赤いノード
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (0, 2) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (0, 0) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (0, -2) {E};
+
+    % 右側の青いノード
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (C) at (4, 2) {C};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (D) at (4, 0) {D};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, -2) {F};
+
+    % 赤線を引く
+    \draw[-, red, very thick] (A) -- (C);
+    \draw[-, red, very thick] (B) -- (D);
+    \draw[-, red, very thick] (E) -- (F);
+    \draw[-] (A) -- (D);
+    \draw[-] (C) -- (E);
+    \draw[-] (B) -- (F);  
+  \end{tikzpicture}
+\end{center}
+
+以下では二部グラフで辺の個数が最大になるようなマッチングを求める最大マッチング問題、重みがついた二部グラフで重みが最大になるような
+マッチングを求める重み付き二部グラフの最大マッチング問題について考えます。このマッチング問題は以前扱ったネットワークフローにおける
+最大流問題や最小費用流問題に帰着させることができます。マッチングアルゴリズムはマッチングアプリや求人サイトなどの人と人とのマッチング
+問題にも応用されています。
+
+\newpage
+
+\subsection{二部グラフの最大マッチング問題}
+重みが一定の二部グラフの最大マッチング問題を考えます。以下の二部グラフを考えます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.75]
+    % 左側の赤いノード
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (0, 4) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (0, 2) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (C) at (0, 0) {C};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (D) at (0, -2) {D};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (0, -4) {E};
+
+    % 右側の青いノード
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, 4) {F};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (G) at (4, 2) {G};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (H) at (4, 0) {H};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (I) at (4, -2) {I};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (J) at (4, -4) {J};
+
+    % ノード間の線を引く
+    \draw[->] (A) -- node[midway, above] {1} (F);
+    \draw[->] (A) -- node[midway, above] {1} (G);
+    \draw[->] (B) -- node[midway, above] {1} (G);
+    \draw[->] (B) -- node[midway, above] {1} (H);
+    \draw[-] (C) -- node[midway, above] {1} (H);
+    \draw[-] (C) -- node[midway, above] {1} (I);
+    \draw[-] (D) -- node[midway, above] {1} (I);
+    \draw[-] (D) -- node[midway, above] {1} (J);
+    \draw[-] (E) -- node[midway, above] {1} (J);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+これを最大流量問題に帰着させるために、さらたに始点と終点を追加し、有向グラフとます。始点をソース、終点をシンクとみなすと
+始点から終点に流れる最大流量が最大マッチングになります。この読み替えによって上で取り上げたフォード・ファルカーソン法を
+適用することができます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.75]
+    % 始点を左に追加
+    \node[circle, draw, fill=green!30, minimum size=1.2cm] (S) at (-8, 0) {S};
+    % 終点を右に追加
+    \node[circle, draw, fill=green!30, minimum size=1.2cm] (T) at (8, 0) {T};
+    % 左側の赤いノード（始点）
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (-4, 4) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (-4, 2) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (C) at (-4, 0) {C};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (D) at (-4, -2) {D};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (-4, -4) {E};
+
+    % 右側の青いノード（終点）
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, 4) {F};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (G) at (4, 2) {G};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (H) at (4, 0) {H};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (I) at (4, -2) {I};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (J) at (4, -4) {J};
+
+    % ノード間の線を引く
+    \draw[-] (A) -- node[midway, above] {1} (F);
+    \draw[-] (A) -- node[midway, above] {1} (G);
+    \draw[-] (B) -- node[midway, above] {1} (G);
+    \draw[-] (B) -- node[midway, above] {1} (H);
+    \draw[-] (C) -- node[midway, above] {1} (H);
+    \draw[-] (C) -- node[midway, above] {1} (I);
+    \draw[-] (D) -- node[midway, above] {1} (I);
+    \draw[-] (D) -- node[midway, above] {1} (J);
+    \draw[-] (E) -- node[midway, above] {1} (J);
+
+    % 始点と終点の線を引く
+    \draw[-] (S) -- node[midway, above] {1} (A);
+    \draw[-] (S) -- node[midway, above] {1} (B);
+    \draw[-] (S) -- node[midway, above] {1} (C);
+    \draw[-] (S) -- node[midway, above] {1} (D);
+    \draw[-] (S) -- node[midway, above] {1} (E);
+
+    \draw[-] (F) -- node[midway, above] {1} (T);
+    \draw[-] (G) -- node[midway, above] {1} (T);
+    \draw[-] (H) -- node[midway, above] {1} (T);
+    \draw[-] (I) -- node[midway, above] {1} (T);
+    \draw[-] (J) -- node[midway, above] {1} (T);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+実装例は以下のようになります。
+
+\begin{lstlisting}[caption=二部グラフの最大マッチング問題の実装, label=bipartite_matching, frame=TRBL, label={bipartite_matching}]
+def bipartite_max_matching(left: list[int], right: list[int], edges: list[tuple[int, int]]) -> int:
+  def ford_fulkerson(start: int, end: int, graph: list[list[int]]) -> int:
+      max_flow = 0
+      v = len(graph)
+
+      def dfs_ff(start_node: int, end_node: int, flow: int, visited: list[bool]) -> int:
+          if start_node == end_node:
+              return flow
+          visited[start_node] = True
+
+          for i in range(v):
+              if not visited[i] and graph[start_node][i] > 0:
+                  flowable_amount = min(flow, graph[start_node][i])
+                  limit = dfs_ff(i, end_node, flowable_amount, visited)
+                  if limit > 0:
+                      graph[start_node][i] -= limit
+                      graph[i][start_node] += limit
+                      return limit
+          return 0
+
+      while True:
+          visited = [False] * v
+          extra_flow = dfs_ff(start, end, 10**9, visited)
+          if extra_flow == 0:
+              break
+          max_flow += extra_flow
+
+      return max_flow
+
+  v = len(left) + len(right) + 2  
+  source = 0
+  sink = v - 1
+  graph = [[0] * v for _ in range(v)]
+
+  for i in range(len(left)):
+      graph[source][i + 1] = 1  
+
+  for i in range(len(right)):
+      graph[len(left) + i + 1][sink] = 1 
+
+  for u, v in edges:
+      graph[u + 1][len(left) + v + 1] = 1  
+
+  return ford_fulkerson(source, sink, graph)
+\end{lstlisting}
 
 \subsection{重み付き二部グラフの最大マッチング問題}
+重み付き二部グラフの最大マッチング問題を考えます。以下の二部グラフを考えます。マッチングの総和
+が最大になるようなマッチングを求めます。
+
+\vspace{0.5cm}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.75]
+    % 左側の赤いノード
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (0, 4) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (0, 2) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (C) at (0, 0) {C};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (D) at (0, -2) {D};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (0, -4) {E};
+
+    % 右側の青いノード
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, 4) {F};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (G) at (4, 2) {G};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (H) at (4, 0) {H};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (I) at (4, -2) {I};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (J) at (4, -4) {J};
+
+    % ノード間の線を引く（重み付き）
+    \draw[->] (A) -- node[midway, above] {5} (F);
+    \draw[->] (A) -- node[midway, above] {3} (G);
+    \draw[->] (B) -- node[midway, above] {2} (G);
+    \draw[->] (B) -- node[midway, above] {4} (H);
+    \draw[-] (C) -- node[midway, above] {6} (H);
+    \draw[-] (C) -- node[midway, above] {3} (I);
+    \draw[-] (D) -- node[midway, above] {4} (I);
+    \draw[-] (D) -- node[midway, above] {5} (J);
+    \draw[-] (E) -- node[midway, above] {2} (J);
+  \end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+これを最小費用流問題に帰着させるために、さらたに始点と終点を追加し、有向グラフとます。流すフローは1に固定します。
+最小費用流のアルゴリズムで最大化問題を考えるために、各辺のコストをマイナスにして最小費用流を求めます。/の左側が容量、
+右側がコストを示しています。
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.75]
+    % 始点を左に追加
+    \node[circle, draw, fill=green!30, minimum size=1.2cm] (S) at (-4, 0) {S};
+    % 終点を右に追加
+    \node[circle, draw, fill=green!30, minimum size=1.2cm] (T) at (8, 0) {T};
+
+    % 左側の赤いノード
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (A) at (0, 4) {A};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (B) at (0, 2) {B};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (C) at (0, 0) {C};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (D) at (0, -2) {D};
+    \node[circle, draw, fill=red!30, minimum size=1.2cm] (E) at (0, -4) {E};
+
+    % 右側の青いノード
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (F) at (4, 4) {F};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (G) at (4, 2) {G};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (H) at (4, 0) {H};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (I) at (4, -2) {I};
+    \node[circle, draw, fill=blue!30, minimum size=1.2cm] (J) at (4, -4) {J};
+
+    % ノード間の線を引く（重み付き）
+    \draw[->] (A) -- node[midway, above] {1/-5} (F);
+    \draw[->] (A) -- node[midway, above] {1-3} (G);
+    \draw[->] (B) -- node[midway, above] {1/-2} (G);
+    \draw[->] (B) -- node[midway, above] {1/-4} (H);
+    \draw[-] (C) -- node[midway, above] {1/-6} (H);
+    \draw[-] (C) -- node[midway, above] {1/-3} (I);
+    \draw[-] (D) -- node[midway, above] {1/-4} (I);
+    \draw[-] (D) -- node[midway, above] {1/-5} (J);
+    \draw[-] (E) -- node[midway, above] {1/-2} (J);
+
+    % 始点からの線
+    \draw[->] (S) -- node[midway, above] {1/1} (A);
+    \draw[->] (S) -- node[midway, above] {1/1}  (B);
+    \draw[->] (S) -- node[midway, above] {1/1}  (C);
+    \draw[->] (S) -- node[midway, above] {1/1}  (D);
+    \draw[->] (S) -- node[midway, above] {1/1}  (E);
+
+    % 終点への線
+    \draw[->] (F) -- node[midway, above] {1/1}  (T);
+    \draw[->] (G) -- node[midway, above] {1/1}  (T);
+    \draw[->] (H) -- node[midway, above] {1/1}  (T);
+    \draw[->] (I) -- node[midway, above] {1/1}  (T);
+    \draw[->] (J) -- node[midway, above] {1/1}  (T);
+  \end{tikzpicture}
+\end{center}
+
+重み付き二部グラフの最大マッチング問題の実装例は以下のようになります。
+
+\begin{lstlisting}[caption=重み付き二部グラフの最大マッチング問題の実装, label=weighted_bipartite_matching, frame=TRBL, label={weighted_bipartite_matching}]
+from collections import defaultdict
+
+def max_weight_bipartite_matching(graph: list[defaultdict[int, list[int]]], flow: int, start: int, goal: int) -> int:
+      """
+      args:
+          graph: 各ノード i について、始点が i である全てのエッジを defaultdict を使った {終点: [容量, コスト]} の形式で持つ辞書のリスト。
+          flow: 流すべき流量（フロー）
+          start: フローの始点ノード
+          goal: フローの終点ノード
+      returns:
+          最大重み付きマッチングのコストまたはフローを流すことが不可能な場合は -1
+      """
+      v = len(graph)
+      total_cost = 0
+      current_flow = 0
+  
+      # Bellman-Ford 
+      while current_flow < flow:
+          costs = [float('inf')] * v
+          costs[start] = 0
+          route = [-1] * v  # 最短経路を目指したときの直前のノード
+          updated = True
+  
+          # 最短経路探索
+          while updated:
+              updated = False
+              for i in range(v):
+                  for next_node in graph[i]:
+                      cap, cost = graph[i][next_node]
+                      if cap > 0 and costs[i] + cost < costs[next_node]:
+                          updated = True
+                          costs[next_node] = costs[i] + cost
+                          route[next_node] = i
+  
+          if costs[goal] == float('inf'):
+              return -1
+  
+          min_cap = flow - current_flow
+          current_node = goal
+  
+          # goalからstartへの最短経路を逆順にたどり、最小のフローを求める
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              min_cap = min(min_cap, graph[prev_node][current_node][0])
+              current_node = prev_node
+  
+          if current_node != start:
+              return -1
+  
+          # コスト計算
+          current_node = goal
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              total_cost += graph[prev_node][current_node][1] * min_cap
+              current_node = prev_node
+          current_flow += min_cap
+  
+          # フローの更新
+          current_node = goal
+          while route[current_node] != -1:
+              prev_node = route[current_node]
+              # 順方向の容量を減少
+              graph[prev_node][current_node][0] -= min_cap
+              # 逆方向の容量を増加
+              reverse_cost = -graph[prev_node][current_node][1]
+              graph[current_node][prev_node][0] += min_cap
+              graph[current_node][prev_node][1] = reverse_cost
+              current_node = prev_node
+  
+          if current_flow == flow:
+              break
+  
+      return total_cost
+\end{lstlisting}
 
 \textbf{参考} \\
 \begin{itemize}
   \item \url{https://qiita.com/drken/items/e805e3f514acceb87602}
+  \item \url{https://ja.wikipedia.org/wiki/%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0_(%E3%82%B0%E3%83%A9%E3%83%95%E7%90%86%E8%AB%96)}
 \end{itemize}
 
 \end{document}
