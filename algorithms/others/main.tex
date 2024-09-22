@@ -274,6 +274,48 @@ if __name__ == "__main__":
 \textbf{問題1} AtCoder Beginner Contest 214 B How many?\\
 \textbf{問題2}  AtCoder Beginner Contest 367 C Enumerate Sequences \\
 
+\subsection{順列}
+順列とは高校数学で扱ったPermutationのことです。特にn個の要素の配列の順序をすべて列挙する$n!$通りの全探索を行います。
+Pythonではitertools.permutationsを使うことで簡単に順列を列挙することができますが、再帰関数を使った実装も紹介します。
+
+
+
+\begin{lstlisting}[caption=itertools.permutationsを使った順列の列挙, label=permutations, frame=TRBL]
+from itertools import permutations
+
+def main():
+  n = int(input())
+  A = list(map(int, input().split()))
+  
+  for perm in permutations(A):
+      print(perm)
+\end{lstlisting}
+
+\begin{lstlisting}[caption=再帰関数を使った順列の列挙, label=recursive_permutations, frame=TRBL]
+from collections.abc import Generator
+
+def permutations(arr: list[int], start: int = 0) -> Generator[list[int]]:
+  if start == len(arr) - 1:
+      yield arr
+  else:
+      for i in range(start, len(arr)):
+          arr[start], arr[i] = arr[i], arr[start] # 要素のswap
+          yield from permutations(arr, start + 1)
+          arr[start], arr[i] = arr[i], arr[start] # swapをもとに戻す
+  
+\end{lstlisting}
+\subsubsection{問題}
+
+\textbf{問題1} AtCoder Beginner Contest 054 C - One-stroke Path \\
+隣接リストは配列だけではなくてsetやdictでも表現できるので、状況に応じて使い分けるといいです。
+
+
+
+\textbf{参考} \\
+\begin{itemize}
+  \item \url{https://algo-logic.info/permutation/}
+  \item \url{https://noriok.hatenadiary.jp/entry/2016/02/10/031314}
+\end{itemize}
 
 \textbf{参考}
 \begin{itemize}

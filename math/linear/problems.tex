@@ -125,62 +125,6 @@
 }
 
 \begin{document}
-\section{線形代数と有名不等式}
-\subsection{三角不等式}
-\begin{theorembox}[三角不等式]
-	$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^n$に対し、次の不等式が成り立つ。
-	\begin{enumerate}
-		\item 　$\| \boldsymbol{x} \| - \| \boldsymbol{y} \| \leq \| \boldsymbol{x} + \boldsymbol{y} \| \leq \| \boldsymbol{x} \| + \| \boldsymbol{y} \|$
-		\item $\| \boldsymbol{x} - \boldsymbol{y} \| \geq | \| \boldsymbol{x} \| - \| \boldsymbol{y} \| |$
-	\end{enumerate}
-\end{theorembox}
-
-三角不等式を利用した問題を数問解いてみよう。
-
-\begin{problem}
-	次の2つの式を満たす平面ベクトル$\boldsymbol{x} = (x, y)$を考える。
-	\begin{equation*}
-		|\boldsymbol{x} + 2\boldsymbol{y}| = 1
-	\end{equation*}	
-	\begin{equation*}
-		|2\boldsymbol{x} + \boldsymbol{y}| = 1
-	\end{equation*}
-	このとき、$|\boldsymbol{x} - 3 \boldsymbol{y}|$の最大値と最小値を求めよ。
-\end{problem}
-
-\begin{problem}
-	関数$f(t) = \sqrt{t^2 + 1} + \sqrt{t^2 - 2t + 1}$ ($0 \leq t \leq 1$)が最小値をとる$t$の値を求めよ。
-\end{problem}
-
-\begin{problem}
-	関数$g(t) = \sqrt{t^2 + 1}  \sqrt{t^2 - 2 t + 2}$ ($t > 1$)の最大値とそのときの$t$の値を求めよ。
-\end{problem}
-
-\subsection{コーシー・シュワルツの不等式}
-
-\begin{theorembox}[コーシー・シュワルツの不等式]
-	$\boldsymbol{x}, \boldsymbol{y} \in \mathbb{R}^n$に対し、次の不等式が成り立つ。
-	\begin{equation*}
-		| \boldsymbol{x} \cdot \boldsymbol{y} | \leq \| \boldsymbol{x} \| \| \boldsymbol{y} \|
-	\end{equation*}
-\end{theorembox}
-
-コーシー・シュワルツの不等式を利用した問題を数問解いてみよう。
-
-\begin{problem}
-	$x, y, z > 0$, $x + y + z = 1$のとき、以下に答えよ。
-	\begin{enumerate}
-		\item $x^2 + y^2 + z^2$の最小値
-		\item $\frac{1}{x} + \frac{1}{y} + \frac{1}{z}$の最小値
-	\end{enumerate}
-\end{problem}
-
-参考
-\begin{itemize}
-  \item \url{https://www.chart.co.jp/subject/sugaku/suken_tsushin/76/76-3.pdf}
-  \item \url{https://mathematicsgarden.com/cschwarzprac/}
-\end{itemize}
-
 \section{座標空間と数ベクトル空間}
 ここでは2次元と3次元の座標空間の問題を解いてみよう。
 
@@ -487,7 +431,7 @@
 一元連立方程式の問題を解いてみよう。
 
 \begin{problem}
-  以下の連立一次方程式を解け。
+  以下の連立一次方程式を解け。(3)は解空間の次元も求めよ。
   \begin{equation*}
     (1)  \left\{ \,
     \begin{aligned}
@@ -509,13 +453,16 @@
   \end{equation*}
 
   \begin{equation*}
-    (3) \left\{ \,
-    \begin{aligned}
-      x_1 + x_2 + x_3 = 3 \\
-      3 x_1 + 2 x_2 - 2 x_3 = 5 \\
-      6 x_1 + 5 x_2 + x_3 = 14
-    \end{aligned}
-\right.
+    (3) \\
+    \begin{pmatrix}
+      2 & -1 & 1 & 5 & 0 \\
+      1 & 3 & 4 & -1 & 7 \\
+      1 & 0 & 1 & 2 & 1 \\
+    \end{pmatrix} \begin{pmatrix}
+      x_1 \\ x_2 \\ x_3 \\ x_4 \\ x_5
+    \end{pmatrix} = \begin{pmatrix}
+      0 \\ 0 \\ 0
+    \end{pmatrix}
   \end{equation*}
   \dotfill
 
@@ -536,8 +483,37 @@
   のようになるので、一元連立方程式の解は$x_1 = 2, x_2 = 3, x_3 = 4$である。
 
   (2) \\
-
+  係数行列を$B$とすると、拡大係数行列を$[B|c]$とすると、
+  \begin{equation*}
+    [B|c] = \begin{pmatrix}
+      1 & -1 & 2 & 0 \\
+      -2 & -1 & -2 & 0 \\
+      4 & -7 & 10 & 0
+    \end{pmatrix} \rightarrow \begin{pmatrix}
+      1 & 0 & \frac{4}{3} & 0 \\
+      0 & 1 & -\frac{2}{3} & 0 \\
+      0 & 0 & 0 & 0
+    \end{pmatrix}
+  \end{equation*}
+  となる。$2 = \mathrm{rank} A < n = 3$よりこの連立方程式は無数の解を持ち、$x_1 = -\frac{4}{3} x_3, x_2 = \frac{2}{3} x_3$となる。よって、
+  \begin{equation*}
+    \begin{pmatrix}
+      x_1 \\ x_2 \\ x_3
+    \end{pmatrix} = x_3 \begin{pmatrix}
+      -\frac{4}{3} \\ \frac{2}{3} \\ 1
+    \end{pmatrix} = c \begin{pmatrix}
+      -4 \\ 2 \\ 3
+    \end{pmatrix}
+    \quad (\text{cは任意定数} \quad c = \frac{x_3}{3})
+  \end{equation*}
   (3) \\
+
+\end{problem}
+
+\begin{problem}
+  次の一次方程式を解け。
+  (1) \\
+  
 \end{problem}
 
 次に、行列の世界の積の逆元を意味する\textbf{逆行列}について紹介する。
